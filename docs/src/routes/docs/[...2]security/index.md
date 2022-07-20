@@ -1,0 +1,193 @@
+---
+title: Security
+description: A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern.
+---
+
+# {$frontmatter.title}
+
+## Securing Endpoints
+
+Endpoints are secure by default and you'd have to call **AllowAnonymous()** in the configuration if you'd like to allow unauthenticated users to access a particular endpoint.
+
+## JWT Bearer Authentication
+
+Support for easy JWT Bearer Authentication is provided.
+You simply need to install the **FastEndpoints.Security** package and register it in the middleware pipeline like so:
+
+```sh | copy
+  dotnet add package FastEndpoints.Security
+```
+
+```cs title=Program.cs
+global using FastEndpoints;
+global using FastEndpoints.Security; //add this
+
+var builder = WebApplication.CreateBuilder();
+builder.Services.AddFastEndpoints();
+builder.Services.AddAuthenticationJWTBearer("TokenSigningKey"); //add this
+
+var app = builder.Build();
+app.UseAuthentication(); //add this
+app.UseAuthorization();
+app.UseFastEndpoints();
+app.Run();
+```
+
+## Generating JWT Tokens
+
+You can generate a JWT token for sending to the client with an endpoint that signs in users like so:
+
+```cs
+public class UserLoginEndpoint : Endpoint<LoginRequest>
+{
+    public override void Configure()
+    {
+        Post("/api/login");
+        AllowAnonymous();
+    }
+
+    public override async Task HandleAsync(LoginRequest req, CancellationToken ct)
+    {
+        if (req.Username == "admin" && req.Password == "pass")
+        {
+            var jwtToken = JWTBearer.CreateToken(
+                signingKey: "TokenSigningKey",
+                expireAt: DateTime.UtcNow.AddDays(1),
+                claims: new[] { ("Username", req.Username), ("UserID", "001") },
+                roles: new[] { "Admin", "Management" },
+                permissions: new[] { "ManageInventory", "ManageUsers" });
+
+            await SendAsync(new
+            {
+                Username = req.Username,
+                Token = jwtToken
+            });
+        }
+        else
+        {
+            ThrowError("The supplied credentials are invalid!");
+        }
+    }
+}
+```
+
+## Endpoint Authorization
+
+Once an authentication provider is registered such as JWT Bearer as shown above, you can restrict access to users based on the following:
+
+- Policies
+- Claims
+- Roles
+- Permissions
+
+## Pre-Built Security Policies
+
+Security policies can be pre-built and registered during app startup and endpoints can choose to allow access to users based on the registered policy names like so:
+
+```cs title=Program.cs(Configure Services)
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("ManagersOnlyPolicy", x => x.RequireRole("Manager").RequireClaim("ManagerID"));
+})
+```
+
+```cs title=UpdateUserEndpoint.cs
+public class UpdateUserEndpoint : Endpoint<UpdateUserRequest>
+{
+    public override void Configure()
+    {
+        Verbs(Http.PUT);
+        Routes("/api/users/update");
+        Policies("ManagersOnlyPolicy");
+    }
+}
+```
+
+## Declarative Security Policies
+
+Instead of registering each security policy at startup you can selectively specify security requirements for each endpoint in the endpoint configuration itself like so:
+
+```cs title=RestrictedEndpoint.cs
+public class RestrictedEndpoint : Endpoint<RestrictedRequest>
+{
+    public override void Configure()
+    {
+        Verbs(Http.POST);
+        Routes("/api/restricted");
+        Claims("AdminID", "EmployeeID");
+        Roles("Admin", "Manager");
+        Permissions("UpdateUsersPermission", "DeleteUsersPermission");
+    }
+}
+```
+
+### Claims() method
+
+- With this method you are specifying that if a user principal has ANY of the specified claims, access should be allowed. if the requirement is to allow access only if ALL specified claims are present, you can use the **ClaimsAll()** method.
+
+### Permissions() method
+
+- Just like above, you can specify that ANY of the specified permissions should allow access. Or require ALL of the specified permissions by using the **PermissionsAll()** method.
+
+### Roles() method
+
+- Similarly, you are specifying that ANY of the given roles should allow access to a user principal who has it.
+
+### AllowAnonymous() method
+
+- Use this method if you'd like to allow unauthenticated users to access a particular endpoint. it is also possible to specify which http verbs you'd like to allow anonymous access to like so:
+
+```cs title=RestrictedEndpoint.cs
+public class RestrictedEndpoint : Endpoint<RestrictedRequest>
+{
+    public override void Configure()
+    {
+        Verbs(Http.POST, Http.PUT, Http.PATCH);
+        Routes("/api/restricted");
+        AllowAnonymous(Http.POST);
+    }
+}
+```
+
+The above endpoint is listening for all 3 http methods on the same route but only **POST** method is allowed to be accessed anonymously.
+It is useful for example when you'd like to use the same handler logic for create/replace/update scenarios and create operation is allowed to be done by anonymous users.
+
+Using just **AllowAnonymous()** without any arguments means all verbs are allowed anonymous access.
+
+## Other Auth Providers
+
+All auth providers compatible with the ASP.NET middleware pipeline can be registered and used like above.
+
+:::admonition type="info"
+Here's an [example project](https://github.com/dj-nitehawk/FastEndpoints-Auth0-Demo) using [Auth0](https://auth0.com/access-management) with permissions.
+:::
+
+## Multiple Authentication Schemes
+
+It is possible to register multiple auth schemes at startup and specify per endpoint which schemes are to be used for authenticating incoming requests.
+
+```cs title=Program.cs
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+})
+.AddCookie(options => options.SlidingExpiration = true) // cookie auth
+.AddJwtBearer(options =>                          // jwt bearer auth
+{
+    options.Authority = $"https://{builder.Configuration["Auth0:Domain"]}/";
+    options.Audience = builder.Configuration["Auth0:Audience"];
+});
+```
+
+```cs title=Endpoint.cs
+public override void Configure()
+{
+    Get("/account/profile");
+    AuthSchems(JwtBearerDefaults.AuthenticationScheme);
+}
+```
+
+In the above example, we're registering both **Cookie** and **JWT Bearer** auth schemes and in the endpoint we're saying **only JWT Bearer** auth scheme should be used for authenticating incoming requests to the endpoint.
+You can specify multiple schemes and if an incoming request isn't using any of the said schemes, access will not be allowed.
