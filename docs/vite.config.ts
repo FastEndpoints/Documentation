@@ -4,5 +4,13 @@ import icons from 'unplugin-icons/vite';
 import { UserConfig } from 'vite';
 
 export default {
-	plugins: [icons({ compiler: 'svelte' }), kitDocs(), sveltekit()]
+	plugins: [
+		icons({ compiler: 'svelte' }),
+		kitDocs({
+			shiki: {
+				theme: 'one-dark-pro'
+			}
+		}),
+		sveltekit()
+	]
 } as UserConfig;

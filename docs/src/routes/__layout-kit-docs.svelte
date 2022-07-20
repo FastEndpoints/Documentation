@@ -25,17 +25,36 @@
 		createSidebarContext,
 		KitDocs,
 		KitDocsLayout,
+		SocialLink,
 		type MarkdownMeta,
+		type NavbarConfig,
 		type ResolvedSidebarConfig
 	} from '@svelteness/kit-docs';
+	import { config } from '../config';
 
 	export let meta: MarkdownMeta | null = null;
 
-	export let sidebar: ResolvedSidebarConfig | null = null;
+	export let sidebar: ResolvedSidebarConfig | null = {
+		links: {
+			Test: [{ title: 'Cat', slug: 'ss' }]
+		}
+	};
 
-	/** @type {import('@svelteness/kit-docs').NavbarConfig} */
-	const navbar = {
-		links: [{ title: 'Documentation', slug: '/docs', match: /\/docs/ }]
+	const navbar: NavbarConfig = {
+		links: [
+			{ title: 'Documentation', slug: '/docs', match: /\/docs/ },
+			{ title: 'Benchmarks', slug: '/benchmarks', match: /\/benchmarks/ },
+			{
+				title: 'Tutorial',
+				slug: 'https://dev.to/djnitehawk/building-rest-apis-in-net-6-the-easy-way-3h0d'
+			},
+			// TODO: API Reference
+			{
+				title: 'API Reference',
+				slug: 'https://dev.to/djnitehawk/building-rest-apis-in-net-6-the-easy-way-3h0d'
+			},
+			{ title: 'Donate', slug: 'https://www.paypal.com/donate/?hosted_button_id=AU3SCQX9FXYCS' }
+		]
 	};
 
 	const { activeCategory } = createSidebarContext(sidebar);
@@ -60,12 +79,20 @@
 	<KitDocsLayout {navbar} {sidebar}>
 		<div class="logo" slot="navbar-left">
 			<Button href="/">
-				<!-- {@html SvelteLogo} -->
 				<img src={'/icon.png'} alt="FastEndpoints logo" />
 			</Button>
 		</div>
 
+		<div class="socials flex flex-row" slot="navbar-right-alt">
+			<SocialLink type="gitHub" href={config.github} />
+			<SocialLink type="discord" href={config.discord} />
+		</div>
+
 		<slot />
+
+		<div slot="main-bottom" class="footer">
+			<!-- {@html poweredByVercel} -->
+		</div>
 	</KitDocsLayout>
 </KitDocs>
 
