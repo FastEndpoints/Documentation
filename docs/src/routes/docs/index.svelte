@@ -1,11 +1,10 @@
-<script context="module">
-  export const prerender = true;
+<script context="module" lang="ts">
+	import type { Load } from '@sveltejs/kit';
 
-  /** @type {import("@sveltejs/kit").Load} */
-  export function load() {
-    return {
-      status: 307,
-      redirect: '/docs/first-category/first-page',
-    };
-  }
+	export const prerender = true;
+
+	export const load: Load = () => ({
+		status: 307,
+		redirect: '/docs/get-started'
+	});
 </script>
