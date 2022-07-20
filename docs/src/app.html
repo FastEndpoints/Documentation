@@ -2,21 +2,21 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8" />
-		<link rel="icon" href="%sveltekit.assets%/favicon.png" />
+		<link rel="icon" href="%sveltekit.assets%/icon.png" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		
-    <script>
-      const key = 'svelteness::color-scheme';
-      const scheme = localStorage[key];
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      if (scheme === 'dark' || (scheme !== 'light' && prefersDark)) {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-    </script>
-  
-    %sveltekit.head%
+
+		<script>
+			const key = 'svelteness::color-scheme';
+			const scheme = localStorage[key];
+			const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+			if (scheme === 'dark' || (scheme !== 'light' && prefersDark)) {
+				document.documentElement.classList.add('dark');
+			} else {
+				document.documentElement.classList.remove('dark');
+			}
+		</script>
+
+		%sveltekit.head%
 	</head>
 	<body>
 		<div>%sveltekit.body%</div>
