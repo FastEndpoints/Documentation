@@ -6,6 +6,7 @@ const config = {
 	extensions: ['.svelte', '.md'],
 
 	kit: {
+		outDir: '../docs',
 		adapter: adapter(),
 
 		prerender: {
