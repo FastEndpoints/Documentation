@@ -1,6 +1,6 @@
 <div style="max-width: 992px; margin: 0 auto;">
 
-# Welcome to KitDocs
+# Welcome to FastEndpoints Documentations
 
 FastEndpoints for Fast APIs
 
