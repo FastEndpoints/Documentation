@@ -35,6 +35,11 @@
 	import 'nprogress/nprogress.css';
 	import { config } from '../config';
 
+	import '@docsearch/css/dist/style.css'; // Must come first.
+	// @ts-ignore
+	import { Algolia } from '@svelteness/kit-docs/client/algolia';
+	import '@svelteness/kit-docs/client/styles/docsearch.css';
+
 	export let meta: MarkdownMeta | null = null;
 
 	export let sidebar: ResolvedSidebarConfig | null = null;
@@ -85,14 +90,36 @@
 		{#if title}
 			<title>{title}</title>
 		{/if}
-		{#if description}
-			<meta name="description" content={description} />
-		{/if}
+		<meta name="description" content={config.seo.description} />
+		<meta name="keywords" content="fastendpoints,.net, .net6, csharp, dotnet, web,backend, " />
+		<!-- OG -->
+		<meta property="og:url" content={`${config.siteUrl}${$page.url.pathname}`} />
+		<meta property="og:type" content={config.openGraph.type} />
+		<meta property="og:site_name" content={config.openGraph.siteName} />
+		<meta property="og:description" content={config.openGraph.description} />
+		<meta property="og:title" content={config.openGraph.title} />
+		<meta property="og:locale" content={config.openGraph.locale} />
+		<!-- Twitter -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:site" content={'config.twitter'} />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={'twImage'} />
+		<!-- Robots -->
+		<!-- <meta name="robots" content="index,follow" /> -->
+		<!-- <meta name="googlebot" content="index,follow" /> -->
 	{/key}
 </svelte:head>
 
 <KitDocs {meta}>
-	<KitDocsLayout {navbar} {sidebar}>
+	<KitDocsLayout {navbar} {sidebar} search>
+		<Algolia
+			apiKey={config.algolia.apiKey}
+			appId={config.algolia.appId}
+			indexName="docsearch"
+			placeholder="Search documentation"
+			slot="search"
+		/>
 		<div class="logo" slot="navbar-left">
 			<Button href="/">
 				<img src={'/icon.png'} alt="FastEndpoints logo" />
