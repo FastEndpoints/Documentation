@@ -1,0 +1,1 @@
+import{S as s,i as e,s as o}from"../../chunks/index-6391be64.js";const n=!0,l=()=>({status:307,redirect:"/docs/get-started"});class c extends s{constructor(t){super(),e(this,t,null,null,o,{})}}export{c as default,l as load,n as prerender};

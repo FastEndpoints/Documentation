@@ -32,6 +32,7 @@ const config = {
 			pages: 'docs',
 			assets: 'docs'
 		}),
+		appDir: 'app_',
 		prerender: {
 			default: true,
 			entries: ['*']

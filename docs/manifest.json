@@ -1,27 +1,27 @@
 {
-  "src/fonts/Inter-VF.italic-latin.woff2": {
-    "file": "_app/immutable/assets/Inter-VF.italic-latin-65279caf.woff2",
-    "src": "src/fonts/Inter-VF.italic-latin.woff2"
-  },
-  "src/fonts/FiraCode-VF.woff2": {
-    "file": "_app/immutable/assets/FiraCode-VF-05b30ba3.woff2",
-    "src": "src/fonts/FiraCode-VF.woff2"
-  },
   "src/fonts/Inter-VF.roman-latin.woff2": {
-    "file": "_app/immutable/assets/Inter-VF.roman-latin-1b58736b.woff2",
+    "file": "app_/immutable/assets/Inter-VF.roman-latin-1b58736b.woff2",
     "src": "src/fonts/Inter-VF.roman-latin.woff2"
   },
+  "src/fonts/FiraCode-VF.woff2": {
+    "file": "app_/immutable/assets/FiraCode-VF-05b30ba3.woff2",
+    "src": "src/fonts/FiraCode-VF.woff2"
+  },
+  "src/fonts/Inter-VF.italic-latin.woff2": {
+    "file": "app_/immutable/assets/Inter-VF.italic-latin-65279caf.woff2",
+    "src": "src/fonts/Inter-VF.italic-latin.woff2"
+  },
   "src/fonts/FiraCode-VF.woff": {
-    "file": "_app/immutable/assets/FiraCode-VF-71c5868a.woff",
+    "file": "app_/immutable/assets/FiraCode-VF-71c5868a.woff",
     "src": "src/fonts/FiraCode-VF.woff"
   },
   ".svelte-kit/runtime/client/start.js": {
-    "file": "_app/immutable/start-0ce4c58a.js",
+    "file": "app_/immutable/start-cedea01d.js",
     "src": ".svelte-kit/runtime/client/start.js",
     "isEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_singletons-9aa31187.js"
+      "_index-6391be64.js",
+      "_singletons-9fd4729a.js"
     ],
     "dynamicImports": [
       ".svelte-kit/runtime/components/layout.svelte",
@@ -53,414 +53,414 @@
     ]
   },
   ".svelte-kit/runtime/components/layout.svelte": {
-    "file": "_app/immutable/layout.svelte-9e4e4397.js",
+    "file": "app_/immutable/layout.svelte-d16931c6.js",
     "src": ".svelte-kit/runtime/components/layout.svelte",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js"
+      "_index-6391be64.js"
     ]
   },
   ".svelte-kit/runtime/components/error.svelte": {
-    "file": "_app/immutable/error.svelte-3eae72a6.js",
+    "file": "app_/immutable/error.svelte-eb04b19a.js",
     "src": ".svelte-kit/runtime/components/error.svelte",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js"
+      "_index-6391be64.js"
     ]
   },
   "src/routes/__layout-kit-docs.svelte": {
-    "file": "_app/immutable/pages/__layout-kit-docs.svelte-713ab060.js",
+    "file": "app_/immutable/pages/__layout-kit-docs.svelte-d7ab6525.js",
     "src": "src/routes/__layout-kit-docs.svelte",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_contexts-ec7bfa4f.js",
-      "_scroll-1be19199.js",
-      "_singletons-9aa31187.js"
+      "_index-6391be64.js",
+      "_contexts-c56b72f8.js",
+      "_scroll-4f99ad69.js",
+      "_singletons-9fd4729a.js"
     ],
     "css": [
-      "_app/immutable/assets/__layout-kit-docs-1ab1ab05.css"
+      "app_/immutable/assets/__layout-kit-docs-3905da1f.css"
     ],
     "assets": [
-      "_app/immutable/assets/Inter-VF.roman-latin-1b58736b.woff2",
-      "_app/immutable/assets/Inter-VF.italic-latin-65279caf.woff2",
-      "_app/immutable/assets/FiraCode-VF-05b30ba3.woff2",
-      "_app/immutable/assets/FiraCode-VF-71c5868a.woff"
+      "app_/immutable/assets/Inter-VF.roman-latin-1b58736b.woff2",
+      "app_/immutable/assets/Inter-VF.italic-latin-65279caf.woff2",
+      "app_/immutable/assets/FiraCode-VF-05b30ba3.woff2",
+      "app_/immutable/assets/FiraCode-VF-71c5868a.woff"
     ]
   },
   "src/routes/docs/__layout@kit-docs.svelte": {
-    "file": "_app/immutable/pages/docs/__layout@kit-docs.svelte-b9e10ab8.js",
+    "file": "app_/immutable/pages/docs/__layout@kit-docs.svelte-cc9f912f.js",
     "src": "src/routes/docs/__layout@kit-docs.svelte",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js"
+      "_index-6391be64.js"
     ]
   },
   "src/routes/benchmarks@kit-docs.md": {
-    "file": "_app/immutable/pages/benchmarks@kit-docs.md-122981ee.js",
+    "file": "app_/immutable/pages/benchmarks@kit-docs.md-f64e6d1e.js",
     "src": "src/routes/benchmarks@kit-docs.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_contexts-ec7bfa4f.js",
-      "_Link-76ffd583.js",
-      "_singletons-9aa31187.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_contexts-c56b72f8.js",
+      "_Link-69c668c2.js",
+      "_singletons-9fd4729a.js"
     ]
   },
   "src/routes/docs/[...10]event-notifications.md": {
-    "file": "_app/immutable/pages/docs/_...10_event-notifications.md-b9cff102.js",
+    "file": "app_/immutable/pages/docs/_...10_event-notifications.md-24521400.js",
     "src": "src/routes/docs/[...10]event-notifications.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...11]server-sent-events.md": {
-    "file": "_app/immutable/pages/docs/_...11_server-sent-events.md-f74199fe.js",
+    "file": "app_/immutable/pages/docs/_...11_server-sent-events.md-55007a62.js",
     "src": "src/routes/docs/[...11]server-sent-events.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...12]exception-handler..md": {
-    "file": "_app/immutable/pages/docs/_...12_exception-handler..md-d090b5d0.js",
+    "file": "app_/immutable/pages/docs/_...12_exception-handler..md-ea6b4619.js",
     "src": "src/routes/docs/[...12]exception-handler..md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...13]integration-unit-testing.md": {
-    "file": "_app/immutable/pages/docs/_...13_integration-unit-testing.md-f5d515f1.js",
+    "file": "app_/immutable/pages/docs/_...13_integration-unit-testing.md-1a994a7f.js",
     "src": "src/routes/docs/[...13]integration-unit-testing.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_Admonition-d261edcb.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_Admonition-a969bddf.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...14]misc-conveniences.md": {
-    "file": "_app/immutable/pages/docs/_...14_misc-conveniences.md-06bc4e6c.js",
+    "file": "app_/immutable/pages/docs/_...14_misc-conveniences.md-e1158d1c.js",
     "src": "src/routes/docs/[...14]misc-conveniences.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...15]swagger-support.md": {
-    "file": "_app/immutable/pages/docs/_...15_swagger-support.md-f2195502.js",
+    "file": "app_/immutable/pages/docs/_...15_swagger-support.md-81e11c0c.js",
     "src": "src/routes/docs/[...15]swagger-support.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_Admonition-d261edcb.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_Admonition-a969bddf.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...16]configuration-settings.md": {
-    "file": "_app/immutable/pages/docs/_...16_configuration-settings.md-56e21012.js",
+    "file": "app_/immutable/pages/docs/_...16_configuration-settings.md-dacca23d.js",
     "src": "src/routes/docs/[...16]configuration-settings.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...17]api-versioning.md": {
-    "file": "_app/immutable/pages/docs/_...17_api-versioning.md-b7a0aa5d.js",
+    "file": "app_/immutable/pages/docs/_...17_api-versioning.md-22e01f31.js",
     "src": "src/routes/docs/[...17]api-versioning.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...18]rate-limiting.md": {
-    "file": "_app/immutable/pages/docs/_...18_rate-limiting.md-7479d213.js",
+    "file": "app_/immutable/pages/docs/_...18_rate-limiting.md-040bbfbe.js",
     "src": "src/routes/docs/[...18]rate-limiting.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...19]feature-scaffolding.md": {
-    "file": "_app/immutable/pages/docs/_...19_feature-scaffolding.md-4b8bd685.js",
+    "file": "app_/immutable/pages/docs/_...19_feature-scaffolding.md-6c283f8d.js",
     "src": "src/routes/docs/[...19]feature-scaffolding.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...1]get-started.md": {
-    "file": "_app/immutable/pages/docs/_...1_get-started.md-868b18d1.js",
+    "file": "app_/immutable/pages/docs/_...1_get-started.md-f5b8b165.js",
     "src": "src/routes/docs/[...1]get-started.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_Admonition-d261edcb.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_Admonition-a969bddf.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...2]security.md": {
-    "file": "_app/immutable/pages/docs/_...2_security.md-3ec97e70.js",
+    "file": "app_/immutable/pages/docs/_...2_security.md-6f8e9a26.js",
     "src": "src/routes/docs/[...2]security.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_Admonition-d261edcb.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_Admonition-a969bddf.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...3]model-binding.md": {
-    "file": "_app/immutable/pages/docs/_...3_model-binding.md-9df08597.js",
+    "file": "app_/immutable/pages/docs/_...3_model-binding.md-343ca06b.js",
     "src": "src/routes/docs/[...3]model-binding.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_Admonition-d261edcb.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_Admonition-a969bddf.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...4]validation.md": {
-    "file": "_app/immutable/pages/docs/_...4_validation.md-0229eb16.js",
+    "file": "app_/immutable/pages/docs/_...4_validation.md-df635b13.js",
     "src": "src/routes/docs/[...4]validation.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_Admonition-d261edcb.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_Admonition-a969bddf.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...5]dependency-injection.md": {
-    "file": "_app/immutable/pages/docs/_...5_dependency-injection.md-ffd89ab3.js",
+    "file": "app_/immutable/pages/docs/_...5_dependency-injection.md-8445a984.js",
     "src": "src/routes/docs/[...5]dependency-injection.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...6]domain-entity-mapping.md": {
-    "file": "_app/immutable/pages/docs/_...6_domain-entity-mapping.md-7c229281.js",
+    "file": "app_/immutable/pages/docs/_...6_domain-entity-mapping.md-5632db06.js",
     "src": "src/routes/docs/[...6]domain-entity-mapping.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_Admonition-d261edcb.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_Admonition-a969bddf.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...7]file-handling.md": {
-    "file": "_app/immutable/pages/docs/_...7_file-handling.md-a2b4667d.js",
+    "file": "app_/immutable/pages/docs/_...7_file-handling.md-21b5b99e.js",
     "src": "src/routes/docs/[...7]file-handling.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_Admonition-d261edcb.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_Admonition-a969bddf.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...8]response-caching.md": {
-    "file": "_app/immutable/pages/docs/_...8_response-caching.md-0f21e16e.js",
+    "file": "app_/immutable/pages/docs/_...8_response-caching.md-d53bc61a.js",
     "src": "src/routes/docs/[...8]response-caching.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/[...9]pre-post-processors.md": {
-    "file": "_app/immutable/pages/docs/_...9_pre-post-processors.md-2e057eb4.js",
+    "file": "app_/immutable/pages/docs/_...9_pre-post-processors.md-3402ca00.js",
     "src": "src/routes/docs/[...9]pre-post-processors.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_CodeFence-182ee1eb.js",
-      "_Link-76ffd583.js",
-      "_singletons-9aa31187.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_CodeFence-e0140bb4.js",
+      "_Link-69c668c2.js",
+      "_singletons-9fd4729a.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "src/routes/docs/index.svelte": {
-    "file": "_app/immutable/pages/docs/index.svelte-e040d654.js",
+    "file": "app_/immutable/pages/docs/index.svelte-e2b9932d.js",
     "src": "src/routes/docs/index.svelte",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js"
+      "_index-6391be64.js"
     ]
   },
   "src/routes/index@kit-docs.md": {
-    "file": "_app/immutable/pages/index@kit-docs.md-55a32c82.js",
+    "file": "app_/immutable/pages/index@kit-docs.md-fee58e0d.js",
     "src": "src/routes/index@kit-docs.md",
     "isEntry": true,
     "isDynamicEntry": true,
     "imports": [
-      "_index-98cfa7ad.js",
-      "_scroll-1be19199.js",
-      "_Link-76ffd583.js",
-      "_singletons-9aa31187.js"
+      "_index-6391be64.js",
+      "_scroll-4f99ad69.js",
+      "_Link-69c668c2.js",
+      "_singletons-9fd4729a.js"
     ]
   },
-  "_index-98cfa7ad.js": {
-    "file": "_app/immutable/chunks/index-98cfa7ad.js"
+  "_index-6391be64.js": {
+    "file": "app_/immutable/chunks/index-6391be64.js"
   },
-  "_singletons-9aa31187.js": {
-    "file": "_app/immutable/chunks/singletons-9aa31187.js",
+  "_singletons-9fd4729a.js": {
+    "file": "app_/immutable/chunks/singletons-9fd4729a.js",
     "imports": [
-      "_index-98cfa7ad.js"
+      "_index-6391be64.js"
     ]
   },
-  "_contexts-ec7bfa4f.js": {
-    "file": "_app/immutable/chunks/contexts-ec7bfa4f.js",
+  "_contexts-c56b72f8.js": {
+    "file": "app_/immutable/chunks/contexts-c56b72f8.js",
     "imports": [
-      "_index-98cfa7ad.js",
-      "_singletons-9aa31187.js"
+      "_index-6391be64.js",
+      "_singletons-9fd4729a.js"
     ]
   },
-  "_scroll-1be19199.js": {
-    "file": "_app/immutable/chunks/scroll-1be19199.js",
+  "_scroll-4f99ad69.js": {
+    "file": "app_/immutable/chunks/scroll-4f99ad69.js",
     "imports": [
-      "_singletons-9aa31187.js",
-      "_index-98cfa7ad.js"
+      "_singletons-9fd4729a.js",
+      "_index-6391be64.js"
     ],
     "css": [
-      "_app/immutable/assets/scroll-f726ebda.css"
+      "app_/immutable/assets/scroll-f726ebda.css"
     ]
   },
-  "_CodeFence-182ee1eb.js": {
-    "file": "_app/immutable/chunks/CodeFence-182ee1eb.js",
+  "_CodeFence-e0140bb4.js": {
+    "file": "app_/immutable/chunks/CodeFence-e0140bb4.js",
     "imports": [
-      "_index-98cfa7ad.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_contexts-c56b72f8.js"
     ]
   },
-  "_Link-76ffd583.js": {
-    "file": "_app/immutable/chunks/Link-76ffd583.js",
+  "_Link-69c668c2.js": {
+    "file": "app_/immutable/chunks/Link-69c668c2.js",
     "imports": [
-      "_index-98cfa7ad.js"
+      "_index-6391be64.js"
     ]
   },
-  "_Admonition-d261edcb.js": {
-    "file": "_app/immutable/chunks/Admonition-d261edcb.js",
+  "_Admonition-a969bddf.js": {
+    "file": "app_/immutable/chunks/Admonition-a969bddf.js",
     "imports": [
-      "_index-98cfa7ad.js",
-      "_contexts-ec7bfa4f.js"
+      "_index-6391be64.js",
+      "_contexts-c56b72f8.js"
     ]
   },
   "scroll.css": {
-    "file": "_app/immutable/assets/scroll-f726ebda.css",
+    "file": "app_/immutable/assets/scroll-f726ebda.css",
     "src": "scroll.css"
   },
   "src/routes/__layout-kit-docs.css": {
-    "file": "_app/immutable/assets/__layout-kit-docs-1ab1ab05.css",
+    "file": "app_/immutable/assets/__layout-kit-docs-3905da1f.css",
     "src": "src/routes/__layout-kit-docs.css"
   }
 }
