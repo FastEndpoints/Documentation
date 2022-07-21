@@ -1,4 +1,5 @@
 type Config = {
+	siteUrl: string;
 	seo: {
 		title: '';
 		description: '';
@@ -13,6 +14,7 @@ type Config = {
 };
 
 export const config = Object.freeze<Config>({
+	siteUrl: 'https://fast-endpoints.com/',
 	seo: {
 		title: '',
 		description: ''
