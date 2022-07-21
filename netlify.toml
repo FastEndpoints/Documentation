@@ -1,0 +1,6 @@
+[build]
+  publish = "build/"
+  command = "npm run build"
+
+[build.processing.html]
+  pretty_urls = true
