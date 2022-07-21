@@ -19,6 +19,7 @@
 
 	import { page } from '$app/stores';
 
+	import { navigating } from '$app/stores';
 	import {
 		Button,
 		createKitDocsLoader,
@@ -30,15 +31,30 @@
 		type NavbarConfig,
 		type ResolvedSidebarConfig
 	} from '@svelteness/kit-docs';
+	import NProgress from 'nprogress';
+	import 'nprogress/nprogress.css';
 	import { config } from '../config';
 
 	export let meta: MarkdownMeta | null = null;
 
-	export let sidebar: ResolvedSidebarConfig | null = {
-		links: {
-			Test: [{ title: 'Cat', slug: 'ss' }]
+	export let sidebar: ResolvedSidebarConfig | null = null;
+
+	NProgress.configure({
+		// Full list: https://github.com/rstacruz/nprogress#configuration
+		minimum: 0.16,
+		easing: 'ease',
+		showSpinner: false
+	});
+
+	$: {
+		// Prevent loading spinner when scrolling down
+		if ($navigating?.from.pathname !== $navigating?.to.pathname) {
+			NProgress.start();
 		}
-	};
+		if (!$navigating) {
+			NProgress.done();
+		}
+	}
 
 	const navbar: NavbarConfig = {
 		links: [
@@ -98,11 +114,11 @@
 
 <style>
 	:global(:root) {
-		--kd-color-brand-rgb: 233, 127, 6;
+		--kd-color-brand-rgb: 6, 182, 212;
 	}
 
 	:global(:root.dark) {
-		--kd-color-brand-rgb: 213, 149, 76;
+		--kd-color-brand-rgb: 6, 182, 212;
 	}
 
 	.logo :global(a) {

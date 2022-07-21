@@ -6,12 +6,14 @@ specifiers:
   '@sveltejs/adapter-static': 1.0.0-next.38
   '@sveltejs/kit': next
   '@svelteness/kit-docs': ^0.23.0
+  '@types/nprogress': ^0.2.0
   '@typescript-eslint/eslint-plugin': ^5.27.0
   '@typescript-eslint/parser': ^5.27.0
   clsx: ^1.1.0
   eslint: ^8.16.0
   eslint-config-prettier: ^8.3.0
   eslint-plugin-svelte3: ^4.0.0
+  nprogress: ^0.2.0
   prettier: ^2.6.2
   prettier-plugin-svelte: ^2.7.0
   shiki: ^0.10.0
@@ -29,12 +31,14 @@ devDependencies:
   '@sveltejs/adapter-static': 1.0.0-next.38
   '@sveltejs/kit': 1.0.0-next.386_svelte@3.49.0+vite@3.0.2
   '@svelteness/kit-docs': 0.23.0_svelte@3.49.0
+  '@types/nprogress': 0.2.0
   '@typescript-eslint/eslint-plugin': 5.30.7_6wltbjakwuqm7awqswigmiuhd4
   '@typescript-eslint/parser': 5.30.7_he2ccbldppg44uulnyq4rwocfa
   clsx: 1.2.1
   eslint: 8.20.0
   eslint-config-prettier: 8.5.0_eslint@8.20.0
   eslint-plugin-svelte3: 4.0.0_piwa6j2njmnknm35bh3wz5v52y
+  nprogress: 0.2.0
   prettier: 2.7.1
   prettier-plugin-svelte: 2.7.0_o3ioganyptcsrh6x4hnxvjkpqi
   shiki: 0.10.1
@@ -312,6 +316,10 @@ packages:
 
   /@types/node/18.0.6:
     resolution: {integrity: sha512-/xUq6H2aQm261exT6iZTMifUySEt4GR5KX8eYyY+C4MSNPqSh9oNIP7tz2GLKTlFaiBbgZNxffoR3CVRG+cljw==}
+    dev: true
+
+  /@types/nprogress/0.2.0:
+    resolution: {integrity: sha512-1cYJrqq9GezNFPsWTZpFut/d4CjpZqA0vhqDUPFWYKF1oIyBz5qnoYMzR+0C/T96t3ebLAC1SSnwrVOm5/j74A==}
     dev: true
 
   /@types/pug/2.0.6:
@@ -1571,6 +1579,10 @@ packages:
       console-control-strings: 1.1.0
       gauge: 3.0.2
       set-blocking: 2.0.0
+    dev: true
+
+  /nprogress/0.2.0:
+    resolution: {integrity: sha512-I19aIingLgR1fmhftnbWWO3dXc0hSxqHQHQb3H8m+K3TnEn/iSeTZZOyvKXWqQESMwuUVnatlCnZdLBZZt2VSA==}
     dev: true
 
   /object-assign/4.1.1:
