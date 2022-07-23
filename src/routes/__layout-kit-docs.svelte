@@ -13,13 +13,11 @@
 <script lang="ts">
 	import '@svelteness/kit-docs/client/polyfills/index.js';
 	import '@svelteness/kit-docs/client/styles/fonts.css';
-	import '@svelteness/kit-docs/client/styles/normalize.css';
-	import '@svelteness/kit-docs/client/styles/theme.css';
 	import '@svelteness/kit-docs/client/styles/vars.css';
+	import '../app.css';
 
-	import { page } from '$app/stores';
+	import { navigating, page } from '$app/stores';
 
-	import { navigating } from '$app/stores';
 	import {
 		Button,
 		createKitDocsLoader,
@@ -28,20 +26,18 @@
 		KitDocsLayout,
 		SocialLink,
 		type MarkdownMeta,
-		type NavbarConfig,
 		type ResolvedSidebarConfig
 	} from '@svelteness/kit-docs';
 	import NProgress from 'nprogress';
 	import 'nprogress/nprogress.css';
-	import { config } from '../config';
+	import { config, navbar } from '../config';
 
-	import '@docsearch/css/dist/style.css'; // Must come first.
+	import '@docsearch/css/dist/style.css';
 	// @ts-ignore
 	import { Algolia } from '@svelteness/kit-docs/client/algolia';
 	import '@svelteness/kit-docs/client/styles/docsearch.css';
 
 	export let meta: MarkdownMeta | null = null;
-
 	export let sidebar: ResolvedSidebarConfig | null = null;
 
 	NProgress.configure({
@@ -61,23 +57,6 @@
 		}
 	}
 
-	const navbar: NavbarConfig = {
-		links: [
-			{ title: 'Documentation', slug: '/docs', match: /\/docs/ },
-			{ title: 'Benchmarks', slug: '/benchmarks', match: /\/benchmarks/ },
-			{
-				title: 'Tutorial',
-				slug: 'https://dev.to/djnitehawk/building-rest-apis-in-net-6-the-easy-way-3h0d'
-			},
-			// TODO: API Reference
-			{
-				title: 'API Reference',
-				slug: 'https://dev.to/djnitehawk/building-rest-apis-in-net-6-the-easy-way-3h0d'
-			},
-			{ title: 'Donate', slug: 'https://www.paypal.com/donate/?hosted_button_id=AU3SCQX9FXYCS' }
-		]
-	};
-
 	const { activeCategory } = createSidebarContext(sidebar);
 
 	$: category = $activeCategory ? `${$activeCategory}: ` : '';
@@ -91,7 +70,7 @@
 			<title>{title}</title>
 		{/if}
 		<meta name="description" content={config.seo.description} />
-		<meta name="keywords" content="fastendpoints,.net, .net6, csharp, dotnet, web,backend, " />
+		<meta name="keywords" content={config.seo.keywords.join(', ')} />
 		<!-- OG -->
 		<meta property="og:url" content={`${config.siteUrl}${$page.url.pathname}`} />
 		<meta property="og:type" content={config.openGraph.type} />

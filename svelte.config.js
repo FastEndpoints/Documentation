@@ -14,7 +14,9 @@ const config = {
 			entries: ['*']
 		}
 	},
-	preprocess: preprocess({})
+	preprocess: preprocess({
+		postcss: true
+	})
 };
 
 export default config;
