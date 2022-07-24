@@ -40,11 +40,12 @@ export const config = Object.freeze<Config>({
 		keywords: ['fastendpoints', '.net', '.net6', 'csharp', 'dotnet', 'web', 'backend']
 	},
 	openGraph: {
-		title: '',
-		url: 's',
-		siteName: 's',
-		type: 'description',
-		description: 'description',
+		title: 'FastEndpoints',
+		url: 'https://fast-endpoints.com',
+		siteName: 'FastEndpoints',
+		type: 'website',
+		description:
+			'A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern',
 		locale: 'en'
 	},
 	contributors: [],

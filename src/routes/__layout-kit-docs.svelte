@@ -13,8 +13,8 @@
 <script lang="ts">
 	import '@svelteness/kit-docs/client/polyfills/index.js';
 	import '@svelteness/kit-docs/client/styles/fonts.css';
-	import '../vars.css';
 	import '../app.css';
+	import '../vars.css';
 
 	import { navigating, page } from '$app/stores';
 
@@ -61,6 +61,7 @@
 
 	$: category = $activeCategory ? `${$activeCategory}: ` : '';
 	$: title = meta ? `${category}${meta.title} | FastEndpoints` : null;
+	// @ts-ignore
 	$: description = meta?.description;
 </script>
 
@@ -78,12 +79,6 @@
 		<meta property="og:description" content={config.openGraph.description} />
 		<meta property="og:title" content={config.openGraph.title} />
 		<meta property="og:locale" content={config.openGraph.locale} />
-		<!-- Twitter -->
-		<meta name="twitter:card" content="summary_large_image" />
-		<meta name="twitter:site" content={'config.twitter'} />
-		<meta name="twitter:title" content={title} />
-		<meta name="twitter:description" content={description} />
-		<meta name="twitter:image" content={'twImage'} />
 		<!-- Robots -->
 		<!-- <meta name="robots" content="index,follow" /> -->
 		<!-- <meta name="googlebot" content="index,follow" /> -->
