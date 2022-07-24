@@ -49,17 +49,17 @@
 	</div>
 
 	<div slot="main-top">
-		<section id="intro" class="container mt-20 mx-20">
-			<div id="a" class="flex justify-between ">
-				<div class="w-1/3 ">
+		<section id="intro" class="container mt-20 mx-10">
+			<div class="flex flex-col md:flex-row md:justify-between">
+				<div class="w-2/3 ">
 					{#if $colorScheme === 'dark'}
-						<img src="/code-sample-dark.png" alt="Code" />
+						<img src="/code-sample.png" alt="Code" />
 					{:else if $colorScheme === 'light'}
-						<img src="/code-sample-light.png" alt="Code" />
+						<img src="/code-sample.png" alt="Code" />
 					{/if}
 				</div>
 				<div class="w-1/3">
-					<p class="text-white text-2xl">APIs that respects itself</p>
+					<h1 class="text-white text-4xl font-bold">API that respects itself</h1>
 
 					<p class="text-blue-500 font-bold py-10">
 						FastEndpoints offers a better alternative than the Minimal Api and MVC

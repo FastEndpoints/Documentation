@@ -131,3 +131,8 @@ body {
 .kit-docs .header-anchor:focus {
 	opacity: 1;
 }
+
+/* Font size for code samples */
+pre code .line {
+	font-size: 0.95rem;
+}

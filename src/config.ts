@@ -1,5 +1,12 @@
 import type { NavbarConfig } from '@svelteness/kit-docs';
 
+type Contributor = {
+	name: string;
+	username: string;
+	image: string;
+	website?: string;
+};
+
 type Config = {
 	siteUrl: string;
 	seo: {
@@ -7,6 +14,7 @@ type Config = {
 		description: string;
 		keywords: string[];
 	};
+	contributors: Contributor[];
 	openGraph: {
 		title: string;
 		url: string;
@@ -40,6 +48,7 @@ export const config = Object.freeze<Config>({
 		description: 'description',
 		locale: 'en'
 	},
+	contributors: [],
 	twitter: {},
 	github: 'https://github.com/dj-nitehawk/FastEndpoints',
 	discord: 'https://discord.com/invite/yQZ4uvfF2E',
