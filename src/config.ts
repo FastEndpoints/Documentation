@@ -23,7 +23,6 @@ type Config = {
 		description: string;
 		locale: string;
 	};
-	twitter: {};
 	github: string;
 	discord: string;
 	algolia: {
@@ -49,7 +48,6 @@ export const config = Object.freeze<Config>({
 		locale: 'en'
 	},
 	contributors: [],
-	twitter: {},
 	github: 'https://github.com/dj-nitehawk/FastEndpoints',
 	discord: 'https://discord.com/invite/yQZ4uvfF2E',
 	algolia: {
