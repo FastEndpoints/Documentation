@@ -13,7 +13,7 @@
 <script lang="ts">
 	import '@svelteness/kit-docs/client/polyfills/index.js';
 	import '@svelteness/kit-docs/client/styles/fonts.css';
-	import '@svelteness/kit-docs/client/styles/vars.css';
+	import '../vars.css';
 	import '../app.css';
 
 	import { navigating, page } from '$app/stores';
