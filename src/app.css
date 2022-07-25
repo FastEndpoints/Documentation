@@ -226,3 +226,15 @@ h3,
 strong {
   color: #d5d5d5 !important;
 }
+
+/* admonition */
+.admonition {
+  margin-top: 0 !important;
+  margin-bottom: 1rem !important;
+}
+
+.admonition p {
+  margin: 0;
+  color: #dbdbdb;
+  font-size: 1rem;
+}
