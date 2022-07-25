@@ -148,7 +148,11 @@ pre code .line {
   font-size: 0.875rem;
 }
 
-/* on this page customizations */
+.kd-fence-bg {
+  background-color: #17171e !important;
+}
+
+/* on this page */
 .on-this-page {
   font-size: 0.85rem;
 }
@@ -180,6 +184,15 @@ pre code .line {
   font-weight: 600 !important;
 }
 
+#main-sidebar nav {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+#main-sidebar>nav>ul>li>div {
+  display: none;
+}
+
 /* main section */
 main {
   padding: 2rem !important;
@@ -192,8 +205,17 @@ article {
   line-height: 1.7rem !important;
 }
 
-/* h2 */
-h2 {
+article ul {
+  padding-left: 2rem !important;
+}
+
+article ol {
+  padding-left: 2rem !important;
+}
+
+/* heading top margin */
+h2,
+h3 {
   margin-top: 0 !important;
 }
 
