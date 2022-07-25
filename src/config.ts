@@ -66,10 +66,9 @@ export const navbar: NavbarConfig = {
 			title: 'Tutorial',
 			slug: 'https://dev.to/djnitehawk/building-rest-apis-in-net-6-the-easy-way-3h0d'
 		},
-		// TODO: API Reference
 		{
 			title: 'API Reference',
-			slug: 'https://dev.to/djnitehawk/building-rest-apis-in-net-6-the-easy-way-3h0d'
+			slug: 'http://api-ref.fast-endpoints.com'
 		},
 		{ title: 'Donate', slug: 'https://www.paypal.com/donate/?hosted_button_id=AU3SCQX9FXYCS' }
 	]

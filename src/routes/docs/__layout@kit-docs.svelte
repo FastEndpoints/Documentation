@@ -1,3 +1,7 @@
-<!-- Learn more: https://kit.svelte.dev/docs/layouts#named-layouts-inheritance-chains -->
-<!-- This layout inherits from `routes/__layout-kit-docs.svelte` -->
+<script lang="ts">
+	import { onMount } from 'svelte';
+
+	onMount(() => document.querySelector('[slot="navbar-right-alt"]')?.nextElementSibling?.remove());
+</script>
+
 <slot />

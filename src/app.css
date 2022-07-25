@@ -3,98 +3,98 @@
 @tailwind utilities;
 
 body {
-  @apply min-h-screen w-screen;
+	@apply min-h-screen w-screen;
 }
 
 .js-focus-visible :focus:not([data-focus-visible-added]) {
-  @apply outline-none;
+	@apply outline-none;
 }
 
 .js-focus-visible [data-focus-visible-added] {
-  @apply outline-none ring-2;
-  --tw-ring-color: var(--kd-color-focus);
+	@apply outline-none ring-2;
+	--tw-ring-color: var(--kd-color-focus);
 }
 
 * {
-  -webkit-tap-highlight-color: transparent;
+	-webkit-tap-highlight-color: transparent;
 }
 
 .no-scrollbar {
-  scrollbar-width: none;
+	scrollbar-width: none;
 }
 
 .no-scrollbar::-webkit-scrollbar {
-  display: none;
+	display: none;
 }
 
-.svg-responsive>svg {
-  width: 100%;
-  height: 100%;
+.svg-responsive > svg {
+	width: 100%;
+	height: 100%;
 }
 
 .kit-docs pre {
-  tab-size: 2;
-  -o-tab-size: 2;
-  -moz-tab-size: 2;
+	tab-size: 2;
+	-o-tab-size: 2;
+	-moz-tab-size: 2;
 }
 
-.kit-docs p+.admonition,
-.kit-docs p+.steps {
-  margin-top: 2.5rem;
+.kit-docs p + .admonition,
+.kit-docs p + .steps {
+	margin-top: 2.5rem;
 }
 
-.kit-docs .steps+p {
-  margin-top: 4rem;
+.kit-docs .steps + p {
+	margin-top: 4rem;
 }
 
-.kit-docs .admonition+.steps {
-  margin-top: 3.5rem;
+.kit-docs .admonition + .steps {
+	margin-top: 3.5rem;
 }
 
-.kit-docs .admonition+table {
-  margin-top: 4rem;
+.kit-docs .admonition + table {
+	margin-top: 4rem;
 }
 
 .kit-docs .code-fence .code pre {
-  margin: 0;
+	margin: 0;
 }
 
 .kit-docs .code-fence.lang-bash pre span {
-  color: #fafafa !important;
+	color: #fafafa !important;
 }
 
 .kit-docs .code-fence.lang-bash pre .line:not(:empty)::before {
-  content: '> ';
-  font-weight: bold;
-  color: var(--kd-terminal-line-pointer);
+	content: '> ';
+	font-weight: bold;
+	color: var(--kd-terminal-line-pointer);
 }
 
-.kit-docs .step .description>code {
-  color: var(--kd-color-gray-inverse);
+.kit-docs .step .description > code {
+	color: var(--kd-color-gray-inverse);
 }
 
 .kit-docs .step .code-fence {
-  margin: 0;
-  padding: 0;
+	margin: 0;
+	padding: 0;
 }
 
-.kit-docs .code-fence+.code-fence {
-  margin-top: 0.5rem;
+.kit-docs .code-fence + .code-fence {
+	margin-top: 0.5rem;
 }
 
-.kit-docs h1+.steps,
-.kit-docs h2+.steps,
-.kit-docs h3+.steps {
-  margin-top: 2.5rem;
+.kit-docs h1 + .steps,
+.kit-docs h2 + .steps,
+.kit-docs h3 + .steps {
+	margin-top: 2.5rem;
 }
 
 .kit-docs .header-anchor {
-  margin-left: -1.25em;
-  padding: 0 0.23em;
-  font-size: 0.9em;
-  opacity: 0;
-  border: 0;
-  background-color: none;
+	margin-left: -1.25em;
+	padding: 0 0.23em;
+	font-size: 0.9em;
+	opacity: 0;
+	border: 0;
+	background-color: none;
 }
 
 .kit-docs h1:focus,
@@ -103,120 +103,118 @@ body {
 .kit-docs h4:focus,
 .kit-docs h5:focus,
 .kit-docs h6:focus {
-  outline: none;
+	outline: none;
 }
 
 @media (hover: hover) and (pointer: fine) {
-
-  .kit-docs h1:hover .header-anchor,
-  .kit-docs h2:hover .header-anchor,
-  .kit-docs h3:hover .header-anchor,
-  .kit-docs h4:hover .header-anchor,
-  .kit-docs h5:hover .header-anchor,
-  .kit-docs h6:hover .header-anchor {
-    opacity: 1;
-  }
+	.kit-docs h1:hover .header-anchor,
+	.kit-docs h2:hover .header-anchor,
+	.kit-docs h3:hover .header-anchor,
+	.kit-docs h4:hover .header-anchor,
+	.kit-docs h5:hover .header-anchor,
+	.kit-docs h6:hover .header-anchor {
+		opacity: 1;
+	}
 }
 
 @media (pointer: coarse) {
-
-  .kit-docs h1:focus .header-anchor,
-  .kit-docs h2:focus .header-anchor,
-  .kit-docs h3:focus .header-anchor,
-  .kit-docs h4:focus .header-anchor,
-  .kit-docs h5:focus .header-anchor,
-  .kit-docs h6:focus .header-anchor {
-    opacity: 1;
-  }
+	.kit-docs h1:focus .header-anchor,
+	.kit-docs h2:focus .header-anchor,
+	.kit-docs h3:focus .header-anchor,
+	.kit-docs h4:focus .header-anchor,
+	.kit-docs h5:focus .header-anchor,
+	.kit-docs h6:focus .header-anchor {
+		opacity: 1;
+	}
 }
 
 .kit-docs .header-anchor:focus {
-  opacity: 1;
+	opacity: 1;
 }
 
 /* code samples */
 code {
-  line-height: 1.2 !important;
+	line-height: 1.2 !important;
 }
 
 code .sticky {
-  background-color: white !important;
-  opacity: 100 !important;
+	background-color: white !important;
+	opacity: 100 !important;
 }
 
 pre code .line {
-  font-size: 0.875rem;
+	font-size: 0.875rem;
 }
 
 .kd-fence-bg {
-  background-color: #17171e !important;
+	background-color: #17171e !important;
 }
 
 /* on this page */
 .on-this-page {
-  font-size: 0.85rem;
+	font-size: 0.85rem;
 }
 
 /* scrollbars */
 ::-webkit-scrollbar {
-  width: 7px;
+	width: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: #3f3f3f;
+	background: #3f3f3f;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgb(37, 37, 37);
+	background: rgb(37, 37, 37);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgb(211, 211, 211);
+	background: rgb(211, 211, 211);
 }
 
 /* main sidebar */
 #main-sidebar {
-  overflow-y: auto;
-  line-height: 0.8rem;
+	overflow-y: auto;
+	line-height: 0.8rem;
 }
 
 #main-sidebar a {
-  font-weight: 600 !important;
+	font-weight: 600 !important;
 }
 
 #main-sidebar nav {
-  padding-left: 0;
-  padding-right: 0;
+	padding-left: 0;
+	padding-right: 0;
 }
 
-#main-sidebar>nav>ul>li>div {
-  display: none;
+#main-sidebar > nav > ul > li > div {
+	display: none;
 }
 
 /* main section */
 main {
-  padding: 2rem !important;
+	padding: 2rem !important;
 }
 
 /* article */
 article {
-  font-size: 1.12rem !important;
-  font-weight: 300;
-  line-height: 1.7rem !important;
+	font-size: 1.12rem !important;
+	font-weight: 300;
+	line-height: 1.7rem !important;
 }
 
 article ul {
-  padding-left: 2rem !important;
+	padding-left: 2rem !important;
 }
 
 article ol {
-  padding-left: 2rem !important;
+	padding-left: 2rem !important;
 }
 
 /* heading top margin */
 h2,
 h3 {
-  margin-top: 0 !important;
+	margin-top: 0 !important;
 }
 
 /* heading & strong color */
@@ -224,17 +222,17 @@ h1,
 h2,
 h3,
 strong {
-  color: #d5d5d5 !important;
+	color: #d5d5d5 !important;
 }
 
 /* admonition */
 .admonition {
-  margin-top: 0 !important;
-  margin-bottom: 1rem !important;
+	margin-top: 0 !important;
+	margin-bottom: 1rem !important;
 }
 
 .admonition p {
-  margin: 0;
-  color: #dbdbdb;
-  font-size: 1rem;
+	margin: 0;
+	color: #dbdbdb;
+	font-size: 1rem;
 }

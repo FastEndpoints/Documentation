@@ -1,11 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { Button, colorScheme, KitDocsLayout, SocialLink } from '@svelteness/kit-docs';
+	import { Button, KitDocsLayout, SocialLink } from '@svelteness/kit-docs';
 	import '@svelteness/kit-docs/client/polyfills/index.js';
 	import '@svelteness/kit-docs/client/styles/fonts.css';
 	import '@svelteness/kit-docs/client/styles/vars.css';
+	import { onMount } from 'svelte';
 	import '../app.css';
 	import { config, navbar } from '../config';
+	import '../vars.css';
+
+	onMount(() => document.querySelector('[slot="navbar-right-alt"]')?.nextElementSibling?.remove());
 </script>
 
 <svelte:head>
@@ -19,12 +23,6 @@
 	<meta property="og:description" content={config.openGraph.description} />
 	<meta property="og:title" content={config.openGraph.title} />
 	<meta property="og:locale" content={config.openGraph.locale} />
-	<!-- Twitter -->
-	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:site" content={'config.twitter'} />
-	<meta name="twitter:title" content={config.seo.title} />
-	<meta name="twitter:description" content={config.seo.description} />
-	<meta name="twitter:image" content={'twImage'} />
 	<!-- Robots -->
 	<!-- <meta name="robots" content="index,follow" /> -->
 	<!-- <meta name="googlebot" content="index,follow" /> -->
@@ -32,15 +30,9 @@
 
 <KitDocsLayout isSidebarOpen={false} {navbar} sidebar={null}>
 	<div class="logo" slot="navbar-left">
-		{#if $colorScheme === 'dark'}
-			<Button href="/">
-				<img src={'/icon-dark.png'} alt="Logo" />
-			</Button>
-		{:else if $colorScheme === 'light'}
-			<Button href="/">
-				<img src={'/icon-light.png'} alt="Logo" />
-			</Button>
-		{/if}
+		<Button href="/">
+			<img src={'/icon.png'} alt="Logo" />
+		</Button>
 	</div>
 
 	<div class="socials flex flex-row" slot="navbar-right-alt">
@@ -50,13 +42,9 @@
 
 	<div slot="main-top">
 		<section id="intro" class="container mt-20 mx-10">
-			<div class="flex flex-col md:flex-row md:justify-between">
-				<div class="w-2/3 ">
-					{#if $colorScheme === 'dark'}
-						<img src="/code-sample.png" alt="Code" />
-					{:else if $colorScheme === 'light'}
-						<img src="/code-sample.png" alt="Code" />
-					{/if}
+			<div class="flex space-y-24	992:space-y-0 flex-col 992:flex-row">
+				<div class="w-2/3">
+					<img src="/code-sample.png" alt="Code" />
 				</div>
 				<div class="w-1/3">
 					<h1 class="text-white text-4xl font-bold">API that respects itself</h1>

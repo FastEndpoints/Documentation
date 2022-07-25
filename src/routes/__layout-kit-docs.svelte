@@ -108,7 +108,13 @@
 		<slot />
 
 		<div slot="main-bottom" class="footer">
-			<!-- {@html poweredByVercel} -->
+			<footer
+				class="992:mt-10 mt-10 flex w-full flex-col items-center justify-center border-t border-gray-200 bg-gray-100 py-12 text-center text-base font-medium dark:border-gray-600 dark:bg-gray-700"
+			>
+				<span class="text-gray-soft mt-8">
+					© FastEndpoints {new Date().getFullYear()}
+				</span>
+			</footer>
 		</div>
 	</KitDocsLayout>
 </KitDocs>
