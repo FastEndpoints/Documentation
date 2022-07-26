@@ -200,8 +200,13 @@ nav ul li a {
   line-height: 0.75;
 }
 
-#main-sidebar>nav>ul>li>div {
+#main-sidebar>nav>ul>li>div,
+#main-sidebar>nav>div>div.h-8.bg-gradient-to-b.from-white.dark\:from-gray-800 {
   display: none;
+}
+
+#main-sidebar>nav>div {
+  min-height: unset;
 }
 
 /* main section */
