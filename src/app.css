@@ -223,8 +223,21 @@ article ul {
   padding-left: 2rem !important;
 }
 
+article ul li {
+  line-height: 1.5 !important;
+}
+
 article ol {
   padding-left: 2rem !important;
+}
+
+article a {
+  color: #d5d5d5 !important;
+  border-bottom: 1px solid rgb(112 112 112) !important;
+}
+
+article a:hover {
+  color: white !important;
 }
 
 article.prose {
