@@ -172,19 +172,24 @@ pre code .line {
 	background: rgb(211, 211, 211);
 }
 
+/* nav */
+nav ul li {
+	font-weight: normal;
+}
+
 /* main sidebar */
 #main-sidebar {
 	overflow-y: auto;
 	line-height: 0.8rem;
 }
 
-#main-sidebar a {
-	font-weight: 600 !important;
-}
-
 #main-sidebar nav {
 	padding-left: 0;
 	padding-right: 0;
+}
+
+#main-sidebar nav ul li {
+	line-height: 0.75;
 }
 
 #main-sidebar > nav > ul > li > div {
@@ -198,9 +203,7 @@ main {
 
 /* article */
 article {
-	font-size: 1.12rem !important;
-	font-weight: 300;
-	line-height: 1.7rem !important;
+	font-weight: 350;
 }
 
 article ul {
@@ -217,12 +220,24 @@ h3 {
 	margin-top: 0 !important;
 }
 
-/* heading & strong color */
+/* heading color */
 h1,
 h2,
 h3,
+h4,
+h5,
+h6 {
+	font-weight: 300!important;
+	letter-spacing: normal!important;
+}
+
 strong {
-	color: #d5d5d5 !important;
+	/* color: rgba(0, 223, 255, 1)!important; */
+	font-weight: 400!important;
+}
+
+#nprogress .bar {
+	background: rgba(0, 223, 255, 1)!important;
 }
 
 /* admonition */
@@ -235,4 +250,45 @@ strong {
 	margin: 0;
 	color: #dbdbdb;
 	font-size: 1rem;
+}
+
+/* Header */
+body {
+	background: rgba(9, 14, 24, 1)!important;
+}
+
+body div div:nth-child(1)
+{
+	background: rgba(9, 14, 24, 0.5)!important;
+}
+
+/* Lists */
+ul li {
+	line-height: 1.75;
+}
+
+/* Search */
+.h-8.bg-gradient-to-b {
+	--tw-gradient-from: #0a0e18!important;
+}
+
+/* algolia */
+.DocSearch-Button {
+	background-color: hsla(220, 45%, 12%, 1)!important;
+}
+
+.DocSearch-Button:hover {
+	background-color: hsla(220, 45%, 15%, 1)!important;
+} 
+
+.dark .DocSearch-Container {
+	background: rgba(9, 14, 24, 0.75)!important;
+}
+
+.DocSearch-Footer {
+	background: rgba(9, 14, 24, 1)!important;
+}
+
+.DocSearch-Hits li a {
+	background: #04060a!important;
 }
