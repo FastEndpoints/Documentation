@@ -174,7 +174,7 @@ pre code .line {
 
 /* nav */
 nav ul li {
-	font-weight: normal;
+	font-weight: normal!important;
 }
 
 /* main sidebar */
