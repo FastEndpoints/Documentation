@@ -173,8 +173,14 @@ pre code .line {
 }
 
 /* nav */
-nav ul li {
+nav ul li a {
 	font-weight: normal!important;
+	font-size: 1rem!important;
+	padding-bottom: 8px!important;
+}
+
+nav ul li .border-b {
+	border-bottom-width: 2px;
 }
 
 /* main sidebar */
