@@ -260,6 +260,10 @@ strong {
   font-size: 1rem;
 }
 
+div.admonition :nth-child(1) {
+  background-color: unset !important;
+}
+
 /* Header */
 body {
   background: rgba(9, 14, 24, 1) !important;
