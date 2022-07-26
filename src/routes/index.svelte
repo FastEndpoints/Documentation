@@ -31,7 +31,7 @@
 <KitDocsLayout isSidebarOpen={false} {navbar} sidebar={null}>
 	<div class="logo" slot="navbar-left">
 		<Button href="/">
-			<img src={'/icon.png'} alt="Logo" />
+			<img src={'/logo.png'} alt="Logo" />
 		</Button>
 	</div>
 
@@ -47,18 +47,18 @@
 					<img src="/code-sample.png" alt="Code" />
 				</div>
 				<div class="w-1/3">
-					<h1 class="text-white text-4xl font-bold">API that respects itself</h1>
+					<h1 class="text-white text-4xl">API that respects itself today</h1>
 
-					<p class="text-blue-500 font-bold py-10">
+					<p class="text-blue-500 py-10">
 						FastEndpoints offers a better alternative than the Minimal Api and MVC
 					</p>
 
-					with the aim of increasing developer productivity. Performance is on par with the Minimal
+					With the aim of increasing developer productivity. Performance is on par with the Minimal
 					Api and is faster; uses less memory; and does around 45k more requests per second than a
 					MVC Controller in a head-to-head comparison.
 
 					<div class="flex space-x-5 my-4">
-						<a href={config.github} class="bg-teal-500 px-4 py-2 rounded font-bold">Github</a>
+						<a href={config.github} class="bg-teal-500 px-4 py-2 rounded">Github</a>
 						<a href="/docs" class="bg-blue-500 px-4 py-2 text-white rounded">Get Started</a>
 					</div>
 				</div>
@@ -76,3 +76,10 @@
 		<p>2022</p>
 	</footer>
 </KitDocsLayout>
+
+<style>
+	.logo {
+		width: 200px;
+		margin-bottom: -10px;
+	}
+</style>
