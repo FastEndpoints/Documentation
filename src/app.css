@@ -179,10 +179,6 @@ nav ul li a {
 	padding-bottom: 8px!important;
 }
 
-nav ul li .border-b {
-	border-bottom-width: 2px;
-}
-
 /* main sidebar */
 #main-sidebar {
 	overflow-y: auto;
@@ -233,13 +229,13 @@ h3,
 h4,
 h5,
 h6 {
-	font-weight: 300!important;
+	color: #d5d5d5 !important;
+	font-weight: 350!important;
 	letter-spacing: normal!important;
 }
 
 strong {
-	/* color: rgba(0, 223, 255, 1)!important; */
-	font-weight: 400!important;
+	color: #d5d5d5 !important;
 }
 
 #nprogress .bar {

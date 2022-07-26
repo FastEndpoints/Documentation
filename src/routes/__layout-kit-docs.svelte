@@ -129,7 +129,7 @@
 	}
 
 	.logo :global {
-		width: 200px;
+		width: 185px;
 	}
 
 	.logo :global(a) {
