@@ -3,7 +3,7 @@ title: Benchmarks
 description: A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern.
 ---
 
-<h1 align="center">Benchmarks</h1>
+<h1>Benchmarks</h1>
 
 ## Head-To-Head Benchmark
 
