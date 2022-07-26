@@ -64,7 +64,7 @@ function kitDocsTypography(theme) {
 				'--tw-prose-counters': 'black',
 				'--tw-prose-invert-counters': 'white',
 				color: theme('colors.gray.soft'),
-				fontSize: '18px',
+				fontSize: '16px',
 				maxWidth: 'none',
 				hr: {
 					borderColor: theme('colors.gray.divider'),
@@ -225,7 +225,7 @@ function kitDocsTypography(theme) {
 		invert: {
 			css: {
 				'tbody tr:nth-child(odd)': {
-					backgroundColor: theme('colors.gray.700')
+					backgroundColor: 'hsla(220, 45%, 5%, 1)'
 				},
 				'tbody tr td:first-child code': {
 					color: theme('colors.indigo.300')

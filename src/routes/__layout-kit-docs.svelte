@@ -96,7 +96,7 @@
 		/>
 		<div class="logo" slot="navbar-left">
 			<Button href="/">
-				<img src={'/icon.png'} alt="FastEndpoints logo" />
+				<img src={'/logo.png'} alt="FastEndpoints logo" />
 			</Button>
 		</div>
 
@@ -107,7 +107,7 @@
 
 		<slot />
 
-		<div slot="main-bottom" class="footer">
+		<!-- <div slot="main-bottom" class="footer">
 			<footer
 				class="992:mt-10 mt-10 flex w-full flex-col items-center justify-center border-t border-gray-200 bg-gray-100 py-12 text-center text-base font-medium dark:border-gray-600 dark:bg-gray-700"
 			>
@@ -115,17 +115,21 @@
 					© FastEndpoints {new Date().getFullYear()}
 				</span>
 			</footer>
-		</div>
+		</div> -->
 	</KitDocsLayout>
 </KitDocs>
 
 <style>
 	:global(:root) {
-		--kd-color-brand-rgb: 6, 182, 212;
+		--kd-color-brand-rgb: 0, 223, 255;
 	}
 
 	:global(:root.dark) {
-		--kd-color-brand-rgb: 6, 182, 212;
+		--kd-color-brand-rgb: 0, 223, 255;
+	}
+
+	.logo :global {
+		width: 185px;
 	}
 
 	.logo :global(a) {

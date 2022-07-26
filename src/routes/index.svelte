@@ -3,7 +3,6 @@
 	import { Button, KitDocsLayout, SocialLink } from '@svelteness/kit-docs';
 	import '@svelteness/kit-docs/client/polyfills/index.js';
 	import '@svelteness/kit-docs/client/styles/fonts.css';
-	import '@svelteness/kit-docs/client/styles/vars.css';
 	import { onMount } from 'svelte';
 	import '../app.css';
 	import { config, navbar } from '../config';
@@ -31,7 +30,7 @@
 <KitDocsLayout isSidebarOpen={false} {navbar} sidebar={null}>
 	<div class="logo" slot="navbar-left">
 		<Button href="/">
-			<img src={'/icon.png'} alt="Logo" />
+			<img src={'/logo.png'} alt="Logo" />
 		</Button>
 	</div>
 
@@ -76,3 +75,10 @@
 		<p>2022</p>
 	</footer>
 </KitDocsLayout>
+
+<style>
+	.logo {
+		width: 185px;
+		margin-bottom: -6px;
+	}
+</style>
