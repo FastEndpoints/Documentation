@@ -155,6 +155,7 @@ pre code .line {
 /* on this page */
 .on-this-page {
   font-size: 0.85rem;
+  line-height: 1.5 !important;
 }
 
 /* scrollbars */
