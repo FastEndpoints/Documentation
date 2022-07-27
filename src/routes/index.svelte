@@ -1,6 +1,11 @@
 <script lang="ts" context="module">
 	import type { Load } from '@sveltejs/kit';
-	import { getContributors, type Contributor } from '../lib/api';
+
+	export type ContributorInfo = {
+		image: string;
+		contributions: number;
+		url: string;
+	};
 
 	export const load: Load = async () => {
 		const [framework, docs] = await Promise.all([
@@ -8,11 +13,33 @@
 			getContributors('FastEndpoints-DocSite')
 		]);
 
-		// TODO: Map through contributors
-		const contributors = [...docs, ...framework].sort((a, b) => b.contributions - a.contributions);
-		// .map();
+		const contributors = [...docs, ...framework]
+			.sort((a, b) => b.contributions - a.contributions)
+			.reduce((acc, current) => {
+				let contributionInfo: ContributorInfo | undefined;
+				let contributor = acc.get(current.login);
+
+				if (!contributor) {
+					contributionInfo = {
+						url: current.html_url,
+						contributions: 0,
+						image: current.avatar_url
+					};
+				} else {
+					contributionInfo = contributor;
+				}
+
+				contributionInfo.contributions += current.contributions;
+
+				acc.set(current.login, contributionInfo);
+
+				return acc;
+			}, new Map<string, ContributorInfo>());
 
 		return {
+			cache: {
+				maxage: 3600
+			},
 			props: {
 				contributors
 			}
@@ -21,37 +48,26 @@
 </script>
 
 <script lang="ts">
-	import { page } from '$app/stores';
+	import Contributors from '$lib/components/Contributors.svelte';
+	import FeatureList from '$lib/components/FeatureList.svelte';
+	import SEO from '$lib/components/SEO.svelte';
+
 	import { KitDocsLayout, SocialLink } from '@svelteness/kit-docs';
 	import '@svelteness/kit-docs/client/polyfills/index.js';
 	import '@svelteness/kit-docs/client/styles/fonts.css';
 	import { onMount } from 'svelte';
+
+	import { getContributors } from '$lib/api';
 	import '../app.css';
-	import FeatureList from '../components/feature-list.svelte';
 	import { config, navbar } from '../config';
 	import '../vars.css';
 
-	export let contributors: Contributor[];
+	export let contributors: Map<string, ContributorInfo>;
 
 	onMount(() => document.querySelector('[slot="navbar-right-alt"]')?.nextElementSibling?.remove());
 </script>
 
-<svelte:head>
-	<title>{config.seo.title}</title>
-	<meta name="description" content={config.seo.description} />
-	<meta name="keywords" content={config.seo.keywords.join(', ')} />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<!-- OG -->
-	<meta property="og:url" content={`${config.siteUrl}${$page.url.pathname}`} />
-	<meta property="og:type" content={config.openGraph.type} />
-	<meta property="og:site_name" content={config.openGraph.siteName} />
-	<meta property="og:description" content={config.openGraph.description} />
-	<meta property="og:title" content={config.openGraph.title} />
-	<meta property="og:locale" content={config.openGraph.locale} />
-	<!-- Robots -->
-	<!-- <meta name="robots" content="index,follow" /> -->
-	<!-- <meta name="googlebot" content="index,follow" /> -->
-</svelte:head>
+<SEO />
 
 <KitDocsLayout isSidebarOpen={false} {navbar} sidebar={null}>
 	<div class="logo s-Fa-w7UE9mF1Z flex gap-4 items-center" slot="navbar-left">
@@ -118,33 +134,8 @@
 				<FeatureList />
 			</div>
 		</div>
-		<!--
-		<section id="features" class="mt-20 mx-20">
-			<h1 class=" text-4xl font-bold">Features</h1>
-			<p class="my-5 text-blue-600">To keep you productive</p>
-		</section> -->
 
-		<section id="contributors" class="mt-20 mx-20">
-			<h1 class="font-semibold text-feLightBlue-500 text-4xl">
-				Contributors ({contributors.length})
-			</h1>
-			<p class="my-5">
-				FastEndpoints is free and open source software, made possible by the work of supporters.
-			</p>
-			<p class="my-5 text-feLightBlue-500 text-base">Join us on GitHub</p>
-
-			<div class="grid grid-cols-8 p-5 gap-1">
-				{#each contributors as contributor}
-					<a href={contributor.html_url}>
-						<img
-							class="p-1 w-12 h-12 rounded-full ring-2 ring-gray-300 dark:ring-gray-500"
-							src={contributor.avatar_url}
-							alt={contributor.login}
-						/>
-					</a>
-				{/each}
-			</div>
-		</section>
+		<Contributors {contributors} />
 	</div>
 	<div class="border-t-2 border-feDarkBlue-700 mb-6" />
 	<footer slot="main-bottom" class="flex justify-between items-center">
