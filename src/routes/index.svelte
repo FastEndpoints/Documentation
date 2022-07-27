@@ -8,6 +8,8 @@
 	import { config, navbar } from '../config';
 	import '../vars.css';
 
+	import FeatureList from '../components/feature-list.svelte';
+
 	onMount(() => document.querySelector('[slot="navbar-right-alt"]')?.nextElementSibling?.remove());
 </script>
 
@@ -15,6 +17,7 @@
 	<title>{config.seo.title}</title>
 	<meta name="description" content={config.seo.description} />
 	<meta name="keywords" content={config.seo.keywords.join(', ')} />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<!-- OG -->
 	<meta property="og:url" content={`${config.siteUrl}${$page.url.pathname}`} />
 	<meta property="og:type" content={config.openGraph.type} />
@@ -28,10 +31,16 @@
 </svelte:head>
 
 <KitDocsLayout isSidebarOpen={false} {navbar} sidebar={null}>
-	<div class="logo" slot="navbar-left">
-		<Button href="/">
-			<img src={'/logo.png'} alt="Logo" />
-		</Button>
+
+	<div class="logo s-Fa-w7UE9mF1Z flex gap-4 items-center" slot="navbar-left">
+		<a class="group transform-gpu text-lg font-medium transition-transform hover:scale-105" href="/">
+			<span class="inline-block transform transition-transform duration-100 group-hover:translate-x-0">
+				<img src="/logo.png" alt="FastEndpoints logo" class="s-Fa-w7UE9mF1Z">
+			</span>
+		</a>
+		<div class="prose text-xs font-semibold uppercase bg-feDarkBlue-600 px-4 py-2 mr-2 rounded-lg">
+			Build Performant APIs Fast!
+		</div>
 	</div>
 
 	<div class="socials flex flex-row" slot="navbar-right-alt">
@@ -40,45 +49,51 @@
 	</div>
 
 	<div slot="main-top">
-		<section id="intro" class="container mt-20 mx-10">
-			<div class="flex space-y-24	992:space-y-0 flex-col 992:flex-row">
-				<div class="w-2/3">
-					<img src="/code-sample.png" alt="Code" />
+		<div>
+			<div class="flex gap-16 h-96 items-center my-44">
+				<div class="w-full h-full">
+					<div class="grid grid-rows-2 grid-cols-2 gap-4 h-full">
+						<div class="request rounded-lg col-span-1 bg-feDarkBlue-600"></div>
+						<div class="response rounded-lg col-span-1 bg-feDarkBlue-600"></div>
+						<div class="endpoint rounded-lg col-span-2 w-full bg-feDarkBlue-600"></div>
+					</div>
 				</div>
-				<div class="w-1/3">
-					<h1 class="text-white text-4xl font-bold">API that respects itself</h1>
-
-					<p class="text-blue-500 font-bold py-10">
-						FastEndpoints offers a better alternative than the Minimal Api and MVC
-					</p>
-
-					with the aim of increasing developer productivity. Performance is on par with the Minimal
-					Api and is faster; uses less memory; and does around 45k more requests per second than a
-					MVC Controller in a head-to-head comparison.
-
-					<div class="flex space-x-5 my-4">
-						<a href={config.github} class="bg-teal-500 px-4 py-2 rounded font-bold">Github</a>
-						<a href="/docs" class="bg-blue-500 px-4 py-2 text-white rounded">Get Started</a>
+				<div class="w-full">
+					<div class="flex flex-col gap-4">
+						<div class="font-semibold text-feLightBlue-500 text-base">A light-weight API Framework </div>
+						<div class="font-bold text-4xl">FastEndpoints offers a better alternative to Minimal API & MVC</div>
+						<div class="prose">This is done by implementing the REPR (Request-Endpoint-Response) Pattern. Performance is on par with the Minimal Api and is faster,
+							uses less memory and does around 45k more requests per second
+							than a MVC Controller in a head-to-head comparison.</div>
 					</div>
 				</div>
 			</div>
-		</section>
-
-		<section id="features" class="mt-20 mx-20">
-			<h1 class=" text-4xl font-bold">Features</h1>
-			<p class="my-5 text-blue-600">To keep you productive</p>
-		</section>
+			<div class="my-44">
+				<div class="flex flex-col gap-4 mb-12">
+					<div class="font-semibold text-feLightBlue-500 text-base">Rapid Development</div>
+					<div class="font-bold text-4xl">Using these useful features</div>
+				</div>
+				<FeatureList />
+			</div>
+		</div>
 	</div>
-
-	<footer slot="main-bottom" class="text-center">
-		<h1 class="text-4xl font-bold">FastEndpoints</h1>
-		<p>2022</p>
+	<div class="border-t-2 border-feDarkBlue-700 mb-6"></div>
+	<footer slot="main-bottom" class="flex justify-between items-center">
+		<div class="prose text-sm">
+			© FastEndpoints 2022
+		</div>
+		<div class="logo s-Fa-w7UE9mF1Z">
+			<a class="group transform-gpu text-lg font-medium transition-transform hover:scale-105" href="/">
+			<span class="inline-block transform transition-transform duration-100 group-hover:translate-x-0">
+				<img src="/logo.png" alt="FastEndpoints logo" class="s-Fa-w7UE9mF1Z">
+			</span>
+			</a>
+		</div>
 	</footer>
 </KitDocsLayout>
 
 <style>
-	.logo {
+	.logo img {
 		width: 185px;
-		margin-bottom: -6px;
 	}
 </style>

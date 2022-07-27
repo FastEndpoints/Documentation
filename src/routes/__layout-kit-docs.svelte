@@ -128,7 +128,7 @@
 		--kd-color-brand-rgb: 0, 223, 255;
 	}
 
-	.logo :global {
+	.logo img :global {
 		width: 185px;
 	}
 
