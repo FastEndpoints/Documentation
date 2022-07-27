@@ -30,10 +30,10 @@
 </script>
 
 <div class="feature-list">
-	<div class="grid grid-rows-auto grid-cols-2 gap-4">
+	<div class="grid grid-rows-auto grid-cols-1 768:grid-cols-2 gap-4">
 		{#each features as feature}
 			<div
-				class="transition ease-in-out rounded-lg bg-feDarkBlue-600 border-2 border-transparent hover:bg-feDarkBlue-800 hover:border-sky-500 p-4 leading-relaxed text-base flex items-center"
+				class="transition ease-in-out rounded-lg bg-feDarkBlue-600 border-2 border-transparent hover:bg-feDarkBlue-800 hover:border-sky-500 p-4 leading-relaxed text-base"
 			>
 				{feature}
 			</div>
