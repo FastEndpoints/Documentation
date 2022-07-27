@@ -1,12 +1,5 @@
 import type { NavbarConfig } from '@svelteness/kit-docs';
 
-type Contributor = {
-	name: string;
-	username: string;
-	image: string;
-	website?: string;
-};
-
 type Config = {
 	siteUrl: string;
 	seo: {
@@ -14,7 +7,6 @@ type Config = {
 		description: string;
 		keywords: string[];
 	};
-	contributors: Contributor[];
 	openGraph: {
 		title: string;
 		url: string;
@@ -48,7 +40,6 @@ export const config = Object.freeze<Config>({
 			'A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern',
 		locale: 'en'
 	},
-	contributors: [],
 	github: 'https://github.com/dj-nitehawk/FastEndpoints',
 	discord: 'https://discord.com/invite/yQZ4uvfF2E',
 	algolia: {

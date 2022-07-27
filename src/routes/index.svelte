@@ -1,14 +1,37 @@
+<script lang="ts" context="module">
+	import type { Load } from '@sveltejs/kit';
+	import { getContributors, type Contributor } from '../lib/api';
+
+	export const load: Load = async () => {
+		const [framework, docs] = await Promise.all([
+			getContributors('FastEndpoints'),
+			getContributors('FastEndpoints-DocSite')
+		]);
+
+		// TODO: Map through contributors
+		const contributors = [...docs, ...framework].sort((a, b) => b.contributions - a.contributions);
+		// .map();
+
+		return {
+			props: {
+				contributors
+			}
+		};
+	};
+</script>
+
 <script lang="ts">
 	import { page } from '$app/stores';
-	import { Button, KitDocsLayout, SocialLink } from '@svelteness/kit-docs';
+	import { KitDocsLayout, SocialLink } from '@svelteness/kit-docs';
 	import '@svelteness/kit-docs/client/polyfills/index.js';
 	import '@svelteness/kit-docs/client/styles/fonts.css';
 	import { onMount } from 'svelte';
 	import '../app.css';
+	import FeatureList from '../components/feature-list.svelte';
 	import { config, navbar } from '../config';
 	import '../vars.css';
 
-	import FeatureList from '../components/feature-list.svelte';
+	export let contributors: Contributor[];
 
 	onMount(() => document.querySelector('[slot="navbar-right-alt"]')?.nextElementSibling?.remove());
 </script>
@@ -39,7 +62,7 @@
 			<span
 				class="inline-block transform transition-transform duration-100 group-hover:translate-x-0"
 			>
-				<img src="/logo.png" alt="FastEndpoints logo" class="s-Fa-w7UE9mF1Z" />
+				<img src="/logo.png" alt="FastEndpoints logo" class="s-Fa-w7UE9mF1Z w-[185px]" />
 			</span>
 		</a>
 		<div class="prose text-xs font-semibold uppercase bg-feDarkBlue-600 px-4 py-2 mr-2 rounded-lg">
@@ -95,6 +118,33 @@
 				<FeatureList />
 			</div>
 		</div>
+		<!--
+		<section id="features" class="mt-20 mx-20">
+			<h1 class=" text-4xl font-bold">Features</h1>
+			<p class="my-5 text-blue-600">To keep you productive</p>
+		</section> -->
+
+		<section id="contributors" class="mt-20 mx-20">
+			<h1 class="font-semibold text-feLightBlue-500 text-4xl">
+				Contributors ({contributors.length})
+			</h1>
+			<p class="my-5">
+				FastEndpoints is free and open source software, made possible by the work of supporters.
+			</p>
+			<p class="my-5 text-feLightBlue-500 text-base">Join us on GitHub</p>
+
+			<div class="grid grid-cols-8 p-5 gap-1">
+				{#each contributors as contributor}
+					<a href={contributor.html_url}>
+						<img
+							class="p-1 w-12 h-12 rounded-full ring-2 ring-gray-300 dark:ring-gray-500"
+							src={contributor.avatar_url}
+							alt={contributor.login}
+						/>
+					</a>
+				{/each}
+			</div>
+		</section>
 	</div>
 	<div class="border-t-2 border-feDarkBlue-700 mb-6" />
 	<footer slot="main-bottom" class="flex justify-between items-center">
@@ -107,15 +157,9 @@
 				<span
 					class="inline-block transform transition-transform duration-100 group-hover:translate-x-0"
 				>
-					<img src="/logo.png" alt="FastEndpoints logo" class="s-Fa-w7UE9mF1Z" />
+					<img src="/logo.png" alt="FastEndpoints logo" class="s-Fa-w7UE9mF1Z w-[185px]" />
 				</span>
 			</a>
 		</div>
 	</footer>
 </KitDocsLayout>
-
-<style>
-	.logo img {
-		width: 185px;
-	}
-</style>
