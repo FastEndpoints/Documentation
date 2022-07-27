@@ -1,5 +1,3 @@
-
-
 body {
   @apply min-h-screen w-screen;
   color: #d1d5db;
@@ -209,7 +207,7 @@ nav ul li a {
 }
 
 #main-sidebar nav .h-6.bg-white {
-  background: transparent!important;
+  background: transparent !important;
 }
 
 /* main section */
@@ -234,17 +232,18 @@ article ol {
   padding-left: 2rem !important;
 }
 
-article a {
+article.prose {
+  line-height: 1.5 !important;
+}
+
+/* prose */
+.prose a {
   color: #d5d5d5 !important;
   border-bottom: 1px solid rgb(112 112 112) !important;
 }
 
-article a:hover {
+.prose a:hover {
   color: white !important;
-}
-
-article.prose {
-  line-height: 1.5 !important;
 }
 
 /* heading top margin */

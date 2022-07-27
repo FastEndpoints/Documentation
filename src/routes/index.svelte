@@ -17,7 +17,7 @@
 	<title>{config.seo.title}</title>
 	<meta name="description" content={config.seo.description} />
 	<meta name="keywords" content={config.seo.keywords.join(', ')} />
-	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<!-- OG -->
 	<meta property="og:url" content={`${config.siteUrl}${$page.url.pathname}`} />
 	<meta property="og:type" content={config.openGraph.type} />
@@ -31,11 +31,15 @@
 </svelte:head>
 
 <KitDocsLayout isSidebarOpen={false} {navbar} sidebar={null}>
-
 	<div class="logo s-Fa-w7UE9mF1Z flex gap-4 items-center" slot="navbar-left">
-		<a class="group transform-gpu text-lg font-medium transition-transform hover:scale-105" href="/">
-			<span class="inline-block transform transition-transform duration-100 group-hover:translate-x-0">
-				<img src="/logo.png" alt="FastEndpoints logo" class="s-Fa-w7UE9mF1Z">
+		<a
+			class="group transform-gpu text-lg font-medium transition-transform hover:scale-105"
+			href="/"
+		>
+			<span
+				class="inline-block transform transition-transform duration-100 group-hover:translate-x-0"
+			>
+				<img src="/logo.png" alt="FastEndpoints logo" class="s-Fa-w7UE9mF1Z" />
 			</span>
 		</a>
 		<div class="prose text-xs font-semibold uppercase bg-feDarkBlue-600 px-4 py-2 mr-2 rounded-lg">
@@ -53,40 +57,58 @@
 			<div class="flex gap-16 h-96 items-center my-44">
 				<div class="w-full h-full">
 					<div class="grid grid-rows-2 grid-cols-2 gap-4 h-full">
-						<div class="request rounded-lg col-span-1 bg-feDarkBlue-600"></div>
-						<div class="response rounded-lg col-span-1 bg-feDarkBlue-600"></div>
-						<div class="endpoint rounded-lg col-span-2 w-full bg-feDarkBlue-600"></div>
+						<div class="request rounded-lg col-span-1 bg-feDarkBlue-600" />
+						<div class="response rounded-lg col-span-1 bg-feDarkBlue-600" />
+						<div class="endpoint rounded-lg col-span-2 w-full bg-feDarkBlue-600" />
 					</div>
 				</div>
 				<div class="w-full">
 					<div class="flex flex-col gap-4">
-						<div class="font-semibold text-feLightBlue-500 text-base">A light-weight API Framework </div>
-						<div class="font-bold text-4xl">FastEndpoints offers a better alternative to Minimal API & MVC</div>
-						<div class="prose">This is done by implementing the REPR (Request-Endpoint-Response) Pattern. Performance is on par with the Minimal Api and is faster,
-							uses less memory and does around 45k more requests per second
-							than a MVC Controller in a head-to-head comparison.</div>
+						<div class="font-semibold text-feLightBlue-500 text-base">
+							A Light-Weight REST API Framework For ASP.Net 6
+						</div>
+						<div class="font-bold text-3xl">
+							FastEndpoints is a developer friendly alternative to Minimal API & MVC
+						</div>
+						<div class="prose intro">
+							<p>
+								It nudges you towards the
+								<a target="_blank" href="https://deviq.com/design-patterns/repr-design-pattern">
+									REPR Design Pattern (Request-Endpoint-Response)
+								</a>
+								for convenient & maintainable endpoint creation with virtually no boilerplate.
+							</p>
+							<p>
+								Performance is on par with Minimal Api. Is faster, uses less memory and does around <a
+									href="/benchmarks">45k more requests per second</a
+								> than a MVC Controller in our benchmarks.
+							</p>
+						</div>
 					</div>
 				</div>
 			</div>
 			<div class="my-44">
 				<div class="flex flex-col gap-4 mb-12">
 					<div class="font-semibold text-feLightBlue-500 text-base">Rapid Development</div>
-					<div class="font-bold text-4xl">Using these useful features</div>
+					<div class="font-bold text-4xl">Using These Handy Features</div>
 				</div>
 				<FeatureList />
 			</div>
 		</div>
 	</div>
-	<div class="border-t-2 border-feDarkBlue-700 mb-6"></div>
+	<div class="border-t-2 border-feDarkBlue-700 mb-6" />
 	<footer slot="main-bottom" class="flex justify-between items-center">
-		<div class="prose text-sm">
-			© FastEndpoints 2022
-		</div>
+		<div class="prose text-sm">© FastEndpoints 2022</div>
 		<div class="logo s-Fa-w7UE9mF1Z">
-			<a class="group transform-gpu text-lg font-medium transition-transform hover:scale-105" href="/">
-			<span class="inline-block transform transition-transform duration-100 group-hover:translate-x-0">
-				<img src="/logo.png" alt="FastEndpoints logo" class="s-Fa-w7UE9mF1Z">
-			</span>
+			<a
+				class="group transform-gpu text-lg font-medium transition-transform hover:scale-105"
+				href="/"
+			>
+				<span
+					class="inline-block transform transition-transform duration-100 group-hover:translate-x-0"
+				>
+					<img src="/logo.png" alt="FastEndpoints logo" class="s-Fa-w7UE9mF1Z" />
+				</span>
 			</a>
 		</div>
 	</footer>
