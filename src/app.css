@@ -91,7 +91,7 @@ body {
   font-size: 0.9em;
   opacity: 0;
   border: 0;
-  background-color: none;
+  background-color: transparent;
 }
 
 .kit-docs h1:focus,
@@ -239,7 +239,7 @@ article.prose {
 /* prose */
 .prose a {
   color: #d5d5d5 !important;
-  border-bottom: 1px solid rgb(112 112 112) !important;
+  border-bottom: 2px solid rgb(112 112 112) !important;
 }
 
 .prose a:hover {
