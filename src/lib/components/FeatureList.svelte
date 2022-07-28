@@ -47,7 +47,7 @@
 		<div class="font-bold text-3xl">With These Handy Features & More</div>
 	</div>
 	<div class="grid grid-rows-auto grid-cols-1 768:grid-cols-2 grid-flow-dense gap-2">
-		{#each features as feature, i}
+		{#each features as feature}
 			<div
 				class="order-{feature.order} 768:order-none transition ease-in-out flex items-center rounded-lg bg-feDarkBlue-600 gap-4 border border-transparent p-2  leading-relaxed text-sm"
 			>
