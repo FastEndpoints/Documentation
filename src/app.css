@@ -329,6 +329,12 @@ ul li {
   background: #04060a !important;
 }
 
+pre code {
+  font-size: 13px;
+  border-radius: 6px;
+  background: #141A24!important;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
