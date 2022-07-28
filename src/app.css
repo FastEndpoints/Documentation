@@ -239,11 +239,12 @@ article.prose {
 /* prose */
 .prose a {
   color: #d5d5d5 !important;
-  border-bottom: 2px solid rgb(112 112 112) !important;
+  border-bottom: 1px solid rgb(50 50 50) !important;
 }
 
 .prose a:hover {
   color: white !important;
+  border-bottom: 1px solid white !important;
 }
 
 /* heading top margin */
