@@ -43,7 +43,7 @@ export const config = Object.freeze<Config>({
   github: 'https://github.com/dj-nitehawk/FastEndpoints',
   discord: 'https://discord.com/invite/yQZ4uvfF2E',
   algolia: {
-    apiKey: 'dbd4bfe95a65436b50a0749102e9f96a',
+    apiKey: '85443fc627cf3334238243ef742d6d85',
     appId: '8VRRQJZ5I9'
   }
 });
