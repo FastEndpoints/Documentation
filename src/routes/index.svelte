@@ -128,7 +128,7 @@
 							</p>
 						</div>
 						<div class="flex flex-row gap-8 mt-8">
-							<SocialLink type="gitHub" href={config.github}>Star us on Github</SocialLink>
+							<SocialLink type="gitHub" href={config.github}>Star on Github</SocialLink>
 							<a
 									href="/docs/get-started"
 									class="text-gray-200 bg-gradient-to-tr from-feLightBlue-600 to-feBlue-600 hover:bg-gradient-to-bl focus:ring-2 focus:outline-none focus:ring-feLightBlue-300 dark:focus:ring-feLightBlue-600 font-medium rounded-md text-sm px-5 shadow-md shadow-feBlue-500/20 hover:shadow-lg hover:shadow-feBlue-700/40 py-2.5 text-center uppercase mr-2 mb-2 active:opacity-[0.85]"
