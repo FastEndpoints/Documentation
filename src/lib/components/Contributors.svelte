@@ -5,24 +5,25 @@
 </script>
 
 <section id="contributors">
-	<h1 class="text-feLightBlue-500 font-bold text-4xl">
+	<div class="flex flex-col gap-2 mb-12">
+		<div class="font-semibold text-feLightBlue-500 text-base">Join us on Github</div>
+		<div class="font-bold text-3xl flex items-center gap-4 mb-12">
 		Contributors
-		<span class="font-semibold text-feLightBlue-500 text-xl">({contributors.size})</span>
-	</h1>
-	<p class="my-5">
-		FastEndpoints is free and open source software, made possible by the work of supporters.
-	</p>
-	<p class="my-5 font-semibold text-feLightBlue-500 text-xl">Join us on GitHub</p>
-
-	<div class="grid grid-cols-2 576:grid-cols-3 768:grid-cols-4 992:grid-cols-8 p-5 gap-1">
+		<span class="rounded-full min-w-[32px] min-h-[32px] bg-feLightBlue-500 text-feDarkBlue-700 font-extrabold inline-flex items-center text-sm justify-center">
+			{contributors.size}
+		</span>
+	</div>
+	<div class="flex flex-wrap gap-4">
 		{#each [...contributors] as [username, contributionInfo]}
-			<a href={contributionInfo.url}>
-				<img
-					class="p-1 w-12 h-12 rounded-full ring-2 ring-gray-300"
-					src={contributionInfo.image}
-					alt={username}
-				/>
-			</a>
+			<div class="transition ease-in-out duration-300 group bg-feDarkBlue-600 rounded-lg p-4 w-full flex flex-wrap hover:bg-transparent items-center justify-center w-20 h-20">
+				<a href={contributionInfo.url} target="_blank">
+					<img
+							class="transition ease-in-out duration-300 p-1 w-12 h-12 rounded-full ring-4 ring-feDarkBlue-800 bg-feDarkBlue-800 group-hover:ring-feLightBlue-400"
+							src={contributionInfo.image}
+							alt={username}
+					/>
+				</a>
+			</div>
 		{/each}
 	</div>
 </section>
