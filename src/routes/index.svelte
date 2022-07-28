@@ -55,6 +55,7 @@
 	import Contributors from '$lib/components/Contributors.svelte';
 	import FeatureList from '$lib/components/FeatureList.svelte';
 	import SEO from '$lib/components/SEO.svelte';
+	import Logo from '$lib/components/Logo.svelte';
 
 	import { KitDocsLayout, SocialLink, Chip } from '@svelteness/kit-docs';
 	import '@svelteness/kit-docs/client/polyfills/index.js';
@@ -91,7 +92,7 @@
 			<span
 				class="inline-block transform transition-transform duration-100 group-hover:translate-x-0"
 			>
-				<img src="/logo.png" alt="FastEndpoints logo" class="s-Fa-w7UE9mF1Z max-w-[185px]" />
+				<Logo width="185px" />
 			</span>
 		</a>
 		<Chip>Build Performant APIs Fast!</Chip>
@@ -174,7 +175,7 @@
 					<span
 						class="inline-block transform transition-transform duration-100 group-hover:translate-x-0"
 					>
-						<img src="/logo.png" alt="FastEndpoints logo" class="s-Fa-w7UE9mF1Z max-w-[145px]" />
+						<Logo width="145px" />
 					</span>
 				</a>
 			</div>
