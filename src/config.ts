@@ -24,7 +24,7 @@ type Config = {
 };
 
 export const config = Object.freeze<Config>({
-	siteUrl: 'https://fast-endpoints.com/',
+	siteUrl: 'https://fast-endpoints.com',
 	seo: {
 		title: 'FastEndpoints',
 		description:

@@ -14,11 +14,12 @@
 	{/if}
 
 	{#if !description}
-		<title>{config.seo.description}</title>
+		<meta property="description" content={config.seo.description} />
 	{:else}
-		<title>{description}</title>
+		<meta property="description" content={description} />
 	{/if}
 
+	<link rel="canonical" href={`${config.siteUrl}${$page.url.pathname}`} />
 	<meta name="keywords" content={config.seo.keywords.join(', ')} />
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<!-- OG -->
