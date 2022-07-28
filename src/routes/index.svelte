@@ -104,7 +104,7 @@
 
 	<div slot="main-top">
 		<div>
-			<div class="flex flex-col 1200:flex-row 1200:flex-row-reverse mt-2 1200: mt-12 my-28 gap-12 items-center">
+			<div class="flex flex-col 1200:flex-row 1200:flex-row-reverse mt-12 992:mt-28 my-28 gap-12 items-center">
 				<div class="768:w-2/3">
 					<div class="flex flex-col gap-2">
 						<div class="font-semibold text-feLightBlue-500 text-base">
