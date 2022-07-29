@@ -54,7 +54,6 @@
 		if ($navigating?.from.pathname !== $navigating?.to.pathname) {
 			NProgress.start();
 		}
-		console.log($navigating);
 
 		if (!$navigating) {
 			NProgress.done();
