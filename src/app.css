@@ -309,15 +309,15 @@ ul li {
 }
 
 /* algolia */
-.DocSearch-Button {
+#main-sidebar .DocSearch-Button {
   background-color: hsla(220, 45%, 12%, 1) !important;
 }
 
-.DocSearch-Button:hover {
+#main-sidebar .DocSearch-Button:hover {
   background-color: hsla(220, 45%, 15%, 1) !important;
 }
 
-.dark .DocSearch-Container {
+#main-sidebar .dark .DocSearch-Container {
   background: rgba(9, 14, 24, 0.75) !important;
 }
 

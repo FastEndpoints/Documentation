@@ -20,6 +20,7 @@
 
 	import {
 		Button,
+		Chip,
 		createKitDocsLoader,
 		createSidebarContext,
 		KitDocs,
@@ -97,10 +98,13 @@
 			placeholder="Search documentation"
 			slot="search"
 		/>
-		<div class="logo" slot="navbar-left">
-			<Button href="/" class="max-w-[185px]">
-				<Logo />
-			</Button>
+		<div class="logo flex gap-4 items-center" slot="navbar-left">
+			<div class="max-w-[185px] min-w-[185px]">
+				<Button href="/">
+					<Logo />
+				</Button>
+			</div>
+			<Chip class="text-center !h-auto hidden 420:inline-flex">Build Performant APIs Fast!</Chip>
 		</div>
 
 		<div class="socials flex flex-row" slot="navbar-right-alt">

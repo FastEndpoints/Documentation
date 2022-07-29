@@ -84,11 +84,13 @@
 <SEO />
 
 <KitDocsLayout isSidebarOpen={false} {navbar} sidebar={null}>
-	<div class="logo s-Fa-w7UE9mF1Z flex gap-4 items-center" slot="navbar-left">
-		<Button href="/" class="max-w-[185px]">
-			<Logo />
-		</Button>
-		<Chip>Build Performant APIs Fast!</Chip>
+	<div class="logo flex gap-4 items-center" slot="navbar-left">
+		<div class="px-1 max-w-[185px] min-w-[185px] mt-2">
+			<Button href="/" class="w-full">
+				<Logo />
+			</Button>
+		</div>
+		<Chip class="text-center !h-auto hidden 420:inline-flex">Build Performant APIs Fast!</Chip>
 	</div>
 
 	<div class="socials flex flex-row" slot="navbar-right-alt">
@@ -98,7 +100,7 @@
 
 	<div slot="main-top">
 		<div>
-			<div class="flex flex-col 1200:flex-row 1200:flex-row-reverse mt-12 992:mt-28 my-28 gap-12 items-center">
+			<div class="flex flex-col 1200:flex-row 1200:flex-row-reverse mt-4 992:mt-28 my-28 gap-12 items-center">
 				<div class="768:w-2/3">
 					<div class="flex flex-col gap-2">
 						<div class="font-semibold text-feLightBlue-500 text-base">
@@ -122,10 +124,10 @@
 							</p>
 						</div>
 						<div class="flex flex-row gap-8 mt-8">
-							<SocialLink type="gitHub" href={config.github}>Star on Github</SocialLink>
+							<SocialLink type="gitHub" href={config.github} class="text-sm">Star on Github</SocialLink>
 							<a
-									href="/docs/get-started"
-									class="text-gray-200 bg-gradient-to-tr from-feLightBlue-600 to-feBlue-600 hover:bg-gradient-to-bl focus:ring-2 focus:outline-none focus:ring-feLightBlue-300 dark:focus:ring-feLightBlue-600 font-medium rounded-md text-sm px-5 shadow-md shadow-feBlue-500/20 hover:shadow-lg hover:shadow-feBlue-700/40 py-2.5 text-center uppercase mr-2 mb-2 active:opacity-[0.85]"
+								href="/docs/get-started"
+								class="text-gray-200 bg-gradient-to-tr from-feLightBlue-600 to-feBlue-600 hover:bg-gradient-to-bl focus:ring-2 focus:outline-none focus:ring-feLightBlue-300 dark:focus:ring-feLightBlue-600 font-medium rounded-md text-sm px-5 shadow-md shadow-feBlue-500/20 hover:shadow-lg hover:shadow-feBlue-700/40 py-2.5 text-center uppercase mr-2 mb-2 active:opacity-[0.85]"
 							>Get Started</a
 							>
 						</div>
