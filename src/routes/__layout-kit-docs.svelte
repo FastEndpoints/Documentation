@@ -31,6 +31,7 @@
 	import NProgress from 'nprogress';
 	import 'nprogress/nprogress.css';
 	import { config, navbar } from '../config';
+	import Logo from '../lib/components/Logo.svelte';
 
 	import '@docsearch/css/dist/style.css';
 	// @ts-ignore
@@ -97,8 +98,8 @@
 			slot="search"
 		/>
 		<div class="logo" slot="navbar-left">
-			<Button href="/">
-				<img src={'/logo.png'} alt="FastEndpoints logo" />
+			<Button href="/" class="max-w-[185px]">
+				<Logo />
 			</Button>
 		</div>
 

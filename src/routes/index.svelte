@@ -57,7 +57,7 @@
 	import SEO from '$lib/components/SEO.svelte';
 	import Logo from '$lib/components/Logo.svelte';
 
-	import { KitDocsLayout, SocialLink, Chip } from '@svelteness/kit-docs';
+	import { Button, Chip, KitDocsLayout, SocialLink } from '@svelteness/kit-docs';
 	import '@svelteness/kit-docs/client/polyfills/index.js';
 	import '@svelteness/kit-docs/client/styles/fonts.css';
 	import { onMount } from 'svelte';
@@ -85,16 +85,9 @@
 
 <KitDocsLayout isSidebarOpen={false} {navbar} sidebar={null}>
 	<div class="logo s-Fa-w7UE9mF1Z flex gap-4 items-center" slot="navbar-left">
-		<a
-			class="group transform-gpu text-lg font-medium transition-transform hover:scale-105"
-			href="/"
-		>
-			<span
-				class="inline-block transform transition-transform duration-100 group-hover:translate-x-0"
-			>
-				<Logo width="185px" />
-			</span>
-		</a>
+		<Button href="/" class="max-w-[185px]">
+			<Logo />
+		</Button>
 		<Chip>Build Performant APIs Fast!</Chip>
 	</div>
 
@@ -139,11 +132,11 @@
 					</div>
 				</div>
 				<div class="w-full h-full">
-					<div class="grid [200px_minmax(900px,_1fr)_100px] grid-cols-2 gap-6 ">
-						<div class="rounded-lg col-span-2 1200:col-span-1 bg-feDarkBlue-600 h-[100px]">
+					<div class="grid [200px_minmax(900px,_1fr)_100px] grid-cols-2 gap-6">
+						<div class="rounded-lg col-span-2 1200:col-span-1 bg-feDarkBlue-600">
 							<Highlight language={csharp} code={myRequest} />
 						</div>
-						<div class="rounded-lg col-span-2 1200:col-span-1 bg-feDarkBlue-600 h-[100px]">
+						<div class="rounded-lg col-span-2 1200:col-span-1 bg-feDarkBlue-600">
 							<Highlight language={csharp} code={myResponse} />
 						</div>
 						<div class="rounded-lg col-span-2 bg-feDarkBlue-600 ">
@@ -167,18 +160,9 @@
 		<div class="border-b-2 border-feDarkBlue-600 mb-6 h-1 w-full" />
 		<div class="flex justify-between items-center">
 			<div class="prose text-sm">© FastEndpoints 2022</div>
-			<div class="logo s-Fa-w7UE9mF1Z">
-				<a
-					class="group transform-gpu text-lg font-medium transition-transform hover:scale-105"
-					href="/"
-				>
-					<span
-						class="inline-block transform transition-transform duration-100 group-hover:translate-x-0"
-					>
-						<Logo width="145px" />
-					</span>
-				</a>
-			</div>
+			<Button href="/" class="max-w-[145px]">
+				<Logo />
+			</Button>
 		</div>
 	</footer>
 </KitDocsLayout>
