@@ -159,7 +159,7 @@
 	<footer slot="main-bottom">
 		<div class="border-b-2 border-feDarkBlue-600 mb-6 h-1 w-full" />
 		<div class="flex justify-between items-center">
-			<div class="prose text-sm">© FastEndpoints 2022</div>
+			<div class="prose text-sm">© FastEndpoints {new Date().getFullYear()}</div>
 			<Button href="/" class="max-w-[145px]">
 				<Logo />
 			</Button>
