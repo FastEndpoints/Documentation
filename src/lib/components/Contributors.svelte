@@ -18,7 +18,7 @@
 		<div class="flex flex-wrap gap-4">
 			{#each [...contributors] as [username, contributionInfo]}
 				<div
-					class="transition ease-in-out duration-300 group bg-feDarkBlue-600 rounded-lg p-4 w-full flex flex-wrap hover:bg-transparent items-center justify-center w-20 h-20"
+					class="transition ease-in-out duration-300 group bg-feDarkBlue-600 rounded-lg p-4 flex flex-wrap hover:bg-transparent items-center justify-center w-20 h-20"
 				>
 					<a href={contributionInfo.url} target="_blank">
 						<img
