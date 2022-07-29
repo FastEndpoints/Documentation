@@ -106,12 +106,12 @@
 				</div>
 				<div class="w-full">
 					<div class="flex flex-col gap-2">
-						<div class="font-semibold text-feLightBlue-500 text-base">
+						<h1 class="font-semibold text-feLightBlue-500 text-base">
 							ASP.NET Minimal APIs Made Easy...
-						</div>
-						<div class="font-bold text-3xl mb-4">
+						</h1>
+						<h2 class="font-bold text-3xl mb-4">
 							FastEndpoints is a developer friendly alternative to Minimal APIs & MVC
-						</div>
+						</h2>
 						<div class="prose intro">
 							<p>
 								It nudges you towards the
@@ -121,9 +121,9 @@
 								for convenient & maintainable endpoint creation with virtually no boilerplate.
 							</p>
 							<p>
-								Performance is on par with Minimal APIs. Is faster, uses less memory and does around <a
-									href="/benchmarks">45k more requests per second</a
-								> than a MVC Controller in our benchmarks.
+								Performance is on par with Minimal APIs. It's faster, uses less memory and does
+								around <a title="Benchmarks" href="/benchmarks">45k more requests per second</a> than
+								a MVC Controller in our benchmarks.
 							</p>
 						</div>
 						<div class="flex flex-row gap-8 mt-8">
