@@ -63,6 +63,10 @@
 </div>
 
 <style global>
+	.order-none {
+		order: 0!important;
+	}
+
 	.order-1 {
 		order: 1;
 	}
