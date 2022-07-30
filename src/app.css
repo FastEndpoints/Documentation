@@ -160,19 +160,20 @@ pre code .line {
 
 /* scrollbars */
 ::-webkit-scrollbar {
-  width: 7px;
+  width: 7px !important;
+  height: 7px !important;
 }
 
 ::-webkit-scrollbar-track {
-  background: #3f3f3f;
+  background: #3f3f3f !important;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgb(37, 37, 37);
+  background: rgb(37, 37, 37) !important;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgb(211, 211, 211);
+  background: rgb(211, 211, 211) !important;
 }
 
 /* nav */
@@ -332,7 +333,7 @@ ul li {
 pre code {
   font-size: 13px;
   border-radius: 6px;
-  background: #141A24!important;
+  background: #141A24 !important;
 }
 
 @tailwind base;
