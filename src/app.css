@@ -127,10 +127,6 @@ body {
   }
 }
 
-.kit-docs .header-anchor:focus {
-  opacity: 1;
-}
-
 /* code samples */
 code {
   line-height: 1.2 !important;
@@ -297,6 +293,17 @@ body {
 
 .fixed.top-0.z-30.w-full.flex-none {
   background: rgba(9, 14, 24, 0.5) !important;
+}
+
+/* headline anchor */
+a.header-anchor,
+a.header-anchor:hover {
+  text-decoration: none !important;
+  border-bottom: none !important;
+}
+
+.kit-docs .header-anchor:focus {
+  opacity: 1;
 }
 
 /* Lists */
