@@ -149,7 +149,7 @@
 					</div>
 				</div>
 				<div class="w-full h-full">
-					<div class="grid [200px_minmax(900px,_1fr)_100px] grid-cols-2 gap-2">
+					<div class="grid [200px_minmax(900px,_1fr)_100px] grid-cols-2 gap-[0.4rem]">
 						<div class="rounded-lg col-span-2 1200:col-span-1 bg-feDarkBlue-600">
 							<Highlight language={csharp} code={myRequest} />
 						</div>
