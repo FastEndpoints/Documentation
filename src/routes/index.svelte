@@ -47,10 +47,6 @@
 	};
 </script>
 
-<svelte:head>
-	{@html atomOneDark}
-</svelte:head>
-
 <script lang="ts">
 	import Contributors from '$lib/components/Contributors.svelte';
 	import FeatureList from '$lib/components/FeatureList.svelte';
@@ -67,19 +63,34 @@
 	import { config, navbar } from '../config';
 	import '../vars.css';
 
-	import Highlight from "svelte-highlight";
-	import csharp from "svelte-highlight/languages/csharp";
-	import atomOneDark from "svelte-highlight/styles/atom-one-dark";
+	import Highlight from 'svelte-highlight';
+	import csharp from 'svelte-highlight/languages/csharp';
+	import atomOneDark from 'svelte-highlight/styles/atom-one-dark';
 
-	const tab = "\t\t";
-	const myRequest = `public class MyRequest \n{\n${tab}public string FirstName { get; set; }\n\t\tpublic string LastName { get; set; } \n}`;
-	const myResponse = "public class MyResponse \n{\n\t\tpublic string FullName { get; set; }\n\t\tpublic string Message { get; set; } \n}";
-	const myEndpoint = `public class MyEndpoint : Endpoint<MyRequest, MyResponse>\n{\n${tab}public override void Configure()\n${tab}{\n${tab.repeat(2)}Post(\"/hello/world\");\n${tab.repeat(2)}AllowAnonymous();\n${tab}}\n\n${tab}public override async Task HandleAsync(MyRequest r, CancellationToken c)\n${tab}{\n${tab.repeat(2)}await SendAsync(new()\n${tab.repeat(2)}{\n${tab.repeat(3)}FullName = $\"{r.FirstName} {r.LastName}\",\n${tab.repeat(3)}Message = \"Welcome to FastEndpoints...\"${tab.repeat(2)} \n ${tab.repeat(2)}}\n\n${tab}}\n}`;
+	const tab = '\t\t';
+	const myRequest = `public class MyRequest \n{\n\tpublic string FirstName { get; set; }\n\tpublic string LastName { get; set; } \n}`;
+	const myResponse =
+		'public class MyResponse \n{\n\tpublic string FullName { get; set; }\n\tpublic string Message { get; set; } \n}';
+	const myEndpoint = `public class MyEndpoint : Endpoint<MyRequest, MyResponse>\n{\n${tab}public override void Configure()\n${tab}{\n${tab.repeat(
+		2
+	)}Post(\"/hello/world\");\n${tab.repeat(
+		2
+	)}AllowAnonymous();\n${tab}}\n\n${tab}public override async Task HandleAsync(MyRequest r, CancellationToken c)\n${tab}{\n${tab.repeat(
+		2
+	)}await SendAsync(new()\n${tab.repeat(2)}{\n${tab.repeat(
+		3
+	)}FullName = $\"{r.FirstName} {r.LastName}\",\n${tab.repeat(
+		3
+	)}Message = \"Welcome to FastEndpoints...\"${tab.repeat(2)}\n${tab.repeat(2)}}\n${tab}}\n}`;
 
 	export let contributors: Map<string, ContributorInfo>;
 
 	onMount(() => document.querySelector('[slot="navbar-right-alt"]')?.nextElementSibling?.remove());
 </script>
+
+<svelte:head>
+	{@html atomOneDark}
+</svelte:head>
 
 <SEO />
 
@@ -100,8 +111,10 @@
 
 	<div slot="main-top">
 		<div>
-			<div class="flex flex-col 1200:flex-row 1200:flex-row-reverse mt-4 992:mt-28 my-28 gap-12 items-center">
-				<div class="768:w-2/3">
+			<div
+				class="flex flex-col 1200:flex-row 1200:flex-row-reverse mt-4 992:mt-28 my-28 gap-6 items-center"
+			>
+				<div class="1200:w-half">
 					<div class="flex flex-col gap-2">
 						<h1 class="font-semibold text-feLightBlue-500 text-base">
 							ASP.NET Minimal APIs Made Easy...
@@ -118,31 +131,32 @@
 								for convenient & maintainable endpoint creation with virtually no boilerplate.
 							</p>
 							<p>
-
 								Performance is on par with Minimal APIs. It's faster, uses less memory and does
 								around <a title="Benchmarks" href="/benchmarks">45k more requests per second</a> than
 								a MVC Controller in our benchmarks.
 							</p>
 						</div>
 						<div class="flex flex-row gap-8 mt-8">
-							<SocialLink type="gitHub" href={config.github} class="text-sm">Star on Github</SocialLink>
+							<SocialLink type="gitHub" href={config.github} class="text-sm"
+								>Star on Github</SocialLink
+							>
 							<a
 								href="/docs/get-started"
 								class="text-gray-200 bg-gradient-to-tr from-feLightBlue-600 to-feBlue-600 hover:bg-gradient-to-bl focus:ring-2 focus:outline-none focus:ring-feLightBlue-300 dark:focus:ring-feLightBlue-600 font-medium rounded-md text-sm px-5 shadow-md shadow-feBlue-500/20 hover:shadow-lg hover:shadow-feBlue-700/40 py-2.5 text-center uppercase mr-2 mb-2 active:opacity-[0.85]"
-							>Get Started</a
+								>Get Started</a
 							>
 						</div>
 					</div>
 				</div>
 				<div class="w-full h-full">
-					<div class="grid [200px_minmax(900px,_1fr)_100px] grid-cols-2 gap-6">
+					<div class="grid [200px_minmax(900px,_1fr)_100px] grid-cols-2 gap-2">
 						<div class="rounded-lg col-span-2 1200:col-span-1 bg-feDarkBlue-600">
 							<Highlight language={csharp} code={myRequest} />
 						</div>
 						<div class="rounded-lg col-span-2 1200:col-span-1 bg-feDarkBlue-600">
 							<Highlight language={csharp} code={myResponse} />
 						</div>
-						<div class="rounded-lg col-span-2 bg-feDarkBlue-600 ">
+						<div class="rounded-lg col-span-2 bg-feDarkBlue-600">
 							<Highlight language={csharp} code={myEndpoint} />
 						</div>
 					</div>
