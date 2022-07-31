@@ -148,10 +148,11 @@ pre code .line {
 /* on this page */
 .on-this-page {
   font-size: 0.85rem;
+  min-width: 14rem !important;
 }
 
 .on-this-page li {
-  line-height: 1.5 !important;
+  line-height: 1.1 !important;
 }
 
 /* scrollbars */
