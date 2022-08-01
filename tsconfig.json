@@ -10,6 +10,9 @@
 		"sourceMap": false,
 		"strict": true,
 		"noUnusedLocals": true,
-		"noUnusedParameters": true
+		"noUnusedParameters": true,
+		"paths": {
+			"highlight.js/*": ["node_modules/highlight.js/lib/*"]
+		}
 	}
 }
