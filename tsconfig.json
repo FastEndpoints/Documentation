@@ -7,9 +7,12 @@
 		"forceConsistentCasingInFileNames": true,
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
-		"sourceMap": true,
+		"sourceMap": false,
 		"strict": true,
 		"noUnusedLocals": true,
-		"noUnusedParameters": true
+		"noUnusedParameters": true,
+		"paths": {
+			"highlight.js/*": ["node_modules/highlight.js/lib/*"]
+		}
 	}
 }

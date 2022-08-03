@@ -20,6 +20,7 @@
 
 	import {
 		Button,
+		Chip,
 		createKitDocsLoader,
 		createSidebarContext,
 		KitDocs,
@@ -31,6 +32,7 @@
 	import NProgress from 'nprogress';
 	import 'nprogress/nprogress.css';
 	import { config, navbar } from '../config';
+	import Logo from '../lib/components/Logo.svelte';
 
 	import '@docsearch/css/dist/style.css';
 	// @ts-ignore
@@ -52,6 +54,7 @@
 		if ($navigating?.from.pathname !== $navigating?.to.pathname) {
 			NProgress.start();
 		}
+
 		if (!$navigating) {
 			NProgress.done();
 		}
@@ -61,7 +64,6 @@
 
 	$: category = $activeCategory ? `${$activeCategory}: ` : '';
 	$: title = meta ? `${category}${meta.title} | FastEndpoints` : null;
-	// @ts-ignore
 	$: description = meta?.description;
 </script>
 
@@ -70,7 +72,11 @@
 		{#if title}
 			<title>{title}</title>
 		{/if}
-		<meta name="description" content={config.seo.description} />
+		{#if !description}
+			<meta name="description" content={config.seo.description} />
+		{:else}
+			<meta name="description" content={description} />
+		{/if}
 		<meta name="keywords" content={config.seo.keywords.join(', ')} />
 		<!-- OG -->
 		<meta property="og:url" content={`${config.siteUrl}${$page.url.pathname}`} />
@@ -94,10 +100,13 @@
 			placeholder="Search documentation"
 			slot="search"
 		/>
-		<div class="logo" slot="navbar-left">
-			<Button href="/">
-				<img src={'/logo.png'} alt="FastEndpoints logo" />
-			</Button>
+		<div class="logo flex gap-4 items-center" slot="navbar-left">
+			<div class="max-w-[185px] min-w-[185px]">
+				<Button href="/">
+					<Logo />
+				</Button>
+			</div>
+			<Chip class="text-center !h-auto hidden 420:inline-flex">Build Performant APIs Fast!</Chip>
 		</div>
 
 		<div class="socials flex flex-row" slot="navbar-right-alt">
@@ -107,15 +116,15 @@
 
 		<slot />
 
-		<!-- <div slot="main-bottom" class="footer">
-			<footer
-				class="992:mt-10 mt-10 flex w-full flex-col items-center justify-center border-t border-gray-200 bg-gray-100 py-12 text-center text-base font-medium dark:border-gray-600 dark:bg-gray-700"
-			>
-				<span class="text-gray-soft mt-8">
-					© FastEndpoints {new Date().getFullYear()}
-				</span>
-			</footer>
-		</div> -->
+		<footer slot="main-bottom">
+			<div class="border-b-2 border-feDarkBlue-600 mb-6 h-1 w-full" />
+			<div class="flex justify-between items-center">
+				<div class="prose text-sm">© FastEndpoints {new Date().getFullYear()}</div>
+				<Button href="/" class="max-w-[145px]">
+					<Logo />
+				</Button>
+			</div>
+		</footer>
 	</KitDocsLayout>
 </KitDocs>
 

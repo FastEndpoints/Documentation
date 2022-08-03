@@ -72,5 +72,6 @@ Statistics        Avg      Stdev        Max
 ```
 
 ## TechEmpower Benchmark (Preliminary)
-
-<img src="/techempower-benchmarks.png" alt="TechEmpower Benchmark" />
+<a href="https://www.techempower.com/benchmarks/#section=test&runid=b0f80483-5664-4bfb-9614-de615d1ac8f8&hw=ph&test=json&l=zik0zh-sf&c=8&a=2" target="_blank">
+  <img src="/techempower-benchmarks.png" alt="TechEmpower Benchmark" />
+</a>

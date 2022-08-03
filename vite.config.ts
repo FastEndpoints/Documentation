@@ -12,5 +12,8 @@ export default {
 			}
 		}),
 		sveltekit()
-	]
+	],
+	optimizeDeps: {
+		include: ["highlight.js", "highlight.js/lib/core"],
+	},
 } as UserConfig;

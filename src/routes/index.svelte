@@ -1,50 +1,109 @@
+<script lang="ts" context="module">
+	import type { Load } from '@sveltejs/kit';
+
+	export type ContributorInfo = {
+		image: string;
+		contributions: number;
+		url: string;
+	};
+
+	export const load: Load = async () => {
+		const [framework, docs] = await Promise.all([
+			getContributors('FastEndpoints'),
+			getContributors('FastEndpoints-DocSite')
+		]);
+
+		const contributors = [...docs, ...framework]
+			.sort((a, b) => b.contributions - a.contributions)
+			.reduce((acc, current) => {
+				let contributionInfo: ContributorInfo | undefined;
+				let contributor = acc.get(current.login);
+
+				if (!contributor) {
+					contributionInfo = {
+						url: current.html_url,
+						contributions: 0,
+						image: current.avatar_url
+					};
+				} else {
+					contributionInfo = contributor;
+				}
+
+				contributionInfo.contributions += current.contributions;
+
+				acc.set(current.login, contributionInfo);
+
+				return acc;
+			}, new Map<string, ContributorInfo>());
+
+		return {
+			cache: {
+				maxage: 3600
+			},
+			props: {
+				contributors
+			}
+		};
+	};
+</script>
+
 <script lang="ts">
-	import { page } from '$app/stores';
-	import { Button, KitDocsLayout, SocialLink } from '@svelteness/kit-docs';
+	import Contributors from '$lib/components/Contributors.svelte';
+	import FeatureList from '$lib/components/FeatureList.svelte';
+	import Logo from '$lib/components/Logo.svelte';
+	import SEO from '$lib/components/SEO.svelte';
+
+	import { Button, Chip, KitDocsLayout, SocialLink } from '@svelteness/kit-docs';
 	import '@svelteness/kit-docs/client/polyfills/index.js';
 	import '@svelteness/kit-docs/client/styles/fonts.css';
 	import { onMount } from 'svelte';
+
+	import { getContributors } from '$lib/api';
 	import '../app.css';
 	import { config, navbar } from '../config';
 	import '../vars.css';
 
-	import FeatureList from '../components/feature-list.svelte';
+	import Highlight from 'svelte-highlight';
+	// @ts-ignore
+	import csharp from 'svelte-highlight/languages/csharp';
+	// @ts-ignore
+	import atomOneDark from 'svelte-highlight/styles/atom-one-dark';
+
+	const tab = '\t\t';
+	const myRequest = `public class MyRequest \n{\n\tpublic string FirstName { get; set; }\n\tpublic string LastName { get; set; } \n}`;
+	const myResponse =
+		'public class MyResponse \n{\n\tpublic string FullName { get; set; }\n\tpublic string Message { get; set; } \n}';
+	const myEndpoint = `public class MyEndpoint : Endpoint<MyRequest, MyResponse>\n{\n${tab}public override void Configure()\n${tab}{\n${tab.repeat(
+		2
+	)}Post(\"/hello/world\");\n${tab.repeat(
+		2
+	)}AllowAnonymous();\n${tab}}\n\n${tab}public override async Task HandleAsync(MyRequest r, CancellationToken c)\n${tab}{\n${tab.repeat(
+		2
+	)}await SendAsync(new()\n${tab.repeat(2)}{\n${tab.repeat(
+		3
+	)}FullName = $\"{r.FirstName} {r.LastName}\",\n${tab.repeat(
+		3
+	)}Message = \"Welcome to FastEndpoints...\"${tab.repeat(2)}\n${tab.repeat(2)}});\n${tab})\n}`;
+
+	export let contributors: Map<string, ContributorInfo>;
 
 	onMount(() => document.querySelector('[slot="navbar-right-alt"]')?.nextElementSibling?.remove());
 </script>
 
 <svelte:head>
-	<title>{config.seo.title}</title>
-	<meta name="description" content={config.seo.description} />
-	<meta name="keywords" content={config.seo.keywords.join(', ')} />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<!-- OG -->
-	<meta property="og:url" content={`${config.siteUrl}${$page.url.pathname}`} />
-	<meta property="og:type" content={config.openGraph.type} />
-	<meta property="og:site_name" content={config.openGraph.siteName} />
-	<meta property="og:description" content={config.openGraph.description} />
-	<meta property="og:title" content={config.openGraph.title} />
-	<meta property="og:locale" content={config.openGraph.locale} />
-	<!-- Robots -->
-	<!-- <meta name="robots" content="index,follow" /> -->
-	<!-- <meta name="googlebot" content="index,follow" /> -->
+	{@html atomOneDark}
 </svelte:head>
 
+<SEO />
+
 <KitDocsLayout isSidebarOpen={false} {navbar} sidebar={null}>
-	<div class="logo s-Fa-w7UE9mF1Z flex gap-4 items-center" slot="navbar-left">
-		<a
-			class="group transform-gpu text-lg font-medium transition-transform hover:scale-105"
-			href="/"
-		>
-			<span
-				class="inline-block transform transition-transform duration-100 group-hover:translate-x-0"
-			>
-				<img src="/logo.png" alt="FastEndpoints logo" class="s-Fa-w7UE9mF1Z" />
-			</span>
-		</a>
-		<div class="prose text-xs font-semibold uppercase bg-feDarkBlue-600 px-4 py-2 mr-2 rounded-lg">
-			Build Performant APIs Fast!
+	<div class="logo flex gap-4 items-center" slot="navbar-left">
+		<div class="px-1 max-w-[185px] min-w-[185px] mt-2">
+			<Button href="/" class="w-full">
+				<Logo />
+			</Button>
 		</div>
+		<Chip class="text-center !h-auto hidden 420:inline-flex">Build Performant APIs Fast!</Chip>
 	</div>
 
 	<div class="socials flex flex-row" slot="navbar-right-alt">
@@ -54,22 +113,17 @@
 
 	<div slot="main-top">
 		<div>
-			<div class="flex gap-16 h-96 items-center my-44">
-				<div class="w-full h-full">
-					<div class="grid grid-rows-2 grid-cols-2 gap-4 h-full">
-						<div class="request rounded-lg col-span-1 bg-feDarkBlue-600" />
-						<div class="response rounded-lg col-span-1 bg-feDarkBlue-600" />
-						<div class="endpoint rounded-lg col-span-2 w-full bg-feDarkBlue-600" />
-					</div>
-				</div>
-				<div class="w-full">
-					<div class="flex flex-col gap-4">
-						<div class="font-semibold text-feLightBlue-500 text-base">
-							A Light-Weight REST API Framework For ASP.Net 6
-						</div>
-						<div class="font-bold text-3xl">
-							FastEndpoints is a developer friendly alternative to Minimal API & MVC
-						</div>
+			<div
+				class="flex flex-col 1200:flex-row 1200:flex-row-reverse mt-4 992:mt-28 my-28 gap-6 items-center"
+			>
+				<div class="1200:w-half">
+					<div class="flex flex-col gap-2">
+						<h1 class="font-semibold !text-feLightBlue-500 text-base">
+							ASP.NET Minimal APIs Made Easy...
+						</h1>
+						<h2 class="font-bold text-3xl mb-4">
+							FastEndpoints is a developer friendly alternative to Minimal APIs & MVC
+						</h2>
 						<div class="prose intro">
 							<p>
 								It nudges you towards the
@@ -79,43 +133,55 @@
 								for convenient & maintainable endpoint creation with virtually no boilerplate.
 							</p>
 							<p>
-								Performance is on par with Minimal Api. Is faster, uses less memory and does around <a
-									href="/benchmarks">45k more requests per second</a
-								> than a MVC Controller in our benchmarks.
+								Performance is on par with Minimal APIs. It's faster, uses less memory and does
+								around <a title="Benchmarks" href="/benchmarks">45k more requests per second</a> than
+								a MVC Controller in our benchmarks.
 							</p>
+						</div>
+						<div class="flex flex-row gap-8 mt-8">
+							<SocialLink type="gitHub" href={config.github} class="text-sm"
+								>Star on Github</SocialLink
+							>
+							<a
+								href="/docs/get-started"
+								class="text-gray-200 bg-gradient-to-tr from-feLightBlue-600 to-feBlue-600 hover:bg-gradient-to-bl focus:ring-2 focus:outline-none focus:ring-feLightBlue-300 dark:focus:ring-feLightBlue-600 font-medium rounded-md text-sm px-5 shadow-md shadow-feBlue-500/20 hover:shadow-lg hover:shadow-feBlue-700/40 py-2.5 text-center uppercase mr-2 mb-2 active:opacity-[0.85]"
+								>Get Started</a
+							>
+						</div>
+					</div>
+				</div>
+				<div class="w-full h-full">
+					<div class="grid [200px_minmax(900px,_1fr)_100px] grid-cols-2 gap-[0.4rem]">
+						<div class="rounded-lg col-span-2 1200:col-span-1 bg-feDarkBlue-600">
+							<Highlight language={csharp} code={myRequest} />
+						</div>
+						<div class="rounded-lg col-span-2 1200:col-span-1 bg-feDarkBlue-600">
+							<Highlight language={csharp} code={myResponse} />
+						</div>
+						<div class="rounded-lg col-span-2 bg-feDarkBlue-600">
+							<Highlight language={csharp} code={myEndpoint} />
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="my-44">
-				<div class="flex flex-col gap-4 mb-12">
-					<div class="font-semibold text-feLightBlue-500 text-base">Rapid Development</div>
-					<div class="font-bold text-4xl">Using These Handy Features</div>
-				</div>
+			<div class="border-b-2 border-feDarkBlue-600" />
+			<div class="my-28">
 				<FeatureList />
+			</div>
+			<div class="border-b-2 border-feDarkBlue-600" />
+			<div class="my-28">
+				<Contributors {contributors} />
 			</div>
 		</div>
 	</div>
-	<div class="border-t-2 border-feDarkBlue-700 mb-6" />
-	<footer slot="main-bottom" class="flex justify-between items-center">
-		<div class="prose text-sm">© FastEndpoints 2022</div>
-		<div class="logo s-Fa-w7UE9mF1Z">
-			<a
-				class="group transform-gpu text-lg font-medium transition-transform hover:scale-105"
-				href="/"
-			>
-				<span
-					class="inline-block transform transition-transform duration-100 group-hover:translate-x-0"
-				>
-					<img src="/logo.png" alt="FastEndpoints logo" class="s-Fa-w7UE9mF1Z" />
-				</span>
-			</a>
+
+	<footer slot="main-bottom">
+		<div class="border-b-2 border-feDarkBlue-600 mb-6 h-1 w-full" />
+		<div class="flex justify-between items-center">
+			<div class="prose text-sm">© FastEndpoints {new Date().getFullYear()}</div>
+			<Button href="/" class="max-w-[145px]">
+				<Logo />
+			</Button>
 		</div>
 	</footer>
 </KitDocsLayout>
-
-<style>
-	.logo img {
-		width: 185px;
-	}
-</style>
