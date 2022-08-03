@@ -10,6 +10,7 @@ type Config = {
   openGraph: {
     title: string;
     url: string;
+    image: string;
     siteName: string;
     type: string;
     description: string;
@@ -45,6 +46,7 @@ export const config = Object.freeze<Config>({
   openGraph: {
     title: 'FastEndpoints',
     url: 'https://fast-endpoints.com',
+    image: '/fe-og-image.png',
     siteName: 'FastEndpoints',
     type: 'website',
     description: 'FastEndpoints is a developer friendly alternative to Minimal APIs & MVC for rapid REST API development.',

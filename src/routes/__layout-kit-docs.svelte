@@ -84,6 +84,7 @@
 		<meta name="keywords" content={config.seo.keywords.join(', ')} />
 		<!-- OG -->
 		<meta property="og:url" content={`${config.siteUrl}${$page.url.pathname}`} />
+		<meta property="og:image" content={`${config.siteUrl}${config.openGraph.image}`} />
 		<meta property="og:type" content={config.openGraph.type} />
 		<meta property="og:site_name" content={config.openGraph.siteName} />
 		<meta property="og:description" content={config.openGraph.description} />
