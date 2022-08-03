@@ -55,6 +55,10 @@
 			NProgress.start();
 		}
 
+		if ($navigating?.to.pathname === '/') {
+			NProgress.done();
+		}
+
 		if (!$navigating) {
 			NProgress.done();
 		}
