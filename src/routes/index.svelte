@@ -118,10 +118,10 @@
 			>
 				<div class="1200:w-half">
 					<div class="flex flex-col gap-2">
-						<h1 class="font-semibold !text-feLightBlue-500 text-base">
+						<h1 class="!font-semibold !text-feLightBlue-500 !text-base">
 							ASP.NET Minimal APIs Made Easy...
 						</h1>
-						<h2 class="font-bold text-3xl mb-4">
+						<h2 class="!font-bold !text-3xl !mb-4">
 							FastEndpoints is a developer friendly alternative to Minimal APIs & MVC
 						</h2>
 						<div class="prose intro">
