@@ -24,7 +24,7 @@ type Config = {
   };
 };
 
-const isProduction = false;
+const isProduction = true;
 
 export const config = Object.freeze<Config>({
   siteUrl: isProduction
