@@ -92,14 +92,6 @@
 
 <svelte:head>
 	{@html atomOneDark}
-	<!-- OG -->
-	<meta property="og:url" content={`${config.siteUrl}`} />
-	<meta property="og:image" content={`${config.siteUrl}${config.openGraph.image}`} />
-	<meta property="og:type" content={config.openGraph.type} />
-	<meta property="og:site_name" content={config.openGraph.siteName} />
-	<meta property="og:description" content={config.openGraph.description} />
-	<meta property="og:title" content={config.openGraph.title} />
-	<meta property="og:locale" content={config.openGraph.locale} />
 </svelte:head>
 
 <SEO />
