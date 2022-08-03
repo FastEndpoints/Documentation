@@ -50,8 +50,8 @@
 <script lang="ts">
 	import Contributors from '$lib/components/Contributors.svelte';
 	import FeatureList from '$lib/components/FeatureList.svelte';
-	import SEO from '$lib/components/SEO.svelte';
 	import Logo from '$lib/components/Logo.svelte';
+	import SEO from '$lib/components/SEO.svelte';
 
 	import { Button, Chip, KitDocsLayout, SocialLink } from '@svelteness/kit-docs';
 	import '@svelteness/kit-docs/client/polyfills/index.js';
@@ -64,7 +64,9 @@
 	import '../vars.css';
 
 	import Highlight from 'svelte-highlight';
+	// @ts-ignore
 	import csharp from 'svelte-highlight/languages/csharp';
+	// @ts-ignore
 	import atomOneDark from 'svelte-highlight/styles/atom-one-dark';
 
 	const tab = '\t\t';
@@ -81,7 +83,7 @@
 		3
 	)}FullName = $\"{r.FirstName} {r.LastName}\",\n${tab.repeat(
 		3
-	)}Message = \"Welcome to FastEndpoints...\"${tab.repeat(2)}\n${tab.repeat(2)}}\n${tab}});\n}`;
+	)}Message = \"Welcome to FastEndpoints...\"${tab.repeat(2)}\n${tab.repeat(2)}});\n${tab})\n}`;
 
 	export let contributors: Map<string, ContributorInfo>;
 

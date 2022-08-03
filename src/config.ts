@@ -10,6 +10,7 @@ type Config = {
   openGraph: {
     title: string;
     url: string;
+    image: string;
     siteName: string;
     type: string;
     description: string;
@@ -23,8 +24,12 @@ type Config = {
   };
 };
 
+const isProduction = true;
+
 export const config = Object.freeze<Config>({
-  siteUrl: 'https://fast-endpoints.com',
+  siteUrl: isProduction
+    ? 'https://fast-endpoints.com'
+    : 'https://fast-endpoints-doc-site.vercel.app',
   seo: {
     title: 'FastEndpoints',
     description: 'FastEndpoints is a developer friendly alternative to Minimal APIs & MVC',
@@ -45,9 +50,11 @@ export const config = Object.freeze<Config>({
   openGraph: {
     title: 'FastEndpoints',
     url: 'https://fast-endpoints.com',
+    image: '/fe-og-image.png',
     siteName: 'FastEndpoints',
     type: 'website',
-    description: 'FastEndpoints is a developer friendly alternative to Minimal APIs & MVC for rapid REST API development.',
+    description:
+      'FastEndpoints is a developer friendly alternative to Minimal APIs & MVC for rapid REST API development.',
     locale: 'en'
   },
   github: 'https://github.com/dj-nitehawk/FastEndpoints',
@@ -69,7 +76,7 @@ export const navbar: NavbarConfig = {
     },
     {
       title: 'API Reference',
-      slug: 'http://api-ref.fast-endpoints.com'
+      slug: 'https://api-ref.fast-endpoints.com/api/FastEndpoints.html'
     },
     { title: 'Donate', slug: 'https://www.paypal.com/donate/?hosted_button_id=AU3SCQX9FXYCS' }
   ]

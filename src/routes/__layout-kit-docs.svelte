@@ -55,6 +55,10 @@
 			NProgress.start();
 		}
 
+		if ($navigating?.to.pathname === '/') {
+			NProgress.done();
+		}
+
 		if (!$navigating) {
 			NProgress.done();
 		}
@@ -64,7 +68,6 @@
 
 	$: category = $activeCategory ? `${$activeCategory}: ` : '';
 	$: title = meta ? `${category}${meta.title} | FastEndpoints` : null;
-	// @ts-ignore
 	$: description = meta?.description;
 </script>
 
@@ -73,10 +76,15 @@
 		{#if title}
 			<title>{title}</title>
 		{/if}
-		<meta name="description" content={config.seo.description} />
+		{#if !description}
+			<meta name="description" content={config.seo.description} />
+		{:else}
+			<meta name="description" content={description} />
+		{/if}
 		<meta name="keywords" content={config.seo.keywords.join(', ')} />
 		<!-- OG -->
 		<meta property="og:url" content={`${config.siteUrl}${$page.url.pathname}`} />
+		<meta property="og:image" content={`${config.siteUrl}${config.openGraph.image}`} />
 		<meta property="og:type" content={config.openGraph.type} />
 		<meta property="og:site_name" content={config.openGraph.siteName} />
 		<meta property="og:description" content={config.openGraph.description} />

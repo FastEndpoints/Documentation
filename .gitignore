@@ -111,3 +111,6 @@ node_modules
 .env
 .env.*
 !.env.example
+
+# Project specific
+/docs
