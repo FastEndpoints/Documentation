@@ -29,7 +29,7 @@ const isProduction = true;
 export const config = Object.freeze<Config>({
   siteUrl: isProduction
     ? 'https://fast-endpoints.com'
-    : 'https://fast-endpoints-doc-site.vercel.app',
+    : 'https://fast-endpoints.netlify.app',
   seo: {
     title: 'FastEndpoints',
     description: 'FastEndpoints is a developer friendly alternative to Minimal APIs & MVC',
@@ -57,7 +57,7 @@ export const config = Object.freeze<Config>({
       'FastEndpoints is a developer friendly alternative to Minimal APIs & MVC for rapid REST API development.',
     locale: 'en'
   },
-  github: 'https://github.com/dj-nitehawk/FastEndpoints',
+  github: 'https://github.com/FastEndpoints/Library',
   discord: 'https://discord.com/invite/yQZ4uvfF2E',
   algolia: {
     apiKey: 'dbd4bfe95a65436b50a0749102e9f96a',
