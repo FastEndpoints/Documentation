@@ -142,9 +142,9 @@
 		--kd-color-brand-rgb: 0, 223, 255;
 	}
 
-	.logo img :global {
+	/* .logo img :global {
 		width: 185px;
-	}
+	} */
 
 	.logo :global(a) {
 		display: flex;
