@@ -145,6 +145,10 @@ pre code .line {
   background-color: #17171e !important;
 }
 
+div.code-fence {
+  max-height: unset !important;
+}
+
 /* on this page */
 .on-this-page {
   font-size: 0.85rem;
