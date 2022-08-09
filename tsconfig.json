@@ -13,13 +13,13 @@
     "noUnusedParameters": true,
     "paths": {
       "highlight.js/*": [
-        "node_modules/highlight.js/lib/*"
+        "./node_modules/highlight.js/lib/*"
       ],
       "$lib": [
-        "src/lib"
+        "./src/lib"
       ],
       "$lib/*": [
-        "src/lib/*"
+        "./src/lib/*"
       ]
     }
   }
