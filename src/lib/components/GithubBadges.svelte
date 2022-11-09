@@ -18,9 +18,9 @@
 			class="max-w-[105px]"
 		/>
 	</Button>
-	<Button href="https://dev.azure.com/RyanGunner/FastEndpoints/_build/latest?definitionId=6">
+	<Button href="https://dev.azure.com/RyanGunner/FastEndpoints/_build/latest?definitionId=7">
 		<img
-			src="https://img.shields.io/azure-devops/tests/RyanGunner/FastEndpoints/6?color=blue&label=tests&logo=Azure%20DevOps&style=flat-rounded"
+			src="https://img.shields.io/azure-devops/tests/RyanGunner/FastEndpoints/7?color=blue&label=tests&logo=Azure%20DevOps&style=flat-rounded"
 			alt="FastEndpoints Test Coverage"
 			class="max-w-[105px]"
 		/>
