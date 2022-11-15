@@ -134,7 +134,7 @@
 							</p>
 							<p>
 								Performance is on par with Minimal APIs. It's faster, uses less memory and does
-								around <a title="Benchmarks" href="/benchmarks">45k more requests per second</a> than
+								around <a title="Benchmarks" href="/benchmarks">35k more requests per second</a> than
 								a MVC Controller in our benchmarks.
 							</p>
 						</div>
