@@ -69,7 +69,7 @@
        slot="result" 
        let:selected 
        let:result 
-       class={`cursor-pointer hover:bg-feDarkBlue-800 text-sm w-full ${selected ? "bg-feDarkBlue-500" : ''} `}
+       class={`[&_mark]:bg-feLightBlue-600 cursor-pointer hover:bg-feDarkBlue-800 text-sm w-full ${selected ? "bg-feDarkBlue-500" : ''} `}
     >
         <a href={result.href} 
             class="ml-10"
