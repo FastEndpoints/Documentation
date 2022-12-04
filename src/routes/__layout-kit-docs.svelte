@@ -15,6 +15,7 @@
 	import '@svelteness/kit-docs/client/styles/fonts.css';
 	import '../app.css';
 	import '../vars.css';
+	import { goto } from '$app/navigation';
 
 	import { navigating, page } from '$app/stores';
 
@@ -34,10 +35,7 @@
 	import { config, navbar } from '../config';
 	import Logo from '../lib/components/Logo.svelte';
 
-	import '@docsearch/css/dist/style.css';
-	// @ts-ignore
-	import { Algolia } from '@svelteness/kit-docs/client/algolia';
-	import '@svelteness/kit-docs/client/styles/docsearch.css';
+	import { searchStore, SearchBox, SearchModal } from '$lib/search/client';
 
 	export let meta: MarkdownMeta | null = null;
 	export let sidebar: ResolvedSidebarConfig | null = null;
@@ -69,6 +67,11 @@
 	$: category = $activeCategory ? `${$activeCategory}: ` : '';
 	$: title = meta ? `${category}${meta.title} | FastEndpoints` : null;
 	$: description = meta?.description;
+
+	async function navigate(href: string) {
+		searchStore.close();
+		await goto(href);
+	}
 </script>
 
 <svelte:head>
@@ -98,13 +101,7 @@
 
 <KitDocs {meta}>
 	<KitDocsLayout {navbar} {sidebar} search>
-		<Algolia
-			apiKey={config.algolia.apiKey}
-			appId={config.algolia.appId}
-			indexName="docsearch"
-			placeholder="Search documentation"
-			slot="search"
-		/>
+		<SearchBox on:click={() => searchStore.toggleOpen() } slot="search"/>
 		<div class="logo flex gap-4 items-center" slot="navbar-left">
 			<div class="max-w-[185px] min-w-[185px]">
 				<Button href="/">
@@ -131,6 +128,21 @@
 			</div>
 		</footer>
 	</KitDocsLayout>
+		<SearchModal 
+			isOpen={$searchStore.isOpen} 
+			query={$searchStore.query}  
+			results={$searchStore.results} 
+			on:openchange={({ detail: { newIsOpen } }) => {
+				if (newIsOpen) {
+					searchStore.open();
+				}
+				else {
+					searchStore.close();
+				}
+			}} 
+			on:querychange={({ detail: { newQuery }}) => searchStore.search(newQuery)} 
+			on:select={({ detail: { href } }) => navigate(href)}
+			/>
 </KitDocs>
 
 <style>
