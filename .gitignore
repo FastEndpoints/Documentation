@@ -114,3 +114,6 @@ node_modules
 
 # Project specific
 /docs
+
+# JetBrains .idea directory
+.idea/
