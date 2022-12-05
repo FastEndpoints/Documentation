@@ -11,6 +11,10 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "typeRoots": [
+      "./types",
+      "./node_modules/@types",
+    ],
     "paths": {
       "highlight.js/*": [
         "./node_modules/highlight.js/lib/*"
@@ -21,6 +25,6 @@
       "$lib/*": [
         "./src/lib/*"
       ]
-    }
-  }
+    },
+  },
 }
