@@ -19,7 +19,8 @@ function createSearchStore() {
     let worker : RequestWorker | null = null
 
 
-    if (browser) {
+    // only clientside in browsers which support WebWorkers
+    if (browser && window.Worker) {
         worker = new SearchWorker();
 
         worker.onmessage = (response) => {
