@@ -210,6 +210,7 @@ nav ul li a {
 
 #main-sidebar nav .h-6.bg-white {
   background: transparent !important;
+  height: 0;
 }
 
 /* main section */
@@ -358,4 +359,8 @@ pre code {
 
 #popover-1>div>div.px-4.pt-2\.5.pb-6.-mt-\[2\.5rem\]>section:nth-child(3) {
   display: none;
+}
+
+.sl-overlay {
+  opacity: 0.85 !important;
 }

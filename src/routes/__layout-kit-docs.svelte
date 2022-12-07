@@ -101,7 +101,7 @@
 
 <KitDocs {meta}>
 	<KitDocsLayout {navbar} {sidebar} search>
-		<SearchBox on:click={() => searchStore.toggleOpen() } slot="search"/>
+		<SearchBox on:click={() => searchStore.toggleOpen()} slot="search" />
 		<div class="logo flex gap-4 items-center" slot="navbar-left">
 			<div class="max-w-[185px] min-w-[185px]">
 				<Button href="/">
@@ -128,21 +128,20 @@
 			</div>
 		</footer>
 	</KitDocsLayout>
-		<SearchModal 
-			isOpen={$searchStore.isOpen} 
-			query={$searchStore.query}  
-			results={$searchStore.results} 
-			on:openchange={({ detail: { newIsOpen } }) => {
-				if (newIsOpen) {
-					searchStore.open();
-				}
-				else {
-					searchStore.close();
-				}
-			}} 
-			on:querychange={({ detail: { newQuery }}) => searchStore.search(newQuery)} 
-			on:select={({ detail: { href } }) => navigate(href)}
-			/>
+	<SearchModal
+		isOpen={$searchStore.isOpen}
+		query={$searchStore.query}
+		results={$searchStore.results}
+		on:openchange={({ detail: { newIsOpen } }) => {
+			if (newIsOpen) {
+				searchStore.open();
+			} else {
+				searchStore.close();
+			}
+		}}
+		on:querychange={({ detail: { newQuery } }) => searchStore.search(newQuery)}
+		on:select={({ detail: { href } }) => navigate(href)}
+	/>
 </KitDocs>
 
 <style>
