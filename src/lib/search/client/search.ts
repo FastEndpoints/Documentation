@@ -7,13 +7,10 @@ const index = new Index<string>({ tokenize: 'forward' });
 const searchLookup = new Map<string, SearchResult>();
 
 export let isInited = false;
-export let isInitInProgess = false;
 
 
 export async function init(origin: string) {
     if (isInited) return;
-
-    isInitInProgess = true;
 
     const rsp = await fetch(`${origin}/search.json`);
     const searchData : SearchBlocks = await rsp.json();
@@ -31,7 +28,6 @@ export async function init(origin: string) {
         index.add(href, `${title} ${content}`);
     }
 
-    isInitInProgess = false;
     isInited = true;
 }
 

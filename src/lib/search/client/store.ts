@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/env';
 
-import SearchSharedWorker from './worker?sharedworker';
+import SearchWorker from './worker?worker';
 import type { RequestWorker } from './worker';
 import type { SearchResult } from '../types';
 
@@ -13,13 +13,17 @@ type SearchState = {
 
 const searchStore = createSearchStore();
 
+
+
 function createSearchStore() {
     let worker : RequestWorker | null = null
 
-    if (browser) {
-        worker = new SearchSharedWorker();
 
-        worker.port.onmessage = (response) => {
+    // only clientside in browsers which support WebWorkers
+    if (browser && window.Worker) {
+        worker = new SearchWorker();
+
+        worker.onmessage = (response) => {
             const msg = response.data;
             switch(msg.type) {
                 case "ready":
@@ -33,10 +37,11 @@ function createSearchStore() {
             }
         };
 
-        worker.port.postMessage({
+        worker.postMessage({
             type: "init",
             origin: location.origin
         });
+
     }
 
 
@@ -51,7 +56,7 @@ function createSearchStore() {
         subscribe,
         search: (query: string) => {
             update(state => ({ ...state, query }));
-            worker?.port.postMessage({ type: 'search-request', query })
+            worker?.postMessage({ type: 'search-request', query })
         },
         toggleOpen: () => {
             update(state => ({ ...state, isOpen: !state.isOpen}));
