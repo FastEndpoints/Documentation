@@ -1,5 +1,5 @@
 <script lang="ts">
-	import SvelteSpotlight from 'svelte-spotlight/SvelteSpotlight.svelte';
+	import SvelteSpotlight from './spotlight/SvelteSpotlight.svelte';
 	import { createEventDispatcher } from 'svelte';
 	import type { SearchResult } from '../../types';
 
