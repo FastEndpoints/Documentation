@@ -55,7 +55,6 @@
 	"type": "module",
 	"dependencies": {
 		"flexsearch": "^0.7.31",
-		"marked": "^4.2.2",
-		"svelte-spotlight": "^1.0.4"
+		"marked": "^4.2.2"
 	}
 }
