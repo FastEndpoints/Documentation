@@ -32,7 +32,7 @@
 			class="max-w-[105px]"
 		/>
 	</Button>
-	<Button href="https://discord.gg/yQZ4uvfF2E">
+	<Button href="https://discord.gg/ARGPxTukpr">
 		<img
 			src="https://img.shields.io/discord/933662816458645504?color=blue&label=discord&logo=discord&logoColor=white&style=flat-rounded"
 			alt="FastEndpoints Discord Online Count"

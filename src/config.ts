@@ -58,7 +58,7 @@ export const config = Object.freeze<Config>({
     locale: 'en'
   },
   github: 'https://github.com/FastEndpoints/Library',
-  discord: 'https://discord.com/invite/yQZ4uvfF2E',
+  discord: 'https://discord.gg/ARGPxTukpr',
   algolia: {
     apiKey: 'dbd4bfe95a65436b50a0749102e9f96a',
     appId: '8VRRQJZ5I9'
