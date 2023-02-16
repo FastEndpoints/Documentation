@@ -83,7 +83,7 @@
 		3
 	)}FullName = $\"{r.FirstName} {r.LastName}\",\n${tab.repeat(
 		3
-	)}Message = \"Welcome to FastEndpoints...\"${tab.repeat(2)}\n${tab.repeat(2)}});\n${tab})\n}`;
+	)}Message = \"Welcome to FastEndpoints...\"${tab.repeat(2)}\n${tab.repeat(2)}});\n${tab}}\n}`;
 
 	export let contributors: Map<string, ContributorInfo>;
 
