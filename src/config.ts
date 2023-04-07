@@ -29,7 +29,7 @@ const isProduction = true;
 export const config = Object.freeze<Config>({
   siteUrl: isProduction
     ? 'https://fast-endpoints.com'
-    : 'https://fast-endpoints.netlify.app',
+    : 'https://fastendpoints-doc-site.pages.dev',
   seo: {
     title: 'FastEndpoints',
     description: 'FastEndpoints is a developer friendly alternative to Minimal APIs & MVC',
