@@ -78,6 +78,6 @@ export const navbar: NavbarConfig = {
       title: 'API Reference',
       slug: 'https://api-ref.fast-endpoints.com/api/FastEndpoints.html'
     },
-    { title: 'Donate', slug: 'https://www.paypal.com/donate/?hosted_button_id=AU3SCQX9FXYCS' }
+    { title: 'Sponsor', slug: 'https://opencollective.com/fast-endpoints' }
   ]
 };
