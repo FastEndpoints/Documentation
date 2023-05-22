@@ -48,6 +48,8 @@
 </script>
 
 <script lang="ts">
+	import GithubBadges from '$lib/components/GithubBadges.svelte';
+	import Sponsors from '$lib/components/Sponsors.svelte';
 	import Contributors from '$lib/components/Contributors.svelte';
 	import FeatureList from '$lib/components/FeatureList.svelte';
 	import Logo from '$lib/components/Logo.svelte';
@@ -110,15 +112,13 @@
 		<SocialLink type="gitHub" href={config.github} />
 		<SocialLink type="discord" href={config.discord} />
 	</div>
-
-	<div slot="main-top">
+	<div slot="main-top">		
 		<div>
-			<div
-				class="flex flex-col 1200:flex-row 1200:flex-row-reverse mt-4 992:mt-28 my-28 gap-6 items-center"
-			>
-				<div class="1200:w-half">
+			<div class="flex flex-col 1200:flex-row 1200:flex-row-reverse mt-4 mb-10 gap-6 items-center" >
+				<div class="">
 					<div class="flex flex-col gap-2">
-						<h1 class="!font-semibold !text-feLightBlue-500 !text-base">
+						<GithubBadges />
+						<h1 class="!font-semibold !text-feLightBlue-500 !text-base mt-2">
 							ASP.NET Minimal APIs Made Easy...
 						</h1>
 						<h2 class="!font-bold !text-3xl !mb-4">
@@ -138,7 +138,7 @@
 								a MVC Controller in our benchmarks.
 							</p>
 						</div>
-						<div class="flex flex-row gap-8 mt-8">
+						<div class="flex flex-row gap-4 mt-5">
 							<SocialLink type="gitHub" href={config.github} class="text-sm"
 								>Star on Github</SocialLink
 							>
@@ -150,7 +150,7 @@
 						</div>
 					</div>
 				</div>
-				<div class="w-full h-full">
+				<div class="w-full h-full min-w-fit">
 					<div class="grid [200px_minmax(900px,_1fr)_100px] grid-cols-2 gap-[0.4rem]">
 						<div class="rounded-lg col-span-2 1200:col-span-1 bg-feDarkBlue-600">
 							<Highlight language={csharp} code={myRequest} />
@@ -164,12 +164,13 @@
 					</div>
 				</div>
 			</div>
-			<div class="border-b-2 border-feDarkBlue-600" />
-			<div class="my-28">
+			<div class="my-7">
+				<Sponsors />
+			</div>
+			<div class="my-7">
 				<FeatureList />
 			</div>
-			<div class="border-b-2 border-feDarkBlue-600" />
-			<div class="my-28">
+			<div class="my-10">
 				<Contributors {contributors} />
 			</div>
 		</div>

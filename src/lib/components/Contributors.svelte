@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { ContributorInfo } from 'src/routes/index.svelte';
-	import GithubBadges from '$lib/components/GithubBadges.svelte';
-
+	
 	export let contributors: Map<string, ContributorInfo>;
 </script>
 
@@ -10,23 +9,21 @@
 		<div class="font-semibold text-feLightBlue-500 text-base">Made Possible By</div>
 		<div class="font-bold text-3xl flex items-center gap-4 ">
 			Our Community Of Code Heroes
-			<span
-				class="rounded-full min-w-[32px] min-h-[32px] bg-feLightBlue-500 text-feDarkBlue-700 font-extrabold inline-flex items-center text-sm justify-center"
-			>
+			<span class="rounded-full min-w-[32px] min-h-[32px] bg-feLightBlue-500 text-feDarkBlue-700 font-extrabold inline-flex items-center text-sm justify-center" >
 				{contributors.size}
 			</span>
 		</div>
-		<div class="mt-3 mb-12">
-			<GithubBadges />
+		<div class="mt-3 mb-1">
+			
 		</div>
 		<div class="flex flex-wrap gap-4">
 			{#each [...contributors] as [username, contributionInfo]}
 				<div
-					class="transition ease-in-out duration-300 group bg-feDarkBlue-600 rounded-lg p-4 flex flex-wrap hover:bg-transparent items-center justify-center w-20 h-20"
+					class="transition ease-in-out duration-200 group flex flex-wrap items-center justify-center w-14 h-14"
 				>
 					<a href={contributionInfo.url} target="_blank">
 						<img
-							class="transition ease-in-out duration-300 p-1 w-12 h-12 rounded-full ring-4 ring-feDarkBlue-800 bg-feDarkBlue-800 group-hover:ring-feLightBlue-400"
+							class="transition ease-in-out duration-200 rounded-full ring-2 group-hover:ring-feLightBlue-400"
 							src={contributionInfo.image}
 							alt={username}
 						/>
