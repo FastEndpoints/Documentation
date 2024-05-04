@@ -7,13 +7,13 @@ description: A light-weight REST Api framework for ASP.Net 6 that implements REP
 
 ## Head-To-Head Benchmark
 
-|                           Method |     Mean | Ratio |   Gen0 |   Gen1 | Allocated | Alloc-Ratio |
-|--------------------------------- |---------:|------:|-------:|-------:|----------:|------------:|
-|                    FastEndpoints | 40.32 μs |  1.00 | 2.0000 |      - |  16.71 KB |        1.00 |
-|           ASP NET 7 Minimal APIs | 44.07 μs |  1.09 | 2.1000 |      - |  17.07 KB |        1.02 |
-|          FastEndpoints (CodeGen) | 44.67 μs |  1.11 | 2.0000 |      - |  16.75 KB |        1.00 |
+| Method                           |     Mean | Ratio |   Gen0 |   Gen1 | Allocated | Alloc-Ratio |
+|----------------------------------|---------:|------:|-------:|-------:|----------:|------------:|
+| FastEndpoints                    | 40.32 μs |  1.00 | 2.0000 |      - |  16.71 KB |        1.00 |
+| ASP NET 7 Minimal APIs           | 44.07 μs |  1.09 | 2.1000 |      - |  17.07 KB |        1.02 |
+| FastEndpoints (CodeGen)          | 44.67 μs |  1.11 | 2.0000 |      - |  16.75 KB |        1.00 |
 | FastEndpoints (Scoped Validator) | 57.83 μs |  1.43 | 3.4000 | 0.1000 |  28.08 KB |        1.68 |
-|         ASP NET 7 MVC Controller | 63.97 μs |  1.59 | 2.8000 | 0.1000 |  23.58 KB |        1.41 |
+| ASP NET 7 MVC Controller         | 63.97 μs |  1.59 | 2.8000 | 0.1000 |  23.58 KB |        1.41 |
 
 ## Bombardier Load Test (best out of 5 runs)
 
@@ -59,6 +59,7 @@ Statistics        Avg      Stdev        Max
 ```
 
 ## TechEmpower Benchmark (Preliminary)
-<a href="https://www.techempower.com/benchmarks/#section=test&runid=b0f80483-5664-4bfb-9614-de615d1ac8f8&hw=ph&test=json&l=zik0zh-sf&c=8&a=2" target="_blank">
+
+<a href="https://www.techempower.com/benchmarks/#section=test&runid=3c2e9871-9c2a-4ff3-bc31-620f65da4e74&hw=ph&test=json&l=zik0zh-6bj&p=zik0zi-zik0zj-zik0zj-zik0zj-zik0zj-1r&c=8" target="_blank">
   <img src="/techempower-benchmarks.png" alt="TechEmpower Benchmark" />
 </a>
