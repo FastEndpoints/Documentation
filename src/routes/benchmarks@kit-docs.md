@@ -5,57 +5,56 @@ description: A light-weight REST Api framework for ASP.Net 6 that implements REP
 
 <h1>Benchmarks</h1>
 
-## Head-To-Head Benchmark
+## BenchmarkDotNet
 
-| Method                           |     Mean | Ratio |   Gen0 |   Gen1 | Allocated | Alloc-Ratio |
-|----------------------------------|---------:|------:|-------:|-------:|----------:|------------:|
-| FastEndpoints                    | 40.32 μs |  1.00 | 2.0000 |      - |  16.71 KB |        1.00 |
-| ASP NET 7 Minimal APIs           | 44.07 μs |  1.09 | 2.1000 |      - |  17.07 KB |        1.02 |
-| FastEndpoints (CodeGen)          | 44.67 μs |  1.11 | 2.0000 |      - |  16.75 KB |        1.00 |
-| FastEndpoints (Scoped Validator) | 57.83 μs |  1.43 | 3.4000 | 0.1000 |  28.08 KB |        1.68 |
-| ASP NET 7 MVC Controller         | 63.97 μs |  1.59 | 2.8000 | 0.1000 |  23.58 KB |        1.41 |
+| Method         |     Mean | Ratio | Allocated | Alloc Ratio |
+|----------------|---------:|------:|----------:|------------:|
+| Minimal APIs   | 24.69 us |  0.92 |  14.75 KB |        0.97 |
+| FastEndpoints  | 26.76 us |  1.00 |  15.23 KB |        1.00 |
+| MVC Controller | 40.58 us |  1.52 |   22.1 KB |        1.45 |
 
-## Bombardier Load Test (best out of 5 runs)
+## Bombardier Load Tests
 
 ```
-hardware: AMD Ryzen 7 3700X (8c/16t), 16GB RAM, Windows 11
+hardware: AMD Ryzen 9 5950X (16c/32t), 32GB RAM
+software: .NET 9.0 RC2, Windows 11
 parameters: -c 512 -m POST -f "body.json" -H "Content-Type:application/json" -d 30s
 ```
 
-### ASP NET Minimal API (~1k more requests per second than fastendpoints)
+### Minimal APIs
 
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec    133862.82   13910.17  176864.72
-  Latency        3.76ms     1.42ms   397.78ms
+  Reqs/sec    257730.00   18733.46  360540.81
+  Latency        1.97ms     0.91ms   390.00ms
   HTTP codes:
-    1xx - 0, 2xx - 4072279, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 7787939, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    68.10MB/s
+  Throughput:   130.23MB/s
 ```
 
-### FastEndpoints (~35k more requests per second than mvc controller)
+### FastEndpoints
 
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec    132920.30   13080.95  292207.79
-  Latency        3.80ms     2.43ms   636.79ms
+  Reqs/sec    254103.07   17146.14  289439.60
+  Latency        1.99ms     0.95ms   415.00ms
   HTTP codes:
-    1xx - 0, 2xx - 4033570, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 7679513, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    67.43MB/s
+  Throughput:   128.41MB/s
 ```
 
-### ASP NET MVC Controller
+### MVC Controller
 
 ```
 Statistics        Avg      Stdev        Max
-  Reqs/sec     97704.36   11639.55  137931.03
-  Latency        5.18ms     2.46ms   571.64ms
+  Reqs/sec    224798.56   17129.93  258658.48
+  Latency        2.25ms     1.01ms   388.00ms
   HTTP codes:
-    1xx - 0, 2xx - 2962086, 3xx - 0, 4xx - 0, 5xx - 0
+    1xx - 0, 2xx - 6800642, 3xx - 0, 4xx - 0, 5xx - 0
     others - 0
-  Throughput:    49.53MB/s
+  Throughput:   113.71MB/s
 ```
 
 ## TechEmpower Benchmark (Preliminary)
