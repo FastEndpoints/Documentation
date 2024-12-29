@@ -30,12 +30,8 @@
     </div>
     <div class="grid grid-rows-auto grid-cols-1 768:grid-cols-2 grid-flow-dense gap-[0.3rem]">
         {#each features as feature}
-            <div
-                    class="order-{feature.order} 768:!order-none transition ease-in-out hover:bg-feDarkBlue-800 hover:border-feLightBlue-500 flex items-center rounded-lg bg-feDarkBlue-600 gap-4 border-2 border-transparent p-[0.3rem]  leading-relaxed text-sm"
-            >
-				<span
-                        class="rounded-full min-w-[32px] min-h-[32px] bg-feDarkBlue-800 inline-flex items-center text-xs justify-center"
-                >
+            <div class="order-{feature.order} 768:!order-none transition ease-in-out hover:bg-feDarkBlue-800 hover:border-feLightBlue-500 flex items-center rounded-lg bg-feDarkBlue-600 gap-4 border-2 border-transparent p-[0.3rem]  leading-relaxed text-sm">
+				<span class="rounded-full min-w-[32px] min-h-[32px] bg-feDarkBlue-800 inline-flex items-center text-xs justify-center">
 					{feature.order}
 				</span>
                 {feature.description}
