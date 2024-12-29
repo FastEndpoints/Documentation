@@ -24,6 +24,8 @@ type Repository = 'FastEndpoints' | 'FastEndpoints-DocSite';
 
 export const getContributors = async (repo: Repository) => {
 	const response = await fetch(`https://api.github.com/repos/dj-nitehawk/${repo}/contributors`);
-
-	return response.json() as Promise<Contributor[]>;
+	if (!response.ok) {
+		return [];
+	}
+	return (await response.json()) as Contributor[];
 };
