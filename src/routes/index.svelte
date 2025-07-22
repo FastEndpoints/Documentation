@@ -81,7 +81,7 @@
         2
     )}AllowAnonymous();\n${tab}}\n\n${tab}public override async Task HandleAsync(MyRequest r, CancellationToken c)\n${tab}{\n${tab.repeat(
         2
-    )}await Send.ResponseAsync(new()\n${tab.repeat(2)}{\n${tab.repeat(
+    )}await Send.OkAsync(new()\n${tab.repeat(2)}{\n${tab.repeat(
         3
     )}FullName = $\"{r.FirstName} {r.LastName}\",\n${tab.repeat(
         3
