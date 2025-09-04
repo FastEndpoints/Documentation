@@ -6,7 +6,7 @@
         <div class="grid grid-cols-1 768:grid-cols-3 gap-2 mt-0 border-t border-b border-feBlue-800 p-4">
             <div class="flex w-full items-center justify-center">
                 <a href="https://veefriends.com" target="_blank" class="block">
-                    <img src="sponsors/veefriends.png" class="block mx-auto max-w-[70%]" alt="VeeFriends"/>
+                    <img src="sponsors/veefriends.png" class="block mx-auto max-w-[72%]" alt="VeeFriends"/>
                 </a>
             </div>
 
