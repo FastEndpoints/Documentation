@@ -5,7 +5,7 @@
 <div class="flex flex-wrap gap-2 1200:hidden 1280:flex">
     <Button href="https://github.com/FastEndpoints/Library/blob/main/LICENSE.md">
         <img
-            src="https://img.shields.io/github/license/dj-nitehawk/FastEndpoints?color=blue&label=license&logo=Github&style=flat-rounded"
+            src="https://img.shields.io/github/license/FastEndpoints/FastEndpoints?color=blue&label=license&logo=Github&style=flat-square"
             alt="Github license MIT"
             class=""
         />
