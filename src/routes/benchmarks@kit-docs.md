@@ -11,8 +11,8 @@ Ratio is relative to FastEndpoints. Lower is better.
 
 | Endpoint      |     Mean | Ratio |   Gen0 | Allocated | Alloc Ratio |
 |---------------|---------:|------:|-------:|----------:|------------:|
-| FastEndpoints | 22.95 μs |  1.01 | 0.7324 |  15.25 KB |        1.00 |
 | MinimalApi    | 19.84 μs |  0.87 | 0.7324 |  15.12 KB |        0.99 |
+| FastEndpoints | 22.95 μs |  1.01 | 0.7324 |  15.25 KB |        1.00 |
 | AspNetCoreMvc | 36.78 μs |  1.61 | 1.2207 |  22.52 KB |        1.48 |
 
 ## NBomber Throughput Load Tests
