@@ -1,61 +1,37 @@
 ---
 title: Benchmarks
-description: A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern.
+description: A light-weight REST Api framework for ASP.Net that implements REPR (Request-Endpoint-Response) Pattern.
 ---
 
 <h1>Benchmarks</h1>
 
 ## BenchmarkDotNet
 
-| Method         |     Mean | Ratio | Allocated | Alloc Ratio |
-|----------------|---------:|------:|----------:|------------:|
-| Minimal APIs   | 24.69 us |  0.92 |  14.75 KB |        0.97 |
-| FastEndpoints  | 26.76 us |  1.00 |  15.23 KB |        1.00 |
-| MVC Controller | 40.58 us |  1.52 |   22.1 KB |        1.45 |
+Ratio is relative to FastEndpoints. Lower is better.
 
-## Bombardier Load Tests
+| Endpoint      |     Mean | Ratio |   Gen0 | Allocated | Alloc Ratio |
+|---------------|---------:|------:|-------:|----------:|------------:|
+| FastEndpoints | 22.95 μs |  1.01 | 0.7324 |  15.25 KB |        1.00 |
+| MinimalApi    | 19.84 μs |  0.87 | 0.7324 |  15.12 KB |        0.99 |
+| AspNetCoreMvc | 36.78 μs |  1.61 | 1.2207 |  22.52 KB |        1.48 |
+
+## NBomber Throughput Load Tests
 
 ```
 hardware: AMD Ryzen 9 5950X (16c/32t), 32GB RAM
-software: .NET 9.0 RC2, Windows 11
-parameters: -c 512 -m POST -f "body.json" -H "Content-Type:application/json" -d 30s
+software: .NET 10.0 (CachyOS)
+payload: same JSON payload as BenchmarkDotNet
+load model: closed workload with 8 concurrent users
+duration: 5 second warm-up, 1 minute test
 ```
 
-### Minimal APIs
+Throughput ratio is relative to FastEndpoints. Higher is better for requests/sec and throughput ratio. Lower is better for latency.
 
-```
-Statistics        Avg      Stdev        Max
-  Reqs/sec    257730.00   18733.46  360540.81
-  Latency        1.97ms     0.91ms   390.00ms
-  HTTP codes:
-    1xx - 0, 2xx - 7787939, 3xx - 0, 4xx - 0, 5xx - 0
-    others - 0
-  Throughput:   130.23MB/s
-```
-
-### FastEndpoints
-
-```
-Statistics        Avg      Stdev        Max
-  Reqs/sec    254103.07   17146.14  289439.60
-  Latency        1.99ms     0.95ms   415.00ms
-  HTTP codes:
-    1xx - 0, 2xx - 7679513, 3xx - 0, 4xx - 0, 5xx - 0
-    others - 0
-  Throughput:   128.41MB/s
-```
-
-### MVC Controller
-
-```
-Statistics        Avg      Stdev        Max
-  Reqs/sec    224798.56   17129.93  258658.48
-  Latency        2.25ms     1.01ms   388.00ms
-  HTTP codes:
-    1xx - 0, 2xx - 6800642, 3xx - 0, 4xx - 0, 5xx - 0
-    others - 0
-  Throughput:   113.71MB/s
-```
+| Endpoint       | Successful Requests | Requests/sec | Throughput Ratio | Mean Latency | P95 Latency | P99 Latency |
+|----------------|--------------------:|-------------:|-----------------:|-------------:|------------:|------------:|
+| Minimal APIs   |          12,679,923 |   211,332.05 |             1.03 |      0.04 ms |     0.03 ms |     0.05 ms |
+| FastEndpoints  |          12,250,861 |   204,181.02 |             1.00 |      0.04 ms |     0.04 ms |     0.05 ms |
+| MVC Controller |           8,678,790 |   144,646.50 |             0.71 |      0.05 ms |     0.05 ms |     0.90 ms |
 
 ## TechEmpower Benchmark (Preliminary)
 
