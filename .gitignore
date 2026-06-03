@@ -117,3 +117,5 @@ node_modules
 
 # JetBrains .idea directory
 .idea/
+
+.serena/
