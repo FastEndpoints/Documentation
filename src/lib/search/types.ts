@@ -1,13 +1,13 @@
 export type SearchBlocks = {
-    blocks: SearchNode[]
-}
+	blocks: SearchNode[];
+};
 
 export type SearchNode = {
-    breadcrumbs: string[];
-    content?: string;
-    href: string;
-}
+	breadcrumbs: string[];
+	content?: string;
+	href: string;
+};
 
 export type SearchResult = {
-    title: string;
+	title: string;
 } & SearchNode;

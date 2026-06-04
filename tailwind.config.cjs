@@ -1,5 +1,5 @@
 module.exports = {
-	content: ['./src/**/*.{html,svelte}', './node_modules/@svelteness/kit-docs/client/**/*.svelte'],
+	content: ['./src/**/*.{html,svelte,ts,md}'],
 	darkMode: 'class',
 	theme: {
 		screens: {
@@ -18,40 +18,40 @@ module.exports = {
 					DEFAULT: 'var(--kd-color-brand)'
 				},
 				feBlue: {
-					"50": "#E6F1FE",
-					"100": "#CEE3FD",
-					"200": "#98C4FB",
-					"300": "#67A9F9",
-					"400": "#318AF7",
-					"500": "#096EEB",
-					"600": "#0758BB",
-					"700": "#05438E",
-					"800": "#042C5D",
-					"900": "#021731"
+					50: '#E6F1FE',
+					100: '#CEE3FD',
+					200: '#98C4FB',
+					300: '#67A9F9',
+					400: '#318AF7',
+					500: '#096EEB',
+					600: '#0758BB',
+					700: '#05438E',
+					800: '#042C5D',
+					900: '#021731'
 				},
-				feDarkBlue : {
-					"50": "#E1E7F4",
-					"100": "#C3D0E9",
-					"200": "#839ED2",
-					"300": "#486FBD",
-					"400": "#2F4B83",
-					"500": "#192845",
-					"600": "#141A24",
-					"700": "#0F1829",
-					"800": "#090F1A",
-					"900": "#05090F"
+				feDarkBlue: {
+					50: '#E1E7F4',
+					100: '#C3D0E9',
+					200: '#839ED2',
+					300: '#486FBD',
+					400: '#2F4B83',
+					500: '#192845',
+					600: '#141A24',
+					700: '#0F1829',
+					800: '#090F1A',
+					900: '#05090F'
 				},
 				feLightBlue: {
-					"50": "#E5FCFF",
-					"100": "#CCF8FF",
-					"200": "#99F1FF",
-					"300": "#66EBFF",
-					"400": "#33E4FF",
-					"500": "#00DFFF",
-					"600": "#00B1CC",
-					"700": "#008599",
-					"800": "#005866",
-					"900": "#002C33"
+					50: '#E5FCFF',
+					100: '#CCF8FF',
+					200: '#99F1FF',
+					300: '#66EBFF',
+					400: '#33E4FF',
+					500: '#00DFFF',
+					600: '#00B1CC',
+					700: '#008599',
+					800: '#005866',
+					900: '#002C33'
 				},
 				gray: {
 					DEFAULT: '#313131',
@@ -97,7 +97,9 @@ function kitDocsTypography(theme) {
 	return {
 		DEFAULT: {
 			css: {
-				'--tw-prose-counters': 'black',
+				'--tw-prose-counters': 'var(--tw-prose-bullets)',
+				'--tw-prose-headings': '#d5d5d5',
+				'--tw-prose-code': '#8ba3d9',
 				'--tw-prose-invert-counters': 'white',
 				color: theme('colors.gray.soft'),
 				fontSize: '16px',
@@ -179,8 +181,14 @@ function kitDocsTypography(theme) {
 					fontWeight: 'inherit'
 				},
 				code: {
+					borderRadius: '0.25rem',
+					backgroundColor: 'rgba(139, 163, 217, 0.12)',
+					padding: '0.125rem 0.3rem',
+					color: '#8ba3d9',
 					fontWeight: theme('fontWeight.medium'),
-					fontVariantLigatures: 'none'
+					fontVariantLigatures: 'none',
+					'&::before': { display: 'none' },
+					'&::after': { display: 'none' }
 				},
 				pre: {
 					backgroundColor: 'var(--kd-code-fence-bg, var(--kd-prose-pre-bg))',
@@ -217,8 +225,11 @@ function kitDocsTypography(theme) {
 				'tbody td': {
 					whiteSpace: 'nowrap'
 				},
+				'tbody td:last-child': {
+					whiteSpace: 'normal'
+				},
 				'tbody tr:nth-child(odd)': {
-					backgroundColor: theme('colors.gray.100')
+					backgroundColor: '#0b111c'
 				},
 				'tbody tr:last-child': {
 					borderBottomWidth: '1px'
@@ -236,10 +247,11 @@ function kitDocsTypography(theme) {
 					paddingLeft: '0.5714286em'
 				},
 				'tbody td:last-child': {
-					paddingRight: '0.5714286em'
+					paddingRight: '0.5714286em',
+					whiteSpace: 'normal'
 				},
 				'tbody tr td:first-child code': {
-					color: theme('colors.indigo.500'),
+					color: '#9d9ef6',
 					paddingLeft: '8px',
 					'&::before': { display: 'none' },
 					'&::after': { display: 'none' }

@@ -1,5 +1,5 @@
 <script>
-    import { Button } from '@svelteness/kit-docs';
+    import Button from '$lib/components/site/Button.svelte';
 </script>
 
 <div class="flex flex-wrap gap-2 1200:hidden 1280:flex">
