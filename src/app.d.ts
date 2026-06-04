@@ -1,12 +1,16 @@
 /// <reference types="@sveltejs/kit" />
-/// <reference types="@svelteness/kit-docs/globals" />
 
-// See https://kit.svelte.dev/docs/types#app
-// for information about these interfaces
-// and what to do when importing types
+// See https://svelte.dev/docs/kit/types#app.d.ts
+// for information about these interfaces.
+declare module 'flexsearch/dist/module/index.js' {
+	const Index: unknown;
+	export default Index;
+}
+
 declare namespace App {
+	// interface Error {}
 	// interface Locals {}
+	// interface PageData {}
+	// interface PageState {}
 	// interface Platform {}
-	// interface Session {}
-	// interface Stuff {}
 }
