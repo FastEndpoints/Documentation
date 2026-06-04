@@ -6,13 +6,17 @@
 	import SocialLink from '$lib/components/site/SocialLink.svelte';
 	import type { ContributorInfo } from '$lib/types/contributor';
 	import { config } from '../config';
-	import Highlight from 'svelte-highlight';
-	// @ts-ignore
-	import csharp from 'svelte-highlight/languages/csharp';
-	// @ts-ignore
-	import atomOneDark from 'svelte-highlight/styles/atom-one-dark';
+	import hljs from 'highlight.js/lib/core';
+	import csharp from 'highlight.js/lib/languages/csharp';
+	import 'highlight.js/styles/atom-one-dark.css';
 
 	export let data: { contributors: ContributorInfo[] };
+
+	hljs.registerLanguage('csharp', csharp);
+
+	function highlightCsharp(code: string) {
+		return hljs.highlight(code, { language: 'csharp' }).value;
+	}
 
 	const tab = '\t\t';
 	const myRequest = `public class MyRequest \n{\n\tpublic string FirstName { get; set; }\n\tpublic string LastName { get; set; } \n}`;
@@ -30,10 +34,6 @@
 		3
 	)}Message = "Welcome to FastEndpoints..."${tab.repeat(2)}\n${tab.repeat(2)}});\n${tab}}\n}`;
 </script>
-
-<svelte:head>
-	{@html atomOneDark}
-</svelte:head>
 
 <main class="site-main home-page">
 
@@ -76,14 +76,14 @@
                 </div>
                 <div class="w-full h-full min-w-fit">
                     <div class="grid [200px_minmax(900px,_1fr)_100px] grid-cols-2 gap-[0.4rem]">
-                        <div class="rounded-lg col-span-2 1200:col-span-1 bg-feDarkBlue-600">
-                            <Highlight language={csharp} code={myRequest}/>
+                        <div class="rounded-lg col-span-2 1200:col-span-1 overflow-hidden bg-feDarkBlue-600">
+                            <pre class="hljs"><code>{@html highlightCsharp(myRequest)}</code></pre>
                         </div>
-                        <div class="rounded-lg col-span-2 1200:col-span-1 bg-feDarkBlue-600">
-                            <Highlight language={csharp} code={myResponse}/>
+                        <div class="rounded-lg col-span-2 1200:col-span-1 overflow-hidden bg-feDarkBlue-600">
+                            <pre class="hljs"><code>{@html highlightCsharp(myResponse)}</code></pre>
                         </div>
-                        <div class="rounded-lg col-span-2 bg-feDarkBlue-600">
-                            <Highlight language={csharp} code={myEndpoint}/>
+                        <div class="rounded-lg col-span-2 overflow-hidden bg-feDarkBlue-600">
+                            <pre class="hljs"><code>{@html highlightCsharp(myEndpoint)}</code></pre>
                         </div>
                     </div>
                 </div>
@@ -100,3 +100,17 @@
         </div>
     
 </main>
+
+<style>
+	:global(.home-page pre.hljs) {
+		margin: 0;
+		padding: 1rem;
+		background: #141a24;
+	}
+
+	:global(.home-page pre.hljs code) {
+		display: block;
+		border-radius: 0;
+		background: transparent !important;
+	}
+</style>

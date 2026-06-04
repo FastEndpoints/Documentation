@@ -9,11 +9,7 @@ const config = {
 			assets: 'docs'
 		}),
 		prerender: {
-			entries: [
-				'*',
-				'/search.json',
-				'/sitemap.xml',
-			],
+			entries: ['*', '/search.json', '/sitemap.xml'],
 			handleMissingId: 'warn'
 		}
 	},

@@ -7,6 +7,13 @@ declare module 'flexsearch/dist/module/index.js' {
 	export default Index;
 }
 
+declare module 'highlight.js/lib/languages/csharp' {
+	import type { LanguageFn } from 'highlight.js';
+
+	const language: LanguageFn;
+	export default language;
+}
+
 declare namespace App {
 	// interface Error {}
 	// interface Locals {}
