@@ -76,7 +76,7 @@ public class UpdateAddressRequest
 
 ### Binding JSON Arrays
 
-JSON arrays in the request body can be bound to models by specifying the request DTO type of the endpoint as **List&lt;T&gt;** like so:
+JSON arrays in the request body can be bound to models by specifying the request DTO type of the endpoint as **List<T>** like so:
 
 ```cs |title=MyEndpoint.cs
 public class MyEndpoint : Endpoint<List<Address>>
@@ -418,7 +418,7 @@ Alternatively, you can set a [property naming policy](configuration-settings#uni
 
 ### Route Values Without a DTO
 
-If your endpoint doesn't have a request DTO, you can easily read route parameters using the **Route&lt;T&gt;()** endpoint method as shown below.
+If your endpoint doesn't have a request DTO, you can easily read route parameters using the **Route<T>()** endpoint method as shown below.
 
 ```cs |title=GetArticle.cs
 public class GetArticle : EndpointWithoutRequest
@@ -434,7 +434,7 @@ public class GetArticle : EndpointWithoutRequest
 ```
 
 :::admonition type="info"
-**Route&lt;T&gt;()** method is only able to handle types that have a static **TryParse()** method. [See here](#supported-dto-property-types) on how to add parsing support for your own types.
+**Route<T>()** method is only able to handle types that have a static **TryParse()** method. [See here](#supported-dto-property-types) on how to add parsing support for your own types.
 :::
 
 If there's no static **TryParse()** method or if parsing fails, an automatic validation failure response is sent to the client.
@@ -511,7 +511,7 @@ Alternatively, set a [property naming policy](configuration-settings#unified-pro
 
 ### Query Params Without a DTO
 
-If your endpoint doesn't have a request DTO, you can easily read query parameters using the **Query&lt;T&gt;()** endpoint method as shown below.
+If your endpoint doesn't have a request DTO, you can easily read query parameters using the **Query<T>()** endpoint method as shown below.
 
 ```cs |title=GetArticle.cs
 public class GetArticle : EndpointWithoutRequest
@@ -527,7 +527,7 @@ public class GetArticle : EndpointWithoutRequest
 ```
 
 :::admonition type="info"
-**Query&lt;T&gt;()** method is only able to handle types that have a static **TryParse()** method. [See here](#supported-dto-property-types) on how to add parsing support for your own types.
+**Query<T>()** method is only able to handle types that have a static **TryParse()** method. [See here](#supported-dto-property-types) on how to add parsing support for your own types.
 :::
 
 If there's no static **TryParse()** method or if parsing fails, an automatic validation failure response is sent to the client. This behavior can be turned off with the following overload:
@@ -899,7 +899,7 @@ You can override the request model binding behavior at a few different levels an
 
 ### Global Request Binder
 
-In order to configure a global request binder, implement the interface **IRequestBinder&lt;TRequest&gt;** and create an open generic custom binder like below:
+In order to configure a global request binder, implement the interface **IRequestBinder<TRequest>** and create an open generic custom binder like below:
 
 ```cs copy| title=MyRequestBinder.cs
 public class MyRequestBinder<TRequest> : IRequestBinder<TRequest> where TRequest : notnull, new()

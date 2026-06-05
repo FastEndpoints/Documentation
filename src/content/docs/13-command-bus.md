@@ -9,7 +9,7 @@ Similarly to the [Event Bus](event-bus), you can take a decoupled, command drive
 
 ## 1. Define A Command
 
-This is the data contract that will be handed to the command handler. Mark the class with either the **ICommand** or **ICommand&lt;TResult&gt;** interface in order to make any class a command. Use the former if no result is expected and the latter if a result is expected back from the handler.
+This is the data contract that will be handed to the command handler. Mark the class with either the **ICommand** or **ICommand<TResult>** interface in order to make any class a command. Use the former if no result is expected and the latter if a result is expected back from the handler.
 
 ```cs
 public class GetFullName : ICommand<string>
@@ -21,7 +21,7 @@ public class GetFullName : ICommand<string>
 
 ## 2. Define A Command Handler
 
-This is the code that will be executed when a command of the above type is executed. Implement either the **ICommandHandler&lt;TCommand, TResult&gt;** or **ICommandHandler&lt;TCommand&gt;** interface depending on whether a result needs to be returned or not.
+This is the code that will be executed when a command of the above type is executed. Implement either the **ICommandHandler<TCommand, TResult>** or **ICommandHandler<TCommand>** interface depending on whether a result needs to be returned or not.
 
 ```cs
 public class FullNameHandler : ICommandHandler<GetFullName, string>
@@ -198,7 +198,7 @@ Dependencies in command handlers can be resolved as described [here](dependency-
 
 ## Streaming Commands
 
-If a command needs to return a stream of results instead of a single result, mark it with the **IStreamCommand&lt;TResult&gt;** interface and implement a matching **IStreamCommandHandler&lt;TCommand, TResult&gt;** handler.
+If a command needs to return a stream of results instead of a single result, mark it with the **IStreamCommand<TResult>** interface and implement a matching **IStreamCommandHandler<TCommand, TResult>** handler.
 
 ```cs
 public class GetNumbers : IStreamCommand<int>
@@ -221,7 +221,7 @@ public class GetNumbersHandler : IStreamCommandHandler<GetNumbers, int>
 }
 ```
 
-Execute the command the same way as a regular command. The only difference is that you iterate the returned **IAsyncEnumerable&lt;T&gt;**.
+Execute the command the same way as a regular command. The only difference is that you iterate the returned **IAsyncEnumerable<T>**.
 
 ```cs
 await foreach (var number in new GetNumbers { Count = 5 }.ExecuteAsync(ct))
@@ -230,7 +230,7 @@ await foreach (var number in new GetNumbers { Count = 5 }.ExecuteAsync(ct))
 }
 ```
 
-Streaming command handlers can also derive from the **StreamCommandHandler&lt;TCommand, TResult&gt;** base type if they need to manipulate the validation/error state of the endpoint that issued the command.
+Streaming command handlers can also derive from the **StreamCommandHandler<TCommand, TResult>** base type if they need to manipulate the validation/error state of the endpoint that issued the command.
 
 ```cs
 public class GetNumbersHandler : StreamCommandHandler<GetNumbers, int>
@@ -261,7 +261,7 @@ app.Services.RegisterGenericStreamCommand(typeof(GetItems<>), typeof(GetItemsHan
 
 ### Streaming Command Middleware
 
-Streaming commands have their own middleware pipeline. Create middleware by implementing **IStreamCommandMiddleware&lt;TCommand, TResult&gt;** and call the **next** delegate to continue the chain.
+Streaming commands have their own middleware pipeline. Create middleware by implementing **IStreamCommandMiddleware<TCommand, TResult>** and call the **next** delegate to continue the chain.
 
 ```cs
 sealed class StreamLogger<TCommand, TResult>(ILogger<TCommand> logger)

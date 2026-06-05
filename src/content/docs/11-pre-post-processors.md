@@ -14,7 +14,7 @@ There are two types of processors:
 
 ## Pre Processors
 
-Let's say for example that you'd like to log every request before being executed by your endpoint handlers. Simply write a pre-processor by implementing the interface **IPreProcessor&lt;TRequest&gt;**:
+Let's say for example that you'd like to log every request before being executed by your endpoint handlers. Simply write a pre-processor by implementing the interface **IPreProcessor<TRequest>**:
 
 ```cs |title=MyRequestLogger.cs
 public class MyRequestLogger<TRequest> : IPreProcessor<TRequest>
@@ -95,7 +95,7 @@ If there are multiple pre-processors configured, they will be executed. If anoth
 ## Post Processors
 
 Post-processors are executed after your endpoint handler has completed it's work.
-They can be created similarly by implementing the interface **IPostProcessor&lt;TRequest, TResponse&gt;**:
+They can be created similarly by implementing the interface **IPostProcessor<TRequest, TResponse>**:
 
 ```cs
 public class MyResponseLogger<TRequest, TResponse> : IPostProcessor<TRequest, TResponse>
@@ -300,7 +300,7 @@ public class DurationLogger : PostProcessor<MyRequest, MyStateBag, object>
 }
 ```
 
-The endpoint is able to access the same shared/common state by calling the **ProcessorState&lt;MyStateBag&gt;()** method like so:
+The endpoint is able to access the same shared/common state by calling the **ProcessorState<MyStateBag>()** method like so:
 
 ```cs
 public class MyEndpoint : Endpoint<MyRequest>
@@ -339,7 +339,7 @@ public class MyPreProcessor : IPreProcessor<Request>
 }
 ```
 
-For global processors, you can implement the **GlobalPreProcessor&lt;TState&gt;** and **GlobalPostProcessor&lt;TState&gt;** abstract classes instead.
+For global processors, you can implement the **GlobalPreProcessor<TState>** and **GlobalPostProcessor<TState>** abstract classes instead.
 
 ## Dependency Injection
 

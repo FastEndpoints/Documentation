@@ -42,7 +42,7 @@ public class OrderCreationHandler : IEventHandler<OrderCreatedEvent>
 }
 ```
 
-You can create as many implementations of **IEventHandler&lt;OrderCreatedEvent&gt;** as you like, and they all are receivers/subscribers of the **OrderCreatedEvent**.
+You can create as many implementations of **IEventHandler<OrderCreatedEvent>** as you like, and they all are receivers/subscribers of the **OrderCreatedEvent**.
 No other boilerplate (explicit subscription registration) is necessary.
 
 ### 3. Publish The Event

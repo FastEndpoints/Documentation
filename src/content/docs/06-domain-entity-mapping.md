@@ -58,7 +58,7 @@ public class PersonMapper : Mapper<Request, Response, Person>
 }
 ```
 
-To use the above mapper you need to inherit your endpoint from **Endpoint&lt;TRequest, TResponse, TMapper&gt;** generic overload like so:
+To use the above mapper you need to inherit your endpoint from **Endpoint<TRequest, TResponse, TMapper>** generic overload like so:
 
 ```cs
 public class SavePerson : Endpoint<Request, Response, PersonMapper>
@@ -105,7 +105,7 @@ await SendMappedAsync(entity, ...);
 
 ## Mapping Logic In The Endpoint
 
-If you prefer to place your mapping logic in the endpoint definition itself, you can simply use the **EndpointWithMapping&lt;TRequest,TResponse,TEntity&gt;** generic overload to implement your endpoint and override the **MapToEntity()** and **MapFromEntity()** methods like so:
+If you prefer to place your mapping logic in the endpoint definition itself, you can simply use the **EndpointWithMapping<TRequest,TResponse,TEntity>** generic overload to implement your endpoint and override the **MapToEntity()** and **MapFromEntity()** methods like so:
 
 ```cs
 public class SavePerson : EndpointWithMapping<Request, Response, Person>

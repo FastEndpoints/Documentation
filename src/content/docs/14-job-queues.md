@@ -11,7 +11,7 @@ Job queues allow you to schedule [Commands](command-bus#_1-define-a-command) to 
 
 ## Queueing A Job
 
-Similarly to the [Command Bus](command-bus), the same **ICommand** and it's companion **ICommandHandler&lt;TCommand&gt;** is used to define the data contract and the execution logic such as the following:
+Similarly to the [Command Bus](command-bus), the same **ICommand** and it's companion **ICommandHandler<TCommand>** is used to define the data contract and the execution logic such as the following:
 
 ```cs
 sealed class MyCommand : ICommand
@@ -109,7 +109,7 @@ That's all the configuration needed (other than implementing the storage provide
 In order to provide the storage mechanism for job queues, two interfaces must be implemented.
 
 - [IJobStorageRecord](https://github.com/FastEndpoints/FastEndpoints/blob/main/Src/Library/Messaging/Jobs/IJobStorageRecord.cs) for the job storage entity. ([See example](https://github.com/FastEndpoints/Job-Queue-Demo/blob/main/src/Storage/JobRecord.cs))
-- [IJobStorageProvider&lt;TStorageRecord&gt;](https://github.com/FastEndpoints/FastEndpoints/blob/main/Src/Library/Messaging/Jobs/IJobStorageProvider.cs) for the storage provider. ([See example](https://github.com/FastEndpoints/Job-Queue-Demo/blob/main/src/Storage/JobProvider.cs))
+- [IJobStorageProvider<TStorageRecord>](https://github.com/FastEndpoints/FastEndpoints/blob/main/Src/Library/Messaging/Jobs/IJobStorageProvider.cs) for the storage provider. ([See example](https://github.com/FastEndpoints/Job-Queue-Demo/blob/main/src/Storage/JobProvider.cs))
 
 The storage record entity is simply a POCO containing the actual command DTO together with some metadata. As for the storage provider class, it simply needs to delegate data access to whatever database/storage engine that stores the jobs as shown with the MongoDB example below:
 
@@ -201,11 +201,11 @@ var trackingId = await new LongRunningCommand().QueueJobAsync();
 await JobTracker<LongRunningCommand>.CancelJobAsync(trackingId);
 ```
 
-Use either the **JobTracker&lt;TCommand&gt;** generic class or inject a **IJobTracker&lt;TCommand&gt;** instance from the DI Container to access the **CancelJobAsync()** method.
+Use either the **JobTracker<TCommand>** generic class or inject a **IJobTracker<TCommand>** instance from the DI Container to access the **CancelJobAsync()** method.
 
 ## Jobs With Results
 
-A command that returns a result (**ICommand&lt;TResult&gt;**) can also be queued up as a job. The result can be retrieved from anywhere via the **JobTracker** using the job's **Tracking Id**. To enable support for job results, simply implement the following addon interfaces:
+A command that returns a result (**ICommand<TResult>**) can also be queued up as a job. The result can be retrieved from anywhere via the **JobTracker** using the job's **Tracking Id**. To enable support for job results, simply implement the following addon interfaces:
 
 ```csharp | title=JobRecord.cs
 sealed class JobRecord : IJobStorageRecord, IJobResultStorage
@@ -251,7 +251,7 @@ var trackingId = new MyCommand { ... }.QueueJobAsync();
 var result = await JobTracker<MyCommand>.GetJobResultAsync<MyResult>(trackingId);
 ```
 
-Use either the **JobTracker&lt;TCommand&gt;** generic class or inject a **IJobTracker&lt;TCommand&gt;** instance from the DI Container to access the **GetJobResultAsync()** method. The result will be **default** for value types and **null** for reference types until the command handler completes its work. [Click here](https://github.com/FastEndpoints/Job-Queue-EF-Core-Demo) for an EF Core example.
+Use either the **JobTracker<TCommand>** generic class or inject a **IJobTracker<TCommand>** instance from the DI Container to access the **GetJobResultAsync()** method. The result will be **default** for value types and **null** for reference types until the command handler completes its work. [Click here](https://github.com/FastEndpoints/Job-Queue-EF-Core-Demo) for an EF Core example.
 
 ## Tracking Job Execution Progress
 
@@ -376,7 +376,7 @@ Ensure this property is mapped to a column/field in your database. Setting a dat
 
 ### Step 3: Implement Atomic Claiming In GetNextBatchAsync
 
-In distributed scenarios, your **GetNextBatchAsync** implementation must use a database-level atomic operation to find matching records **and** set their **DequeueAfter** to a future time in a single step. The engine supplies a pre-built **Match** expression via the search parameters that includes all eligibility checks (including **DequeueAfter &lt;= now**) for databases that support simply passing it down such as MongoDB. The **ExecutionTimeLimit** value from the search parameters can be used as a guide for determining a suitable lease duration.
+In distributed scenarios, your **GetNextBatchAsync** implementation must use a database-level atomic operation to find matching records **and** set their **DequeueAfter** to a future time in a single step. The engine supplies a pre-built **Match** expression via the search parameters that includes all eligibility checks (including **DequeueAfter <= now**) for databases that support simply passing it down such as MongoDB. The **ExecutionTimeLimit** value from the search parameters can be used as a guide for determining a suitable lease duration.
 
 In distributed mode, you must always honor **p.Limit**. It represents the number of execution slots currently available on that worker. Claiming more records than **p.Limit** can over-lease jobs that cannot start immediately, delaying other workers from picking them up.
 
@@ -513,6 +513,6 @@ If you don't reset **DequeueAfter**, the job will remain "claimed" until the lea
 
 ### How Crash Recovery Works
 
-If a worker crashes mid-execution without calling **MarkJobAsCompleteAsync** or **OnHandlerExecutionFailureAsync**, the job's **DequeueAfter** remains set to the lease expiry time. Once that time passes, the record satisfies the **DequeueAfter &lt;= now** condition again, and any worker can claim and re-process it. No manual intervention is required.
+If a worker crashes mid-execution without calling **MarkJobAsCompleteAsync** or **OnHandlerExecutionFailureAsync**, the job's **DequeueAfter** remains set to the lease expiry time. Once that time passes, the record satisfies the **DequeueAfter <= now** condition again, and any worker can claim and re-process it. No manual intervention is required.
 
 During a normal application shutdown, the queue stops claiming new jobs and lets any already running executions finish their completion/failure bookkeeping before the executor exits.

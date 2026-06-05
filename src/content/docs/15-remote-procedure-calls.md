@@ -184,7 +184,7 @@ Please refer to the **Command Bus** section above for an introduction to the gRP
 
 ### Event Bus Vs. Event Queue
 
-Even though the two patterns may look similar due to the use of the same interfaces (**IEvent** & **IEventHandler&lt;TEvent&gt;**), they behave quite differently.
+Even though the two patterns may look similar due to the use of the same interfaces (**IEvent** & **IEventHandler<TEvent>**), they behave quite differently.
 
 #### Event Bus (In Process):
 
@@ -245,7 +245,7 @@ app.Run()
 
 #### Event Subscriber Project (gRPC Client)
 
-Create the event handler by implementing **IEventHandler&lt;TEvent&gt;** interface.
+Create the event handler by implementing **IEventHandler<TEvent>** interface.
 
 ```cs
 internal class WhenSomethingHappens : IEventHandler<SomethingHappened>
@@ -423,7 +423,7 @@ bld.Services.AddEventHubExceptionReceiver<MyHubErrorReceiver>();
 
 ## Event Broker Mode
 
-By default, when you register an event hub via **RegisterEventHub&lt;TEvent&gt;()**, the hub doesn't accept any events from remote clients/publishers. Only the server itself can broadcast events to it's subscribers.
+By default, when you register an event hub via **RegisterEventHub<TEvent>()**, the hub doesn't accept any events from remote clients/publishers. Only the server itself can broadcast events to it's subscribers.
 
 If there's a requirement to allow remote/external event publishers to send events to the hub, you can easily configure the event hub to act as a relay (event broker) and distribute the events received from external publishers to the connected subscribers. To enable the event broker mode, simply do the following on the gRPC server:
 

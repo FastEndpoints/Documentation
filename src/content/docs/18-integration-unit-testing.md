@@ -33,7 +33,7 @@ There are two projects in the solution. The main application is in the [Source](
 
 #### FastEndpoints.Testing Package
 
-Even though you can use the vanilla **WebApplicationFactory&lt;T&gt;** together with the convenient [HttpClient extensions](https://api-ref.fast-endpoints.com/api/FastEndpoints.HttpClientExtensions.html#methods) for sending requests to the WAF, the **FastEndpoints.Testing** package comes with an abstract [App Fixture](https://github.com/FastEndpoints/FastEndpoints/blob/9b2a1ed3ca6e921c45b81801d1cb8bedd75ae8ff/Src/Testing/AppFixture.cs#L45) and [Test Base](https://github.com/FastEndpoints/FastEndpoints/blob/9b2a1ed3ca6e921c45b81801d1cb8bedd75ae8ff/Src/Testing/TestBase.cs) to make testing even more convenient by providing the following:
+Even though you can use the vanilla **WebApplicationFactory<T>** together with the convenient [HttpClient extensions](https://api-ref.fast-endpoints.com/api/FastEndpoints.HttpClientExtensions.html#methods) for sending requests to the WAF, the **FastEndpoints.Testing** package comes with an abstract [App Fixture](https://github.com/FastEndpoints/FastEndpoints/blob/9b2a1ed3ca6e921c45b81801d1cb8bedd75ae8ff/Src/Testing/AppFixture.cs#L45) and [Test Base](https://github.com/FastEndpoints/FastEndpoints/blob/9b2a1ed3ca6e921c45b81801d1cb8bedd75ae8ff/Src/Testing/TestBase.cs) to make testing even more convenient by providing the following:
 
 - Hooks for one-time fixture setup & teardown.
 - Ability to order test execution at test-collection, test-class and test-method levels.
@@ -54,7 +54,7 @@ An **AppFixture** is a special type of abstract [class fixture](https://xunit.ne
 
 An AppFixture when instantiated by xUnit for a test-class, bootstraps an instance of your target application (System-Under-Test) as an in-memory test-server/web-host. That instance will be re-used by all the test-methods of the class speeding up test execution as constantly booting up and tearing down a WAF/web-host per each test-method (or even per test-class) would result in slower test execution.
 
-To create an AppFixture, inherit from **AppFixture&lt;TProgram&gt;** base:
+To create an AppFixture, inherit from **AppFixture<TProgram>** base:
 
 ```cs
 public class MyApp : AppFixture<Program>
@@ -95,7 +95,7 @@ can be performed by overriding the **PreSetupAsync()** method as shown in [this 
 
 #### Test Base
 
-xUnit considers a single class file containing multiple test-methods as a single [test-collection](https://xunit.net/docs/running-tests-in-parallel.html#parallelism-in-test-frameworks). A test-collection is a set of test-methods that would be executed serially together, but never in parallel. I.e. two test-methods of the same class will never execute simultaneously. In fact, it's impossible to make it do so. The order in which the methods are executed is not guaranteed (unless we do explicit ordering). Inherit **TestBase&lt;TAppFixture&gt;** to create a test-class. xUnit will inject the derived AppFixture via the constructor.
+xUnit considers a single class file containing multiple test-methods as a single [test-collection](https://xunit.net/docs/running-tests-in-parallel.html#parallelism-in-test-frameworks). A test-collection is a set of test-methods that would be executed serially together, but never in parallel. I.e. two test-methods of the same class will never execute simultaneously. In fact, it's impossible to make it do so. The order in which the methods are executed is not guaranteed (unless we do explicit ordering). Inherit **TestBase<TAppFixture>** to create a test-class. xUnit will inject the derived AppFixture via the constructor.
 
 ```cs
 public class MyTests(MyApp App) : TestBase<MyApp>
@@ -238,19 +238,19 @@ This approach allows your test suite to have just a couple of derived **AppFixtu
 
 A test-collection is an arbitrary grouping of multiple test-classes which results in all test-methods of the collection running serially (never in parallel) in order to avoid contention between test-methods from multiple test-classes. A test-collection can be thought of as a mega test-class but physically seperated into multiple class files.
 
-An **AppFixture** can be made into a [collection-fixture](https://xunit.net/docs/shared-context#collection-fixture) for the purpose of being shared just among the test-classes of a given collection. It will be instantiated before any of the tests from the collection is run and torn down once all tests from the collection is complete. Inherit from **AppFixture&lt;TProgram&gt;** as usual:
+An **AppFixture** can be made into a [collection-fixture](https://xunit.net/docs/shared-context#collection-fixture) for the purpose of being shared just among the test-classes of a given collection. It will be instantiated before any of the tests from the collection is run and torn down once all tests from the collection is complete. Inherit from **AppFixture<TProgram>** as usual:
 
 ```cs
 public class AppForCollectionX : AppFixture<Program> {}
 ```
 
-Next, you need to create a **collection-definition** inheriting from **TestCollection&lt;TAppFixture&gt;**, which is simply a class used to define a test-collection, which is where you specify the fixture for that test-collection like so:
+Next, you need to create a **collection-definition** inheriting from **TestCollection<TAppFixture>**, which is simply a class used to define a test-collection, which is where you specify the fixture for that test-collection like so:
 
 ```cs
 public class CollectionX : TestCollection<AppForCollectionX>;
 ```
 
-Once there's a collection-definition, create as many test-classes as needed by inheriting the non-generic **TestBase** class and associate them with the test-collection using the **[Collection&lt;TCollection&gt;]** generic attribute. All test-classes associated with **CollectionX** receives the exact same **AppForCollectionX** fixture instance when injected via the constructor.
+Once there's a collection-definition, create as many test-classes as needed by inheriting the non-generic **TestBase** class and associate them with the test-collection using the **[Collection<TCollection>]** generic attribute. All test-classes associated with **CollectionX** receives the exact same **AppForCollectionX** fixture instance when injected via the constructor.
 
 ```cs
 [Collection<CollectionX>]
@@ -360,7 +360,7 @@ Please refer the following resources to get a deeper understanding of recommende
 
 ## Unit Testing
 
-In situations where doing a unit test would be less tedious compared to setting up an integration test (or even impossible to do so), you may use the **Factory.Create&lt;TEndpoint&gt;()** method to get an instance of your endpoint which is suitable for unit testing.
+In situations where doing a unit test would be less tedious compared to setting up an integration test (or even impossible to do so), you may use the **Factory.Create<TEndpoint>()** method to get an instance of your endpoint which is suitable for unit testing.
 
 ### Endpoint Testing With FakeItEasy
 

@@ -224,7 +224,7 @@ public override void Configure()
 }
 ```
 
-Alternatively, if you'd like to get rid of all traces of documentation from your endpoint classes and have the summary completely separated, you can implement the **Summary&lt;TEndpoint&gt;** or **Summary&lt;TEndpoint, TRequest&gt;** abstract classes.
+Alternatively, if you'd like to get rid of all traces of documentation from your endpoint classes and have the summary completely separated, you can implement the **Summary<TEndpoint>** or **Summary<TEndpoint, TRequest>** abstract classes.
 
 ```cs
 public class MySummary : Summary<MyEndpoint>
@@ -254,7 +254,7 @@ The **Response()** method above does the same job as the **Produces()** method m
 
 ## Describe Request Params
 
-Route parameters, query parameters, request DTO property descriptions, and response DTO property descriptions can be specified either with xml comments or with the **Summary()** method or **EndpointSummary** or **Summary&lt;TEndpoint, TRequest&gt;** subclassing.
+Route parameters, query parameters, request DTO property descriptions, and response DTO property descriptions can be specified either with xml comments or with the **Summary()** method or **EndpointSummary** or **Summary<TEndpoint, TRequest>** subclassing.
 
 Take the following for example:
 
@@ -365,7 +365,7 @@ There may be special circumstances where you'd need certain DTO properties to no
 
 When request/response dto properties are declared as set-like collection types, FastEndpoints will automatically emit **uniqueItems: true** in the OpenAPI schema for scalar element types.
 
-Automatic detection is intentionally conservative. If the collection items are complex object types, uniqueness is not inferred automatically. In those cases, or when using a non-set-like collection such as **List&lt;T&gt;**, you can force **uniqueItems: true** by decorating the property with the **[UniqueItems]** attribute.
+Automatic detection is intentionally conservative. If the collection items are complex object types, uniqueness is not inferred automatically. In those cases, or when using a non-set-like collection such as **List<T>**, you can force **uniqueItems: true** by decorating the property with the **[UniqueItems]** attribute.
 
 ```cs |title=Request.cs
 public class Request
@@ -720,7 +720,7 @@ If you'd like to generate the client files on every release build, you can set u
 
 :::admonition type=tip
 If you have multiple API projects in a single solution, the task can fail due to port collisions.
-To avoid this, add **_--urls http://127.0.0.1:0_** to the command or set **_ASPNETCORE_URLS_** to **_http://127.0.0.1:0_** via the **_EnvironmentVariables_** property on the **_&lt;Exec&gt;_** element. Using port 0 automatically selects an inactive port for your app to start the client export.
+To avoid this, add **_--urls http://127.0.0.1:0_** to the command or set **_ASPNETCORE_URLS_** to **_http://127.0.0.1:0_** via the **_EnvironmentVariables_** property on the **_<Exec>_** element. Using port 0 automatically selects an inactive port for your app to start the client export.
 :::
 
 #### How It Works

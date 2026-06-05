@@ -188,7 +188,7 @@ public override void Configure()
 }
 ```
 
-A sub-group is created by subclassing the **SubGroup&lt;TParentGroup&gt;** class like so:
+A sub-group is created by subclassing the **SubGroup<TParentGroup>** class like so:
 
 ```cs
 public class Sales : SubGroup<Administration>

@@ -421,15 +421,15 @@ public class LoginEndpoint : EndpointWithoutRequest<TokenResponse>
 
 The interesting bits of info here would be the following:
 
-| Item | Description |
-| ---- | ----------- |
-| **CreateTokenWith&lt;TTokenService&gt;()** | This is a method supplied by the endpoint base class which can be used to generate the initial response DTO containing the access/refresh token pair. The token service is discussed below. The parameters of the method would be the user-id and an action for configuring which user privileges (roles/claims/permissions) are to be embedded in the generated access token. |
-| **MyTokenService** | This is your implementation of a specialized abstract endpoint class which is configured with the relevant settings such as signing key/ audience/ issuer/ expiry times/ etc. See example below. |
-| **TokenResponse** | This is the response DTO that the token service will return when token generation succeeds. |
+| Item                                 | Description                                                                                                                                                                                                                                                                                                                                                                    |
+|--------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **CreateTokenWith<TTokenService>()** | This is a method supplied by the endpoint base class which can be used to generate the initial response DTO containing the access/refresh token pair. The token service is discussed below. The parameters of the method would be the user-id and an action for configuring which user privileges (roles/claims/permissions) are to be embedded in the generated access token. |
+| **MyTokenService**                   | This is your implementation of a specialized abstract endpoint class which is configured with the relevant settings such as signing key/ audience/ issuer/ expiry times/ etc. See example below.                                                                                                                                                                               |
+| **TokenResponse**                    | This is the response DTO that the token service will return when token generation succeeds.                                                                                                                                                                                                                                                                                    |
 
 ### Step 2 - Token Service:
 
-A token service is created by implementing the **RefreshTokenService&lt;TRequest, TResponse&gt;** abstract class. This class is a bit different from
+A token service is created by implementing the **RefreshTokenService<TRequest, TResponse>** abstract class. This class is a bit different from
 the typical endpoint classes that it is configured by calling **Setup()** in the constructor as shown below. Also, the request and response dto
 generic
 arguments are constrained to **TokenRequest** & **TokenResponse** even though you are free to subclass those types if you need to add more properties.
@@ -642,7 +642,7 @@ public static partial class Allow
 }
 ```
 
-Do note the namespace above. The auto generated **Allow** static class will be located in **&lt;YourAssemblyName&gt;.Auth**. So you need to use the
+Do note the namespace above. The auto generated **Allow** static class will be located in **<YourAssemblyName>.Auth**. So you need to use the
 same namespace when adding your own partial class or the compiler will not be able to combine your partial class with the auto generated class.
 
 ### Generating Permission Groups

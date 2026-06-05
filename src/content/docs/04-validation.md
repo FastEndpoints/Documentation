@@ -13,7 +13,7 @@ Request validation is done using [FluentValidation](https://fluentvalidation.net
 You don't need to install the FluentValidation package as it's automatically brought in by FastEndpoints.
 :::
 
-Simply write your validators by inheriting the **Validator&lt;TRequest&gt;** base class like below.
+Simply write your validators by inheriting the **Validator<TRequest>** base class like below.
 
 You don't need to register your validators with the DI container.
 That is automatically taken care of by FastEndpoints.
@@ -159,7 +159,7 @@ valCtx.ThrowIfAnyErrors();
 
 ## Abstract Validator Classes
 
-If for some reason you'd like to auto register validators inheriting **FluentValidation.AbstractValidator&lt;T&gt;**, you must instruct FastEndpoints at startup like so:
+If for some reason you'd like to auto register validators inheriting **FluentValidation.AbstractValidator<T>**, you must instruct FastEndpoints at startup like so:
 
 ```cs
 bld.Services.AddFastEndpoints(o => o.IncludeAbstractValidators = true);

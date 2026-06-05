@@ -200,7 +200,7 @@ public override Task HandleAsync(CancellationToken ct)
 
 ### Conditional Responses
 
-All [Send.\*Async() methods](misc-conveniences#send-methods) return a **Task&lt;Void&gt;** result. If a response needs to be sent conditionally in your handler, you can simply change the return type of the handler from **Task** to **Task&lt;Void&gt;** and return the awaited result as shown below in order to stop further execution of endpoint handler logic:
+All [Send.\*Async() methods](misc-conveniences#send-methods) return a **Task<Void>** result. If a response needs to be sent conditionally in your handler, you can simply change the return type of the handler from **Task** to **Task<Void>** and return the awaited result as shown below in order to stop further execution of endpoint handler logic:
 
 ```cs
 public override async Task<Void> HandleAsync(CancellationToken c)
@@ -215,7 +215,7 @@ public override async Task<Void> HandleAsync(CancellationToken c)
 }
 ```
 
-If there's no async work being done in the handler, the **Task&lt;Void&gt;** can simply be returned as well:
+If there's no async work being done in the handler, the **Task<Void>** can simply be returned as well:
 
 ```cs
 public override Task<Void> HandleAsync(CancellationToken c)
@@ -228,7 +228,7 @@ public override Task<Void> HandleAsync(CancellationToken c)
 
 ## Union-Type Returning Handler
 
-Minimal APIs has the ability for endpoints to conditionally return one of multiple results/outcomes via a union type called [Results&lt;T1,T2,...&gt;](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/responses?view=aspnetcore-7.0#resultstresult1-tresultn).
+Minimal APIs has the ability for endpoints to conditionally return one of multiple results/outcomes via a union type called [Results<T1,T2,...>](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/responses?view=aspnetcore-7.0#resultstresult1-tresultn).
 
 The result objects are instantiated by calling static methods on the [TypedResults](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/responses?view=aspnetcore-7.0#typedresults-vs-results) class depending on what kind of outcome is needed.
 
@@ -305,15 +305,15 @@ public class MyEndpoint : Endpoint<MyRequest, Results<Ok<MyResponse>, NotFound>>
 
 Instead of overriding the **Configure()** method, endpoint classes can be annotated with the following limited set of attributes:
 
-| Attribute                           | Description                                                                                                |
-|-------------------------------------|------------------------------------------------------------------------------------------------------------|
-| `[Http{VERB}("/route")]`            | Sets up the verb and route.                                                                                |
-| `[AllowAnonymous]`                  | Allows un-authenticated access.                                                                            |
-| `[AllowFileUploads]`                | Allows file uploads with multipart/form-data.                                                              |
-| `[Authorize(...)]`                  | Specifies authorization requirements with roles and policies.                                              |
-| `[Group&lt;TGroup&gt;]`             | Associates an endpoint with a [configuration group](configuration-settings#endpoint-configuration-groups). |
-| `[PreProcessor&lt;TProcessor&gt;]`  | Adds a [pre-processor](pre-post-processors#pre-processors) to the pipeline.                                |
-| `[PostProcessor&lt;TProcessor&gt;]` | Adds a [post-processor](pre-post-processors#post-processors) to the pipeline.                              |
+| Attribute                     | Description                                                                                                |
+|-------------------------------|------------------------------------------------------------------------------------------------------------|
+| `[Http{VERB}("/route")]`      | Sets up the verb and route.                                                                                |
+| `[AllowAnonymous]`            | Allows un-authenticated access.                                                                            |
+| `[AllowFileUploads]`          | Allows file uploads with multipart/form-data.                                                              |
+| `[Authorize(...)]`            | Specifies authorization requirements with roles and policies.                                              |
+| `[Group<TGroup>]`             | Associates an endpoint with a [configuration group](configuration-settings#endpoint-configuration-groups). |
+| `[PreProcessor<TProcessor>]`  | Adds a [pre-processor](pre-post-processors#pre-processors) to the pipeline.                                |
+| `[PostProcessor<TProcessor>]` | Adds a [post-processor](pre-post-processors#post-processors) to the pipeline.                              |
 
 ```cs
 [HttpPost("/my-endpoint")]
