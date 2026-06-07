@@ -22,6 +22,10 @@ function stripTags(input: string) {
 	return input.replace(/<[^>]+>/g, '');
 }
 
+function escapeTextareaValue(input: string) {
+	return escapeHtml(input).replace(/\r\n?|\n/g, '&#10;');
+}
+
 function removePreBackgroundColor(html: string) {
 	return html.replace(
 		/(<pre\b[^>]*\sstyle=")([^"]*)(")/gi,
@@ -93,7 +97,7 @@ async function renderCode(code: string, info: string) {
 					meta.copy ? '<button type="button" class="code-fence__copy">Copy</button>' : ''
 				}</div>`
 			: ''
-	}<div class="code-fence__code">${highlighted}</div><textarea class="code-fence__raw" hidden>${escapeHtml(code)}</textarea></div>`;
+	}<div class="code-fence__code">${highlighted}</div><textarea class="code-fence__raw" hidden>${escapeTextareaValue(code)}</textarea></div>`;
 }
 
 async function replaceCodeFences(markdown: string) {
