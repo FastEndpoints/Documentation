@@ -26,6 +26,23 @@ function escapeTextareaValue(input: string) {
 	return escapeHtml(input).replace(/\r\n?|\n/g, '&#10;');
 }
 
+function isExternalHref(href: string) {
+	return /^(?:https?:\/\/|\/\/)/i.test(href);
+}
+
+function renderLink(href: string, title: string | null, text: string) {
+	const safeHref = escapeHtml(href);
+	const titleAttr = title ? ` title="${escapeHtml(title)}"` : '';
+	const externalAttrs = isExternalHref(href) ? ' target="_blank" rel="noopener noreferrer"' : '';
+
+	return `<a href="${safeHref}"${titleAttr}${externalAttrs}>${text}</a>`;
+}
+
+function applyLinkRenderer(renderer: Renderer) {
+	renderer.link = renderLink;
+	return renderer;
+}
+
 function removePreBackgroundColor(html: string) {
 	return html.replace(
 		/(<pre\b[^>]*\sstyle=")([^"]*)(")/gi,
@@ -123,7 +140,7 @@ function replaceAdmonitions(markdown: string) {
 			const html = marked.parse(body, {
 				mangle: false,
 				headerIds: false,
-				renderer: new Renderer()
+				renderer: applyLinkRenderer(new Renderer())
 			}) as string;
 			return `<aside class="admonition admonition-${escapeHtml(type)}"><p class="admonition__title">${escapeHtml(type)}</p>${html}</aside>`;
 		}
@@ -131,7 +148,7 @@ function replaceAdmonitions(markdown: string) {
 }
 
 function createRenderer() {
-	const renderer = new Renderer();
+	const renderer = applyLinkRenderer(new Renderer());
 	const seen = new Map<string, number>();
 
 	renderer.heading = (text: string, level: number) => {
