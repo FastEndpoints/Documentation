@@ -7,7 +7,7 @@ description: Developing event based applications in FastEndpoints is highly perf
 
 If you'd like to take an event driven approach to building your application, you have the option to publish events and have completely decoupled **Event-Handlers** take action when events are published. An event can have more than one handler and has a one-to-many relationship. Due to the nature of pub/sub event bus pattern, handlers cannot return any results back to the caller/publisher.
 
-### 1. Define An Event Model/ DTO
+## 1. Define An Event Model/ DTO
 
 This is the data contract that will be delivered to the subscribers/event-handlers.
 
@@ -20,7 +20,7 @@ public class OrderCreatedEvent
 }
 ```
 
-### 2. Define An Event Handler
+## 2. Define An Event Handler
 
 This is the code that will be executed when events of the above DTO type gets published.
 
@@ -45,7 +45,7 @@ public class OrderCreationHandler : IEventHandler<OrderCreatedEvent>
 You can create as many implementations of **IEventHandler<OrderCreatedEvent>** as you like, and they all are receivers/subscribers of the **OrderCreatedEvent**.
 No other boilerplate (explicit subscription registration) is necessary.
 
-### 3. Publish The Event
+## 3. Publish The Event
 
 Simply hand in an event model to the **PublishAsync()** method.
 
