@@ -22,3 +22,11 @@
 		<span>K</span>
 	</span>
 </button>
+
+<style>
+	@media (max-width: 480px) {
+		#search-hotkey {
+			display: none;
+		}
+	}
+</style>
