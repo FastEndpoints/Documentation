@@ -148,3 +148,9 @@ sealed class AppStartedHandler(ILogger<AppStartedHandler> logger) : IEventHandle
     }
 }
 ```
+
+If you'd like event bus instances to be initialized during application startup instead of when the first event is published, enable warmup like this:
+
+```cs
+host.Services.UseMessaging(o => o.Warmup());
+```

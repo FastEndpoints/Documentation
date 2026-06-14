@@ -64,6 +64,12 @@ app.UseJobQueues();
 app.Run();
 ```
 
+If you'd like event bus instances used by the job queue system to be initialized during application startup, enable warmup like this:
+
+```cs
+app.UseJobQueues(o => o.Warmup());
+```
+
 Job queues can be used independently of FastEndpoints REST endpoints by installing just the following nuget package. There's no need to install it if your project is already referencing the FastEndpoints main library.
 
 ```sh | copy

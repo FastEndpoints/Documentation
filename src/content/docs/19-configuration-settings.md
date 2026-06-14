@@ -114,6 +114,35 @@ app.UseFastEndpoints(c =>
 });
 ```
 
+## Endpoint Startup Warmup
+
+Endpoint related runtime artifacts such as validators, mappers, request binders and compiled delegates are lazily initialized by default when the first request hits an endpoint. If you'd rather pay that cost during application startup, enable endpoint warmup like this:
+
+```cs
+app.UseFastEndpoints(c => c.Endpoints.Warmup());
+```
+
+You can also warm up only selected endpoints by supplying a predicate. If the predicate returns **true**, that particular endpoint will be warmed up. If it returns **false**, warmup will be skipped for that endpoint.
+
+```cs
+app.UseFastEndpoints(c =>
+{
+    c.Endpoints.Warmup(ep => ep.EndpointType.Namespace?.Contains("Critical") is true);
+});
+```
+
+Event bus instances can be warmed up when using messaging [independently of FastEndpoints](event-bus#event-bus-without-fastendpoints) like this:
+
+```cs
+app.Services.UseMessaging(o => o.Warmup());
+```
+
+When using [job queues independently](job-queues#enabling-job-queues), the same messaging warmup can be requested from the job queue startup call as well:
+
+```cs
+app.UseJobQueues(o => o.Warmup());
+```
+
 ## Global Endpoint Options
 
 You can have a set of common settings applied to endpoints of your choice by specifying an action for the **Endpoints.Configurator** property.
