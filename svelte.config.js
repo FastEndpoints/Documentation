@@ -10,7 +10,7 @@ const config = {
 		}),
 		prerender: {
 			entries: ['*', '/search.json', '/sitemap.xml'],
-			handleMissingId: 'warn'
+			handleMissingId: 'fail'
 		}
 	},
 	preprocess: vitePreprocess()
