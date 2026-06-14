@@ -37,7 +37,7 @@
 </header>
 
 <style>
-	@media (max-width: 768px) {
+	@media (max-width: 1200px) {
 		.site-navbar__actions :global(.social-link) {
 			gap: 0;
 		}
