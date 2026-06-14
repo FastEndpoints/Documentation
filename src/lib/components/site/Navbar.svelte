@@ -35,3 +35,15 @@
 		</div>
 	</div>
 </header>
+
+<style>
+	@media (max-width: 768px) {
+		.site-navbar__actions :global(.social-link) {
+			gap: 0;
+		}
+
+		.site-navbar__actions :global(.social-link span) {
+			display: none;
+		}
+	}
+</style>
