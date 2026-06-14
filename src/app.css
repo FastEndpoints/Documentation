@@ -273,7 +273,7 @@ article.prose {
 /* heading top margin */
 h2,
 h3 {
-    margin-top: 0 !important;
+    margin-top: 2rem !important;
 }
 
 /* heading color */
