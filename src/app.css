@@ -180,6 +180,11 @@ div.code-fence {
 }
 
 /* scrollbars */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(46, 46, 46) #1b1b1b;
+}
+
 ::-webkit-scrollbar {
     width: 7px !important;
     height: 7px !important;
