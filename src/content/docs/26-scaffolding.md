@@ -1,0 +1,263 @@
+---
+title: Scaffolding
+description: A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern.
+---
+
+## Feature Scaffolding
+
+### Code Snippets
+
+Our [VS Extension](https://marketplace.visualstudio.com/items?itemName=dj-nitehawk.FastEndpoints) & [VSCode Extension](https://marketplace.visualstudio.com/items?itemName=drilko.fastendpoints) adds handy code snippet shortcuts to make it faster to scaffold/expand new classes in your project. JetBrains Rider users can [import](https://gist.github.com/dj-nitehawk/6493cb85bf3bb20aad5d2fd7814bad15) the snippets as LiveTemplates.
+
+<img src="/vs-snippet.gif" alt="VS Code Snippet" />
+
+#### Available Shortcuts:
+
+#### **epreq**
+
+```cs
+// Scaffolds an endpoint with only a request dto
+sealed class Endpoint : Endpoint<Request>
+```
+
+#### **epreqres**
+
+```cs
+// Scaffolds an endpoint with request and response dtos
+sealed class Endpoint : Endpoint<Request, Response>
+```
+
+#### **epnoreq**
+
+```cs
+// Scaffolds an endpoint without a request nor response dto
+sealed class Endpoint : EndpointWithoutRequest
+```
+
+#### **epres**
+
+```cs
+// Scaffolds an endpoint without a request dto but with a response dto
+sealed class Endpoint : EndpointWithoutRequest<Response>
+```
+
+#### **epdto**
+
+```cs
+// Scaffolds the request & response dtos for an endpoint
+sealed class Request {}
+sealed class Response {}
+```
+
+#### **epval**
+
+```cs
+// Scaffolds an endpoint validator for a given request dto
+sealed class Validator : Validator<Request>
+```
+
+#### **epmap**
+
+```cs
+// Scaffolds an endpoint mapper class for the given request, response and entity dtos
+sealed class Mapper : Mapper<Request, Response, Entity>
+```
+
+#### **epsum**
+
+```cs
+// Scaffolds a summary class for a given endpoint and request dto
+sealed class Summary : Summary<Endpoint, Request>
+```
+
+#### **epdat**
+
+```cs
+// Scaffolds a static data class for an endpoint
+static class Data
+```
+
+#### **epfull**
+
+```cs
+Scaffolds the complete set of classes for a full vertical slice
+```
+
+#### **cmd**
+
+```cs
+// Scaffolds a command handler for a given command model that does not return a result
+sealed class CommandHandler : ICommandHandler<Command>
+```
+
+#### **cmdres**
+
+```cs
+// Scaffolds a command handler for a given command model that returns a result
+sealed class CommandHandler : ICommandHandler<Command, Result>
+```
+
+#### **evnt**
+
+```cs
+// Scaffolds an event handler for a given event model
+sealed class EventHandler : IEventHandler<Event>
+```
+
+#### **preproc**
+
+```cs
+// Scaffolds a pre-processor for a given request dto
+sealed class Processor : IPreProcessor<Request>
+```
+
+#### **postproc**
+
+```cs
+// Scaffolds a post-processor for a given request & response dto
+sealed class Processor : IPostProcessor<Request, Response>
+```
+
+#### Integration Test Scaffolds
+
+- **tstfixture** - scaffolds a test class fixture
+- **tstclass** - scaffolds a test class
+- **tstmethod** - scaffolds a test method with a [Fact] attribute
+
+### VS New Item Template
+
+If you're doing vertical slice architecture and placing each individual feature in their own namespace, you can take advantage of the [VS Extension](https://marketplace.visualstudio.com/items?itemName=dj-nitehawk.FastEndpoints) that will add a new item to the "add new file" dialog of visual studio to make it convenient to add feature file sets to your project.
+
+Once installed, your visual studio add new item dialog will have **FastEndpoints Feature File Set** listed under **Installed > Visual C#** node. Then, instead of entering a file name, simply enter the namespace you want your new feature to be added to followed by **.cs**
+
+A new feature file set will be created in the folder you selected.
+
+There will be 4 new files created under the namespace you chose.
+
+- **Data.cs** - Use this class to place all of your data access logic.
+
+- **Models.cs** - Place your request, response DTOs and the validator in this file.
+
+- **Mapper.cs** - Domain entity mapping logic will live here.
+
+- **Endpoint.cs** - This will be your new endpoint definition.
+
+[Click here](https://github.com/dj-nitehawk/MiniDevTo/tree/main/Features/Author/Articles/SaveArticle) for an example feature file set.
+
+<img src="/vslice.gif" alt="VS Extension" />
+
+### Dotnet New Item Template
+
+If you prefer working with the cli, you can use our **dotnet new** template to create a new feature file set.
+
+```sh title=installation|copy
+  dotnet new install FastEndpoints.TemplatePack
+```
+
+**Usage:**
+
+The example feature below will use the following input parameters:
+
+- Namespace: **MyProject.Comments.Create**
+- Method **POST**
+- Route: **api/comments**
+
+Files will be created in folder **Features/Comments/Create**:
+
+```
+dotnet new feat -n MyProject.Comments.Create -m post -r api/comments -o Features/Comments/Create
+```
+
+#### Available Options
+
+```
+> dotnet new feat --help
+
+FastEndpoints Feature Fileset (C#)
+Options:
+  -t|--attributes  Whether to use attributes for endpoint configuration
+                   bool - Optional
+                   Default: false
+
+  -p|--mapper      Whether to use a mapper
+                   bool - Optional
+                   Default: true
+
+  -v|--validator   Whether to use a validator
+                   bool - Optional
+                   Default: true
+
+  -m|--method      Endpoint HTTP method
+                       GET
+                       POST
+                       PUT
+                       DELETE
+                       PATCH
+                   Default: GET
+
+  -r|--route       Endpoint path
+                   string - Optional
+                   Default: api/route/here
+```
+
+---
+
+## Project Scaffolding
+
+In order to scaffold new projects, install the Template Pack if not already installed:
+
+```sh |copy
+dotnet new install FastEndpoints.TemplatePack
+```
+
+### Bare-Bones Starter Project Template
+
+A new FastEndpoints starter [project](https://github.com/FastEndpoints/Template-Pack/tree/main/templates/project) including traditional integration testing setup with xUnit:
+
+```sh |copy
+dotnet new feproj -n MyAwesomeProject
+```
+
+### Integrated Testing Project Template
+
+An alternate starter [project](https://github.com/FastEndpoints/Template-Pack/tree/main/templates/integrated) that places xUnit tests alongside the endpoints that are
+being tested:
+
+```sh |copy
+dotnet new feintproj -n MyAwesomeProject
+```
+
+### xUnit Test Project
+
+A xUnit integration testing [project](https://github.com/FastEndpoints/Template-Pack/tree/main/templates/test/Tests):
+
+```sh |copy
+dotnet new fetest
+```
+
+### VS New Project Dialog
+
+After the template pack is installed with **dotnet new**, the project templates will show up in Visual Studio as well.
+
+<img src="/vs-new-proj.png" alt="VS New Project Dialog" />
+
+### OpenAPI Generator
+
+[OpenAPI Generator](https://openapi-generator.tech/) is a CLI tool that can generate a FastEndpoints server project from a given OpenAPI document. To install the tool, please follow the instructions on the [Getting Started](https://openapi-generator.tech/docs/installation) page. Once installed, a project can be generated using an OpenAPI document as follows:
+
+```sh |copy
+openapi-generator-cli generate \
+  --generator-name aspnet-fastendpoints \
+  --input-spec d:/my_open_api_file.yaml \
+  --output d:/my_fastendpoints_project
+
+```
+
+A complete list of parameters can be found in the generator's [documentation](https://openapi-generator.tech/docs/generators/aspnet-fastendpoints). This is a community contribution. please visit the author's [github repository](https://github.com/OpenAPITools/openapi-generator) for feature requests and bug reports.
+
+### Community Project Templates
+
+- [.Net Backend SaaS Starter](https://www.breakneck.dev)
+- [Rss Feed Aggregator](https://github.com/Maskoe/RssFeedAggregator)
+- [BrosSquad FastEndpoints Template](https://github.com/BrosSquad/FastEndpoints.Template)
+- [MongoDB Web Api Starter](https://github.com/dj-nitehawk/MongoWebApiStarter)

@@ -1,0 +1,580 @@
+---
+title: Integration & Unit Testing
+description: Testing in FastEndpoints has been optimized to provide a good developer experience.
+---
+
+# {$frontmatter.title}
+
+## Integration Testing
+
+### Route-less Testing
+
+The recommended integration/end-to-end testing strategy is to use the following stack:
+
+- [xUnit.net](https://xunit.net/)
+- [WebApplicationFactory](https://docs.microsoft.com/en-us/aspnet/core/test/integration-tests)
+- [Shouldly](https://docs.shouldly.org/)
+
+FastEndpoints comes with a set of extension methods for the **HttpClient** to make testing more convenient in a strongly-typed and route-less manner. I.e. you don't need to specify the route URLs when testing endpoints.
+
+### Walkthrough
+
+The quickest way to get going is to scaffold a starter project using our [Template Pack](scaffolding#project-scaffolding).
+If you aren't ready to scaffold a project yet, follow along with the [source code](https://github.com/FastEndpoints/Template-Pack/tree/main/templates/project).
+
+```sh title=install & scaffold | copy
+dotnet new install FastEndpoints.TemplatePack
+dotnet new feproj -n E2EWalkthrough
+```
+
+#### Solution Setup
+
+There are two projects in the solution. The main application is in the [Source](https://github.com/FastEndpoints/Template-Pack/blob/main/templates/project/Source) folder and the actual test project is in the [Tests](https://github.com/FastEndpoints/Template-Pack/tree/main/templates/project/Tests) folder. The main project doesn't reference the test project. The test project [references the main project](https://github.com/FastEndpoints/Template-Pack/blob/fb8442282bc9fa462f5e9725e501996d2d9b9adb/templates/project/Tests/Tests.csproj#L20) so it can access the Endpoint/Request/Response classes. The Endpoints and DTOs are internal so we expose internal classes of the main project to the test project via an [assembly attribute](https://github.com/FastEndpoints/Template-Pack/blob/fb8442282bc9fa462f5e9725e501996d2d9b9adb/templates/project/Source/Meta.cs#L5).
+
+#### FastEndpoints.Testing Package
+
+Even though you can use the vanilla **WebApplicationFactory<T>** together with the convenient [HttpClient extensions](https://api-ref.fast-endpoints.com/api/FastEndpoints.HttpClientExtensions.html#methods) for sending requests to the WAF, the **FastEndpoints.Testing** package comes with an abstract [App Fixture](https://github.com/FastEndpoints/FastEndpoints/blob/9b2a1ed3ca6e921c45b81801d1cb8bedd75ae8ff/Src/Testing/AppFixture.cs#L45) and [Test Base](https://github.com/FastEndpoints/FastEndpoints/blob/9b2a1ed3ca6e921c45b81801d1cb8bedd75ae8ff/Src/Testing/TestBase.cs) to make testing even more convenient by providing the following:
+
+- Hooks for one-time fixture setup & teardown.
+- Ability to order test execution at test-collection, test-class and test-method levels.
+- Automatically picks up configuration overrides from **appsettings.Testing.json** file.
+- Convenient test-service configuration & HttpClient creation.
+- Speeds up test execution by preventing unnecessary WAF/SUT instantiations.
+- Easy access to fake data generation using [Bogus](https://github.com/bchavez/Bogus).
+- Quick access to test execution context, cancellation token and output helper.
+
+&nbsp;
+:::admonition type="tip"
+The **FastEndpoints.Testing** package can be used with any ASP.NET application as it has no dependencies on the main FastEndpoints library.
+:::
+
+#### App Fixture
+
+An **AppFixture** is a special type of abstract [class fixture](https://xunit.net/docs/shared-context#class-fixture), which in xUnit is simply a shared object that is instantiated once per each test-class before test execution begins and destroyed after all the test-methods of the class completes execution. It is the recommended strategy to share a common resource among multiple tests of the same test-class.
+
+An AppFixture when instantiated by xUnit for a test-class, bootstraps an instance of your target application (System-Under-Test) as an in-memory test-server/web-host. That instance will be re-used by all the test-methods of the class speeding up test execution as constantly booting up and tearing down a WAF/web-host per each test-method (or even per test-class) would result in slower test execution.
+
+To create an AppFixture, inherit from **AppFixture<TProgram>** base:
+
+```cs
+public class MyApp : AppFixture<Program>
+{
+    protected override ValueTask SetupAsync()
+    {
+        // place one-time setup code here
+    }
+    
+    protected override void ConfigureApp(IWebHostBuilder a)
+    {
+        // do host builder config here
+    }
+
+    protected override void ConfigureServices(IServiceCollection s)
+    {
+        // do test service registration here
+    }
+
+    protected override ValueTask TearDownAsync()
+    {
+        // do cleanups here
+    }
+}
+```
+
+When you create a derived AppFixture, you're uniquely configuring a SUT with its own set of test services & settings. Need another SUT that's configured differently? Simply create another derived AppFixture. The internal caching mechanism of AppFixtures ensures that only one instance of a SUT is ever booted up per derived AppFixture no matter how many test-classes are using the same derived AppFixture. For example, if you create 2 derived AppFixtures called **MyTestAppA** and **MyTestAppB**, there will only ever be 2 instances of your SUT running at any given time during a test run.
+
+The aforementioned caching behavior can be turned off simply by annotating the derived AppFixture class with an attribute, which results in a SUT being booted up per each test-class that depends on it.
+
+```cs
+[DisableWafCache]
+public class MyApp : AppFixture<Program>
+```
+
+If some async work needs to be performed that directly contributes to the creation of the WAF instances, as in the case of using TestContainers, that work
+can be performed by overriding the **PreSetupAsync()** method as shown in [this example](https://gist.github.com/dj-nitehawk/04a78cea10f2239eb81c958c52ec84e0).
+
+#### Test Base
+
+xUnit considers a single class file containing multiple test-methods as a single [test-collection](https://xunit.net/docs/running-tests-in-parallel.html#parallelism-in-test-frameworks). A test-collection is a set of test-methods that would be executed serially together, but never in parallel. I.e. two test-methods of the same class will never execute simultaneously. In fact, it's impossible to make it do so. The order in which the methods are executed is not guaranteed (unless we do explicit ordering). Inherit **TestBase<TAppFixture>** to create a test-class. xUnit will inject the derived AppFixture via the constructor.
+
+```cs
+public class MyTests(MyApp App) : TestBase<MyApp>
+{
+    [Fact, Priority(1)]
+    public async Task Invalid_User_Input()
+    {
+        var (rsp, res) = await App.Client.POSTAsync<Endpoint, Request, ErrorResponse>(new()
+        {
+            FirstName = "x",
+            LastName = "y"
+        });
+        rsp.StatusCode.ShouldBe(HttpStatusCode.BadRequest);
+        res.Errors.Count.ShouldBe(2);
+        res.Errors.Keys.ShouldBe(["firstName", "lastName"]);
+    }
+
+    [Fact, Priority(2)]
+    public async Task Valid_User_Input()
+    {
+        var (rsp, res) = await App.Client.POSTAsync<Endpoint, Request, Response>(new()
+        {
+            FirstName = "Mike",
+            LastName = "Kelso"
+        });
+        rsp.IsSuccessStatusCode.ShouldBeTrue();
+        res.Message.ShouldBe("Hello Mike Kelso...");
+    }
+}
+```
+
+#### Test Ordering
+
+In the above example, tests are ordered by annotating the test-method with the **[Priority(n)]** attribute. Test-methods that don't have an attribute decoration are executed after the ordered tests, while ordered tests are always executed first.
+
+#### HttpClient Configuration
+
+In the above example, a **MyApp** fixture instance is injected by xUnit via the constructor of the test-class, which has a default HttpClient accessible via the **Client** property. You can configure custom clients within test-methods like so:
+
+```cs
+[Fact]
+public async Task Access_Protected_Endpoint()
+{
+    var adminClient = App.CreateClient(c =>
+    {
+        c.DefaultRequestHeaders.Authorization = new("Bearer", jwtToken);
+    });
+}
+```
+
+Or setup pre-configured clients on the **MyApp** fixture class itself if they won't be modified by individual test-methods:
+
+```cs
+public class MyApp : AppFixture<Program>
+{
+    public HttpClient Admin { get; private set; }
+    public HttpClient Customer { get; private set; }
+
+    protected override async ValueTask SetupAsync()
+    {
+        var apiKey = await GetApiKey(...);
+        Admin = CreateClient(c => c.DefaultRequestHeaders.Add("x-api-key", apiKey));
+        Customer = CreateClient();
+    }
+
+    protected override ValueTask TearDownAsync()
+    {
+        Admin.Dispose();
+        Customer.Dispose();
+        return ValueTask.CompletedTask;
+    }
+}
+```
+
+#### Request Sending Methods
+
+Extension methods such as **POSTAsync** can be called on the HttpClients to send requests to the web-host. The **POSTAsync** method in the above example has 3 generic parameters.
+
+- The type of the Endpoint class (endpoint's route URL is not needed)
+- The type of the Request DTO class
+- The type of the Response DTO class
+
+The method argument takes an instance of a populated Request DTO and Returns a record class containing the **HttpResponseMessage** and the **Response** DTO of the endpoint, with which you can do assertions. There are [other such methods](https://api-ref.fast-endpoints.com/api/FastEndpoints.HttpClientExtensions.html#methods) for sending requests to your endpoints.
+
+These helper methods work by automatically constructing a **HttpRequestMessage** for you with information taken from the supplied request DTO object reducing unnecessary boilerplate code. You can annotate the DTO properties to guide this process like so:
+
+```cs
+sealed class MyRequest
+{
+    [RouteParam] //turns into a route parameter
+    public int Id { get; set; }
+
+    [FromHeader] //turns into a header
+    public string CorrelationId { get; set; }
+
+    [QueryParam] //turns into a query parameter
+    public int PageSize { get; set; }
+
+    //these will be in the json body
+    public string Name { get; set; }
+    public int Age { get; set; }
+}
+```
+
+Helper methods such as **{POST/PUT/PATCH}Async()** methods even has an optional argument which allows you to automatically convert the supplied request DTO instance in to multipart form-data for submitting to form accepting endpoints.
+
+### State Fixture
+
+There's a generic variant **TestBase<TAppFixture,TStateFixture>** you can use to share a common state/resource amongst the test-methods of a test-class. Simply implement a **StateFixture** and use it with the test-class like so:
+
+```csharp
+public sealed class MyState : StateFixture
+{
+    public int Id { get; set; } //some state
+
+    protected override async ValueTask SetupAsync()
+    {
+        Id = 123; //some setup logic
+        await ValueTask.CompletedTask;
+    }
+
+    protected override async ValueTask TearDownAsync()
+    {
+        Id = 0; //some teardown logic
+        await ValueTask.CompletedTask;
+    }
+}
+
+public class MyTests(MyApp App, MyState State) : TestBase<MyApp, MyState>
+{
+    [Fact]
+    public async Task State_Check()
+        => State.Id.ShouldBe(123);
+}
+```
+
+This approach allows your test suite to have just a couple of derived **AppFixtures**, each representing a uniquely configured SUT(live app/WAF instance), while each test-class can have their own lightweight **StateFixture** for the sole purpose of sharing state/data amongst multiple test-methods of that test-class. This leads to better test run performance as each unique SUT is only created once no matter how many test classes use the same derived **AppFixture**.
+
+### Test-Collections & Collection Fixtures
+
+A test-collection is an arbitrary grouping of multiple test-classes which results in all test-methods of the collection running serially (never in parallel) in order to avoid contention between test-methods from multiple test-classes. A test-collection can be thought of as a mega test-class but physically seperated into multiple class files.
+
+An **AppFixture** can be made into a [collection-fixture](https://xunit.net/docs/shared-context#collection-fixture) for the purpose of being shared just among the test-classes of a given collection. It will be instantiated before any of the tests from the collection is run and torn down once all tests from the collection is complete. Inherit from **AppFixture<TProgram>** as usual:
+
+```cs
+public class AppForCollectionX : AppFixture<Program> {}
+```
+
+Next, you need to create a **collection-definition** inheriting from **TestCollection<TAppFixture>**, which is simply a class used to define a test-collection, which is where you specify the fixture for that test-collection like so:
+
+```cs
+public class CollectionX : TestCollection<AppForCollectionX>;
+```
+
+Once there's a collection-definition, create as many test-classes as needed by inheriting the non-generic **TestBase** class and associate them with the test-collection using the **[Collection<TCollection>]** generic attribute. All test-classes associated with **CollectionX** receives the exact same **AppForCollectionX** fixture instance when injected via the constructor.
+
+```cs
+[Collection<CollectionX>]
+public class TestClassA(AppForCollectionX App) : TestBase
+{
+    ...
+}
+
+[Collection<CollectionX>]
+public class TestClassB(AppForCollectionX App) : TestBase
+{
+    ...
+}
+```
+
+#### Ordering Tests In Collections
+
+Tests can be ordered by prioritizing test-collections, test-classes in those collections as well as tests within the classes for fully controlling the order of test execution when test-collections are involved. You must first enable the feature by adding an assembly level attribute to your test project like so:
+
+```csharp|title="AssemblyInfo.cs"|copy
+using FastEndpoints.Testing;
+
+[assembly: EnableAdvancedTesting]
+```
+
+All that remains is to annotate the **[Priority(n)]** attribute at the appropriate levels (collection/class/method) like so:
+
+```cs
+
+// define test-collections
+
+[Priority(1)] //makes this collection execute first
+public class Collection_A : TestCollection<Sut> {}
+
+[Priority(2)] //makes this collection execute second
+public class Collection_B : TestCollection<Sut> {}
+
+// define test-classes and associate them with the collections
+
+[Collection<Collection_A>] //associate class with collection A
+[Priority(1)] //makes this class execute first when collection A executes
+public class A_First_Class(Sut App) : TestBase
+{
+    [Fact, Priority(1)] //makes this method execute first when this class executes
+    public Task First()
+        => Task.CompletedTask;
+
+    [Fact, Priority(2)] //make this method execute second when this class executes
+    public Task Second()
+        => Task.CompletedTask;
+}
+
+[Collection<Collection_A>] //associate class with collection A
+[Priority(2)] //makes this class execute second when collection A executes
+public class A_Second_Class(Sut App) : TestBase
+{
+    [Fact, Priority(2)]
+    public Task Fourth()
+        => Task.CompletedTask;
+
+    [Fact, Priority(1)]
+    public Task Third()
+        => Task.CompletedTask;
+}
+
+[Collection<Collection_B>]
+[Priority(2)]
+public class B_Second_Class(Sut App) : TestBase
+{
+    [Fact, Priority(2)]
+    public Task Eighth()
+        => Task.CompletedTask;
+
+    [Fact, Priority(1)]
+    public Task Seventh()
+        => Task.CompletedTask;
+}
+
+[Collection<Collection_B>]
+[Priority(1)]
+public class B_First_Class(Sut App) : TestBase
+{
+    [Fact, Priority(1)]
+    public Task Fifth()
+        => Task.CompletedTask;
+
+    [Fact, Priority(2)]
+    public Task Sixth()
+        => Task.CompletedTask;
+}
+```
+
+With the above setup in place, the test methods are executed in the following order:
+
+**_First() > Second() > Third() > Fourth() > Fifth() > Sixth() > Seventh() > Eighth()_**
+
+### Integration Test Samples
+
+Please refer the following resources to get a deeper understanding of recommended patterns for common tasks such as, working with a real database, fake data generation, test organization with feature folders, swapping out test/fake services, etc.
+
+- [Testing Section In Cookbook](the-cookbook#testing)
+- [Mini Dev.To](https://github.com/dj-nitehawk/MiniDevTo/tree/main/Tests) - traditional setup with separate project for tests.
+- [Integrated Testing Starter](https://github.com/FastEndpoints/Template-Pack/tree/main/templates/integrated) - places tests alongside features being tested.
+- [FastEndpoints Test Suite](https://github.com/FastEndpoints/FastEndpoints/tree/main/Tests) - how we test the library.
+
+---
+
+## Unit Testing
+
+In situations where doing a unit test would be less tedious compared to setting up an integration test (or even impossible to do so), you may use the **Factory.Create<TEndpoint>()** method to get an instance of your endpoint which is suitable for unit testing.
+
+### Endpoint Testing With FakeItEasy
+
+```cs
+[Fact]
+public async Task Admin_Login_Success()
+{
+    // Arrange
+    var fakeConfig = A.Fake<IConfiguration>();
+    A.CallTo(() => fakeConfig["TokenKey"]).Returns("Fake_Token_Signing_Secret");
+
+    var ep = Factory.Create<AdminLoginEndpoint>(
+        A.Fake<ILogger<AdminLoginEndpoint>>(), //mock dependencies for injecting to the constructor
+        A.Fake<IEmailService>(),
+        fakeConfig);
+
+    var req = new AdminLoginRequest
+    {
+        UserName = "admin",
+        Password = "pass"
+    };
+
+    // Act
+    await ep.HandleAsync(req, default);
+    var rsp = ep.Response;
+
+    // Assert
+    Assert.IsNotNull(rsp);
+    Assert.IsFalse(ep.ValidationFailed);
+    Assert.IsTrue(rsp.Permissions.Contains("Inventory_Delete_Item"));
+}
+```
+
+Use the **Factory.Create()** method by passing it the mocked dependencies which are needed by the endpoint constructor, if there's any. It has multiple [overloads](https://api-ref.fast-endpoints.com/api/FastEndpoints.Factory.html#FastEndpoints_Factory_Create__1_Microsoft_AspNetCore_Http_DefaultHttpContext_System_Object___) that enables you to instantiate endpoints with or without constructor arguments.
+
+Then simply execute the handler by passing in a request dto and a default cancellation token.
+
+Finally do your assertions on the **Response** property of the endpoint instance.
+
+:::admonition type=tip
+
+When unit testing endpoint handlers as described, pipeline steps such as ASP.NET middleware, authentication, model binding, validation, and pre/post processors are not executed. The goal of a unit test is to isolate and verify the handler logic by providing a fully prepared request DTO and examining the resulting response DTO to ensure the logic behaves as expected. If your aim is to validate the entire pipeline, integration tests are a better choice. Integration tests are generally easier to set up and offer greater value compared to unit tests in most scenarios.
+
+:::
+
+### Service Registration
+
+If your endpoint or its dependencies (ex: validators, pre/post processors, mappers, etc.) rely on dependency injection, you'll need to register those services per test-case like so:
+
+```cs
+var fakeMailer = A.Fake<IEmailService>();
+A.CallTo(() => fakeMailer.SendEmail())
+ .Returns("test email sent");
+
+var ep = Factory.Create<UserCreateEndpoint>(ctx =>
+{
+    ctx.AddTestServices(s => s.AddSingleton(fakeMailer));
+});
+```
+
+This approach ensures the required dependencies are properly configured for each test-case. It is especially true if either [property injection](dependency-injection#property-injection) or [manual resolving](dependency-injection#manual-resolving) is used.
+
+### Response DTO Returning Handler
+
+If you prefer to return the DTO object from your handler, you can implement the **ExecuteAsync()** method instead of **HandleAsync()** like so:
+
+```cs
+public class AdminLogin : Endpoint<LoginRequest, LoginResponse>
+{
+    public override void Configure()
+    {
+        Post("/admin/login");
+        AllowAnonymous();
+    }
+
+    public override Task<LoginResponse> ExecuteAsync(LoginRequest req, CancellationToken ct)
+    {
+        return Task.FromResult(
+            new LoginResponse
+            {
+                JWTToken = "xxx",
+                ExpiresOn = "yyy"
+            });
+    }
+}
+```
+
+By doing the above, you can access the response DTO like below instead of through the Response property of the endpoint when unit testing.
+
+```cs
+var res = await ep.ExecuteAsync(req, default);
+```
+
+:::admonition type=info
+You have the ability to write unit tests [like this](https://github.com/FastEndpoints/FastEndpoints/blob/f1a73354e0f4fe94dc6c8c2b6ac77387baa3a16d/Tests/UnitTests/FastEndpoints/WebTests.cs#L187-L203) by implementing **ExecuteAsync()** and returning the built-in union type as mentioned [here](get-started#union-type-returning-handler).
+:::
+
+### Adding Route Parameters
+
+For passing down route parameters you will have to alter the **HttpContext** by setting them in the **Factory.Create**. See the example below:
+
+```cs | title=Endpoint.cs
+public class Endpoint : Endpoint<Request, Response>
+{
+    public override void Configure()
+    {
+        Get("users/{id}");
+        AllowAnonymous();
+    }
+
+    public override async Task HandleAsync(Request req, CancellationToken ct)
+    {
+        var user = new Response
+        {
+            Id = req.Id,
+            FullName = req.FirstName + " " + req.LastName
+        };
+
+        await Send.OkAsync(user);
+    }
+}
+
+public class Request
+{
+    public int Id { get; set; }
+    public string FirstName { get; set;}
+    public string LastName { get; set;}
+}
+
+public class Response
+{
+    public int Id { get; set; }
+    public string FullName { get; set; }
+}
+```
+
+```cs | title=Test.cs
+[Fact]
+public async Task GetSingleUserById()
+{
+    // Arrange
+    var ep = Factory.Create<Endpoint>(ctx => ctx.Request.RouteValues.Add("id", "1"));
+
+    var req = new Request 
+    {
+      FirstName = "Jeff",
+      LastName = "Bridges"
+    };
+
+    // Act
+    await ep.HandleAsync(req, default);
+    var rsp = ep.Response;
+
+    // Assert
+    Assert.IsNotNull(rsp);
+    Assert.AreEqual(1, rsp.Id);
+    Assert.AreEqual("Jeff Bridges", rsp.FullName);
+}
+```
+
+### Units with Command executions or Event publishes
+
+If a code path you're unit testing has command executions or event publishes, fake handlers for those commands/events can be registered as shown below.
+
+#### Registering Fake Command Handlers
+
+```cs
+[Fact]
+public async Task FakeCommandHandlerIsExecuted()
+{    
+    var fakeHandler = A.Fake<ICommandHandler<GetFullNameCommand, string>>();
+    
+    A.CallTo(() => fakeHandler.ExecuteAsync(
+        A<GetFullNameCommand>.Ignored, 
+        A<CancellationToken>.Ignored))
+     .Returns(Task.FromResult("Fake Result"));     
+    
+    fakeHandler.RegisterForTesting(); //register the fake handler
+
+    //emulating command being executed
+    //typically the unit you're testing will be the executor
+    var command = new GetFullNameCommand { FirstName = "a", LastName = "b" };
+    var result = await command.ExecuteAsync();
+
+    Assert.Equal("Fake Result", result);
+}
+```
+
+[See here](https://gist.github.com/dj-nitehawk/f0c5c95c57ac1f1d15c936e9d87734b0) for a full example of an endpoint that executes a command being unit tested.
+
+#### Registering Fake Event Handlers
+
+```cs
+[Fact]
+public async Task FakeEventHandlerIsExecuted()
+{
+    var fakeHandler = new FakeEventHandler();
+
+    Factory.RegisterTestServices( //register fake handler
+        s =>
+        {
+            s.AddSingleton<IEventHandler<NewItemAddedToStock>>(fakeHandler);
+        });
+
+    //emulating event being published
+    //typically the unit you're testing will be the publisher
+    await new NewItemAddedToStock { Name = "xyz" }.PublishAsync();
+
+    fakeHandler.Name.ShouldBe("xyz");
+}
+```
+
+[See here](https://gist.github.com/dj-nitehawk/8ab7bb4ce5b69152b07b9186d7c40e40) for a full example of an endpoint that publishes an event being unit tested.
+
+### Unit Test Examples
+
+More unit testing examples can be found [here](https://github.com/FastEndpoints/FastEndpoints/blob/main/Tests/UnitTests/FastEndpoints/WebTests.cs).

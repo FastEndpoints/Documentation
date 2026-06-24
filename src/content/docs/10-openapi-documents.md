@@ -1,0 +1,800 @@
+---
+title: OpenAPI Documents
+description: OpenAPI is a first class citizen in the land of FastEndpoints enabling API documentation generation with minimal effort.
+---
+
+# {$frontmatter.title}
+
+OpenAPI support is provided via the [Microsoft.AspNetCore.OpenApi](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/openapi/overview) package. Simply install the **FastEndpoints.OpenApi** package and add a couple of lines to your app startup:
+
+**Installation:**
+
+```cs |copy|title=terminal
+dotnet add package FastEndpoints.OpenApi
+```
+
+**Usage:**
+
+```cs |copy|title=Program.cs
+using FastEndpoints;
+using FastEndpoints.OpenApi; //add this
+
+var bld = WebApplication.CreateBuilder(args);    
+bld.Services
+   .AddFastEndpoints()
+   .OpenApiDocument(); //define a open-api document
+
+var app = bld.Build();
+app.UseFastEndpoints()
+   .MapOpenApi(); //add this
+app.Run();
+```
+
+:::admonition type="warning"
+
+Do not use the underlying **services.AddOpenApi()** registration directly for FastEndpoints documents, as it won't wire up the FastEndpoints transformers and metadata handling.
+
+:::
+
+You can then visit **/openapi/v1.json** to see the generated OpenAPI document. If you define multiple documents, each one will be served from its own **/openapi/*.json** route using the configured document name.
+
+This package generates the OpenAPI document. If you want an interactive API explorer, you can plug in something like [Scalar](https://scalar.com/products/api-references/integrations/aspnetcore/integration) or Swagger UI separately.
+
+```cs
+using Scalar.AspNetCore; //dotnet add package Scalar.AspNetCore
+
+app.MapScalarApiReference(
+    o =>
+    {
+        o.AddDocuments("v1", "v2"); //inform scalar of your doc names
+        o.OperationTitleSource = OperationTitleSource.Path; //change title source
+    });
+```
+
+## Configuration
+
+OpenAPI generation/document settings can be configured by providing an action to **OpenApiDocument()**:
+
+```cs |title=Program.cs
+bld.Services.OpenApiDocument(o =>
+{
+    o.DocumentName = "v1";
+    o.Title = "My API";
+    o.Version = "v1";
+});
+```
+
+To define multiple documents, simply call **.OpenApiDocument()** multiple times, each with a unique document name.
+
+The most commonly used document options are the following:
+
+| Option                       | Description                                                                     |
+|------------------------------|---------------------------------------------------------------------------------|
+| `AutoTagPathSegmentIndex`    | Selects route segment for automatic tagging. Set **0** to disable auto-tagging. |
+| `DocumentName/Title/Version` | Sets the document identity metadata.                                            |
+| `EnableGetRequestsWithBody`  | Allows GET requests with JSON bodies instead of converting to query parameters. |
+| `EnableJWTBearerAuth`        | Turns automatic JWT bearer security scheme registration on or off.              |
+| `EndpointFilter`             | Includes only a subset of FastEndpoints in a document.                          |
+| `ExcludeNonFastEndpoints`    | Excludes non-FastEndpoints routes from the document.                            |
+| `Min/MaxEndpointVersion`     | Controls version-range based document generation.                               |
+| `ReleaseVersion`             | Controls release-version based document generation.                             |
+| `ShortSchemaNames`           | Uses class names instead of fully qualified schema names.                       |
+| `ShowDeprecatedOps`          | Includes deprecated operations in the document.                                 |
+| `TagCase`                    | Controls the casing used for operation tags.                                    |
+| `TagDescriptions`            | Configures descriptions for operation tags.                                     |
+| `TagStripSymbols`            | Controls whether symbols are stripped from operation tags.                      |
+| `UseOneOfForPolymorphism`    | Emits derived request/response types using oneOf.                               |
+| `UsePropertyNamingPolicy`    | Applies the  serializer naming policy to property and route parameter names.    |
+| `ConfigureOpenApi`           | Provides advanced access to the underlying **OpenApiOptions** instance.         |
+
+If you need access to the service provider while the document is being generated, it becomes available via the **DocumentOptions.Services** property during generation-time hooks such as **ConfigureOpenApi** or custom transformers. Do note however, that **DocumentOptions.Services** is not populated during the initial **OpenApiDocument()** registration call.
+
+## Describe Endpoints
+
+By default, both **Accepts** and **Produces** metadata are inferred from the request/response DTO types of your endpoints and added to the OpenAPI document automatically.
+
+#### Default Accepts Metadata:
+
+- **GET/HEAD/DELETE** endpoints will by default accept **\*/\*** and **application/json** content types.
+- **POST/PUT/PATCH** by default only accepts **application/json** content type.
+- **Any Endpoint** with a request DTO where all of its properties are annotated with non-json binding source attributes such as [RouteParam], [QueryParam], [FormField], [FromHeader], [FromClaim], etc. will by default accept **\*/\***.
+
+#### Default Produces Metadata:
+
+- **200 - Success** "produces metadata" is added if endpoint defines a response type.
+- **204 - No Content** is added if the endpoint doesn't define a response DTO type.
+- **400 - Bad Request** is added if there's a Validator associated with the endpoint.
+- **401 - Unauthorized** is added if the endpoint is not accessible anonymously.
+- **402 - Payment Required** is added for x402-enabled endpoints.
+- **403 - Forbidden** is added if any claims/roles/permissions/policies are required by the endpoint.
+
+If the defaults are appropriate for your endpoint, you only need to specify any additional metadata using the **Description()** method like below:
+
+```cs
+public class MyEndpoint : Endpoint<MyRequest, MyResponse>
+{
+    public override void Configure()
+    {
+        Post("/item/create");
+        Description(b => b
+            .ProducesProblemDetails(400, "application/problem+json")
+            .ProducesProblemFE<InternalErrorResponse>(500));
+    }
+}
+```
+
+#### Clearing Default Accepts/Produces Metadata
+
+If the default **Accepts** & **Produces** metadata is not a good fit or seems to be producing **415 - Media Type Not Supported** responses, you can clear the defaults and set them up yourself by setting the **clearDefaults** argument to **true**:
+
+```cs
+public override void Configure()
+{
+    Post("/item/create");
+    Description(b => b
+        .Accepts<MyRequest>("application/json+custom")
+        .Produces<MyResponse>(200, "application/json+custom")
+        .ProducesProblemFE(400) //shortcut for .Produces<ErrorResponse>(400)
+        .ProducesProblemFE<InternalErrorResponse>(500),
+    clearDefaults: true);
+}
+```
+
+#### Clearing Only Accepts Metadata
+
+In order to override just the default accepts metadata for a request DTO so that the endpoint can accept any content-type, simply do the following:
+
+```cs
+Description(x => x.Accepts<MyRequest>());
+```
+
+If the endpoint should only be accepting a particular set of content-types, they can be specified like so:
+
+```cs
+Description(x => x.Accepts<Request>("text/plain", "text/csv"));
+```
+
+#### Clearing Only Produces Metadata
+
+If it's only a specific "produces metadata" you need cleared, instead of everything as with **clearDefaults: true**, you can specify one or more status codes to be cleared like so:
+
+```cs
+Description(x => x.ClearDefaultProduces(200, 401, 403));
+```
+
+It is also possible to clear all the "produces metadata" by not specifying any status codes for the above extension method.
+
+## OpenAPI Documentation
+
+Summary & description text of the different responses the endpoint returns, as well as an example request object and example response objects can be specified with the **Summary()** method:
+
+```cs
+public class MyEndpoint : Endpoint<MyRequest, MyResponse>
+{
+    public override void Configure()
+    {
+        Post("/item/create");
+        Description(b => b.Produces(403));
+        Summary(s =>
+        {
+            s.Summary = "short summary goes here";
+            s.Description = "long description goes here";
+            s.ExampleRequest = new MyRequest { ... };
+            s.ResponseExamples[200] = new MyResponse { ... };
+            s.Responses[200] = "ok response description goes here";
+            s.Responses[403] = "forbidden response description goes here";
+        });
+    }
+}
+```
+
+Note that only one response example can be specified per status code. Multiple request examples however can be specified by either setting the **ExampleRequest** property multiple times or by adding to the **RequestExamples** collection like so:
+
+```cs
+Summary(s =>
+{
+    s.ExampleRequest = new MyRequest { ... };
+    s.ExampleRequest = new MyRequest { ... };
+    s.RequestExamples.Add(new(new MyRequest { ... }));
+    s.RequestExamples.Add(new(new MyRequest { ... }, "Example Label"));
+});
+```
+
+If you prefer to move the summary text out of the endpoint class, you can do so by subclassing the **EndpointSummary** type:
+
+```cs
+class AdminLoginSummary : EndpointSummary
+{
+    public AdminLoginSummary()
+    {
+        Summary = "short summary goes here";
+        Description = "long description goes here";
+        ExampleRequest = new MyRequest { ... };
+        Responses[200] = "success response description goes here";
+        Responses[403] = "forbidden response description goes here";
+    }
+}
+
+public override void Configure()
+{
+    Post("/admin/login");
+    AllowAnonymous();
+    Description(b => b.Produces(403));
+    Summary(new AdminLoginSummary());
+}
+```
+
+Alternatively, if you'd like to get rid of all traces of documentation from your endpoint classes and have the summary completely separated, you can implement the **Summary<TEndpoint>** or **Summary<TEndpoint, TRequest>** abstract classes.
+
+```cs
+public class MySummary : Summary<MyEndpoint>
+{
+    public MySummary()
+    {
+        Summary = "short summary goes here";
+        Description = "long description goes here";
+        ExampleRequest = new MyRequest { ... };
+        Response<MyResponse>(200, "ok response with body", example: new() { ... });
+        Response<ErrorResponse>(400, "validation failure");
+        Response(404, "account not found");
+    }
+}
+
+public class MyEndpoint : Endpoint<MyRequest, MyResponse>
+{
+    public override void Configure()
+    {
+        Post("/api/my-endpoint");
+        //no need to specify summary here
+    }
+}
+```
+
+The **Response()** method above does the same job as the **Produces()** method mentioned earlier. Do note however, if you use the **Response()** method, the default **200** response is automatically removed, and you'd have to specify the **200** response yourself if it applies to your endpoint.
+
+## Describe Request Params
+
+Route parameters, query parameters, request DTO property descriptions, and response DTO property descriptions can be specified either with xml comments or with the **Summary()** method or **EndpointSummary** or **Summary<TEndpoint, TRequest>** subclassing.
+
+Take the following for example:
+
+```cs |title=Request.cs
+/// <summary>
+/// the admin login request summary
+/// </summary>
+public class Request
+{
+    /// <summary>
+    /// username field description
+    /// </summary>
+    public string UserName { get; set; }
+
+    /// <summary>
+    /// password field description
+    /// </summary>
+    public string Password { get; set; }
+}
+```
+
+```cs |title=Endpoint.cs
+public override void Configure()
+{
+    Post("admin/login/{ClientID?}");
+    AllowAnonymous();
+    Summary(s =>
+    {
+        s.Summary = "summary";
+        s.Description = "description";
+        s.Params["ClientID"] = "client id description";
+        s.RequestParam(r => r.UserName, "overridden username description");
+        s.ResponseParam(r => r.Token, "jwt access token");
+    });
+}
+```
+
+Use the **s.Params** dictionary to specify descriptions for params that don't exist on the request dto or when there is no request DTO.
+
+Use the **RequestParam()** and **ResponseParam()** methods to specify descriptions for request/response properties in a strongly-typed manner.
+
+Whatever you specify within the **Summary()** method as above takes higher precedence over XML comments.
+
+## Enabling XML Documentation
+
+A subset of XML comments are supported on request/response DTOs as well as endpoint classes which can be enabled by adding the following to the **csproj** file:
+
+```xml |title=Project.csproj | copy
+
+<PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+</PropertyGroup>
+```
+
+## Adding Query Params To OpenAPI
+
+By default, GET request DTO properties are automatically converted to query parameters because most OpenAPI tooling expects GET input to come from the query string rather than the request body.
+
+In order to let the document generator know that a particular request DTO property is being bound from a query string parameter on a non-GET endpoint, you need to decorate that property with the **[QueryParam]** attribute like below.
+
+When you annotate a property with the **[QueryParam]** attribute, a query parameter will be added to the OpenAPI document for that property.
+
+```cs |title=CreateEmployeeRequest.cs
+public class CreateEmployeeRequest
+{
+    [QueryParam]
+    public string Name { get; set; } // bound from query string
+
+    [QueryParam, BindFrom("id")]
+    public string? ID { get; set; } // bound from query string
+
+    public Address Address { get; set; } // bound from body
+}
+```
+
+The **[QueryParam]** attribute does not affect the [model binding order](http://localhost:5173/docs/model-binding) in any way. It is simply an instruction for the OpenAPI generator to add a query parameter for the operation.
+
+If for some reason you'd like GET requests to keep a body instead of being converted to query parameters, you can enable the following option:
+
+```cs
+bld.Services.OpenApiDocument(o => o.EnableGetRequestsWithBody = true);
+```
+
+## Specifying Default Values
+
+Default values for the document can be provided by decorating request DTO properties with the **[DefaultValue(...)]** attribute like so:
+
+```cs |title=Request.cs
+public class Request
+{
+    [DefaultValue("Admin")]
+    public string UserName { get; set; }
+
+    [DefaultValue("Qwerty321")]
+    public string Password { get; set; }
+}
+```
+
+## Excluding Properties From Schema
+
+There may be special circumstances where you'd need certain DTO properties to not show up in the generated schema. Decorating the DTO properties to be ignored with either of the following two attributes will get the job done:
+
+- **[JsonIgnore]**
+- **[HideFromDocs]**
+
+## Unique Collection Schemas
+
+When request/response dto properties are declared as set-like collection types, FastEndpoints will automatically emit **uniqueItems: true** in the OpenAPI schema for scalar element types.
+
+Automatic detection is intentionally conservative. If the collection items are complex object types, uniqueness is not inferred automatically. In those cases, or when using a non-set-like collection such as **List<T>**, you can force **uniqueItems: true** by decorating the property with the **[UniqueItems]** attribute.
+
+```cs |title=Request.cs
+public class Request
+{
+    public HashSet<string> Tags { get; set; } = [];
+
+    [UniqueItems]
+    public List<Address> Addresses { get; set; } = [];
+}
+```
+
+This only affects the generated OpenAPI schema and does not enforce uniqueness at runtime. If incoming data must be unique, use validation/business rules as appropriate.
+
+## Disable JWT Auth Scheme
+
+Support for JWT Bearer Auth is automatically added. It can be disabled like so:
+
+```cs |title=Program.cs
+bld.Services.OpenApiDocument(o => o.EnableJWTBearerAuth = false);
+```
+
+## Multiple Authentication Schemes
+
+Multiple global auth scheme support can be enabled by using **AddAuth()** as shown below.
+
+```cs |title=Program.cs
+bld.Services.OpenApiDocument(o =>
+{
+    o.EnableJWTBearerAuth = false;
+    o.DocumentName = "Initial-Release";
+    o.Title = "Web API";
+    o.Version = "v1.0";
+    o.AddAuth("ApiKey", new()
+    {
+        Name = "api_key",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey
+    });
+    o.AddAuth("Bearer", new()
+    {
+        Type = SecuritySchemeType.Http,
+        Scheme = "Bearer",
+        BearerFormat = "JWT"
+    });
+});
+```
+
+:::admonition type="tip"
+Here's an [example](https://gist.github.com/dj-nitehawk/4efe5ef70f813aec2c55fff3bbb833c0) of a full implementation of API Key authentication with FastEndpoints.
+:::
+
+## Excluding Non-FastEndpoints
+
+By default, all discovered endpoints will be included in the document. You can instruct the generator to only include FastEndpoints in the document like so:
+
+```cs
+bld.Services.OpenApiDocument(o => o.ExcludeNonFastEndpoints = true);
+```
+
+## Filtering Endpoints
+
+If you'd like to include only a subset of discovered endpoints, you can use an endpoint filter like below:
+
+```cs
+// openapi doc
+bld.Services.OpenApiDocument(o =>
+{
+    o.EndpointFilter = ep => ep.EndpointTags?.Contains("include me") is true;
+});
+
+// endpoint
+public override void Configure()
+{
+    Get("test");
+    Tags("include me");
+}
+```
+
+## Operation Tags
+
+By default, all endpoints/operations are tagged/grouped using the configured route segment. You can either disable the auto-tagging by setting the **AutoTagPathSegmentIndex** property to **0** or you can change the segment number which is used for auto-tagging like so:
+
+```cs
+bld.Services.OpenApiDocument(o => o.AutoTagPathSegmentIndex = 2);
+```
+
+If auto-tagging is not desirable, you can disable it and specify tags for each endpoint:
+
+```cs
+bld.Services.OpenApiDocument(o => o.AutoTagPathSegmentIndex = 0);
+
+public override void Configure()
+{
+    Post("api/users/update");
+    Description(x => x.WithTags("Users"));
+}
+```
+
+Or keep auto-tagging enabled and override the auto value per endpoint:
+
+```cs
+Description(x => x.AutoTagOverride("Overriden Tag Name"));
+```
+
+Descriptions for tags has to be added at a global level which can be achieved as follows:
+
+```cs
+bld.Services.OpenApiDocument(o =>
+{
+    o.TagDescriptions = t =>
+    {
+        t["Admin"] = "This is a tag description";
+        t["Users"] = "Another tag description";
+    };
+});
+```
+
+You can further normalize auto-generated tags by using **TagCase** and **TagStripSymbols**.
+
+## Short Schema Names
+
+The full name, including namespace, of DTO classes are used to generate schema names by default. You can change it to use just the class names by doing the following:
+
+```cs
+bld.Services.OpenApiDocument(o => o.ShortSchemaNames = true);
+```
+
+## Short Endpoint Names
+
+The full name, including namespace, of endpoint classes are used to generate operation IDs by default. You can change it to use just the class names by doing the following:
+
+```cs |title=Program.cs
+app.UseFastEndpoints(c =>
+{
+    c.Endpoints.ShortNames = true;
+});
+```
+
+This is a globally applicable setting, and it's not possible to specify it per document. Also note, if your endpoint class names are not unique, enabling this setting will not be possible unless you manually set a unique name per endpoint as follows.
+
+## Custom Endpoint Names
+
+If the auto-generated operation IDs are not to your liking, you can specify a name for the endpoint using the **WithName()** method.
+
+```cs |title=Endpoint.cs
+public override void Configure()
+{
+    Get("/sales/invoice/{InvoiceID}");
+    Description(x => x.WithName("GetInvoice"));
+}
+```
+
+:::admonition type="note"
+When you manually specify a name/operation ID for an endpoint like above, and you want to point to that endpoint when using [Send.CreatedAtAsync()](misc-conveniences#scat) method, you must use the overload that takes a string argument with which you can specify the name of the target endpoint. I.e. you lose the convenience/type-safety of being able to simply point to another endpoint using the class type like so:
+
+```cs
+await Send.CreatedAtAsync<GetInvoiceEndpoint>(...);
+```
+
+Instead, you must do this:
+
+```cs
+await Send.CreatedAtAsync("GetInvoice", ...);
+```
+
+:::
+
+## Override Endpoint Name Generation
+
+If you'd like to modify the default endpoint name generation logic, a function such as the one below can be specified, which simply returns a unique string per endpoint.
+
+```cs
+app.UseFastEndpoints(
+       c => c.Endpoints.NameGenerator =
+                ctx =>
+                {
+                    return ctx.EndpointType.Name.TrimEnd("Endpoint");
+                });
+```
+
+This strategy is compatible with the [Send.CreatedAtAsync()](misc-conveniences#scat) method and will not lose functionality as with the use of **.WithName()** method.
+
+## Retrieve Endpoint Name Using Endpoint Type
+
+The auto generated endpoint name of any endpoint can be retrieved like so:
+
+```cs
+var endpointName = IEndpoint.GetName<MyEndpoint>();
+```
+
+This can be useful when you need to generate links using the **LinkGenerator** class.
+
+## Polymorphism Support
+
+If you have base class request/response dto types and would like the document to include possible derived types within a oneOf field, enable polymorphism support like so:
+
+```cs
+bld.Services.OpenApiDocument(o => o.UseOneOfForPolymorphism = true);
+```
+
+## Property Naming Policy
+
+By default, the configured serializer naming policy is used for identifying and matching documented properties as well as path parameter names. If you'd prefer to keep clr property names in the generated document, you can disable that behavior like so:
+
+```cs
+bld.Services.OpenApiDocument(o => o.UsePropertyNamingPolicy = false);
+```
+
+## Response Headers
+
+Response headers are documented automatically for response DTO properties decorated with the **[ToHeader]** attribute. Additional response headers can also be supplied via endpoint summaries using the **ResponseHeaders** collection.
+
+## FluentValidation Integration
+
+FluentValidation rules are automatically applied to documented schemas. This includes things such as required properties, minimum/maximum lengths, regex patterns, numeric ranges, and nested validators.
+
+If there is a special circumstance where a validation rule should not affect the generated document, you can disable documentation integration for that rule like so:
+
+```cs
+using FastEndpoints.OpenApi;
+
+public class MyValidator : Validator<Request>
+{
+    public MyValidator()
+    {
+        RuleFor(x => x.Secret)
+            .NotEmpty()
+            .SwaggerIgnore();
+    }
+}
+```
+
+## Advanced Configuration
+
+If you'd like to customize the underlying Microsoft OpenAPI pipeline directly, you can use the **ConfigureOpenApi** option to access **OpenApiOptions** and register additional transformers alongside the FastEndpoints transformers.
+
+---
+
+## API Client Generation
+
+Client generation is facilitated by the [Kiota](https://learn.microsoft.com/en-us/openapi/kiota/design) library by Microsoft. You can use our wrapper library to integrate client generation straight into your FastEndpoints app instead of using their CLI tools. Clients can be easily generated for [supported languages](https://learn.microsoft.com/en-us/openapi/kiota/using#language-information) in the following ways:
+
+1. Enable an endpoint which provides a downloadable zip file of the generated client package.
+2. Save client files to disk when running your app with the commandline argument **--generateclients true**.
+
+**Install Package**
+
+```cs |copy|title=terminal
+dotnet add package FastEndpoints.OpenApi.Kiota
+```
+
+### Client Download Endpoint
+
+Give your OpenAPI document a name via the **o.DocumentName** property and pass the same name to the **MapApiClientEndpoint()** method as shown below. Doing so will register an endpoint at the specified route with which the API client can be downloaded as a zip file.
+
+```cs title=Program.cs
+using FastEndpoints;
+using FastEndpoints.OpenApi;
+using FastEndpoints.OpenApi.Kiota;
+using Kiota.Builder;
+using Kiota.Builder.Configuration;
+
+var bld = WebApplication.CreateBuilder(args);
+ bld.Services
+    .AddFastEndpoints()
+    .OpenApiDocument(o =>
+    {
+        o.DocumentName = "v1"; //must match what's being passed below
+    });
+
+var app = bld.Build();
+app.UseFastEndpoints();
+
+app.MapApiClientEndpoint("/cs-client", c =>
+{
+    c.OpenApiDocumentName = "v1"; //must match document name set above
+    c.Language = GenerationLanguage.CSharp;
+    c.ClientNamespaceName = "MyCompanyName";
+    c.ClientClassName = "MyCsClient";
+    ...
+},
+o => //endpoint customization settings
+{
+    o.CacheOutput(p => p.Expire(TimeSpan.FromDays(365))); //cache the zip
+    o.ExcludeFromDescription(); //hide this endpoint from OpenAPI docs
+});
+```
+
+**NOTE:** Don't forget to enable the [output caching middleware](https://learn.microsoft.com/en-us/aspnet/core/performance/caching/output) in the ASP.NET pipeline when caching the generated files.
+
+### Save To Disk With App Run
+
+This method can be used in any environment that can execute your application with a commandline argument. Most useful in CI/CD pipelines.
+
+```cs title=terminal
+cd MyApp
+dotnet run --generateclients true
+```
+
+In order for the above commandline argument to take effect, you must configure your app startup like so:
+
+```cs copy|title=Program.cs
+using FastEndpoints.OpenApi.Kiota;
+using FastEndpoints.OpenApi;
+using Kiota.Builder;
+using Kiota.Builder.Configuration;
+
+var bld = WebApplication.CreateBuilder(args); //must pass in the args
+bld.Services
+   .AddFastEndpoints()
+   .OpenApiDocument(o =>
+   {
+      o.DocumentName = "v1"; //must match doc name below
+   });
+
+var app = bld.Build();
+app.UseFastEndpoints();
+
+await app.GenerateApiClientsAndExitAsync(
+    c =>
+    {
+      c.OpenApiDocumentName = "v1"; //must match doc name above
+      c.Language = GenerationLanguage.CSharp;
+      c.OutputPath = Path.Combine(app.Environment.WebRootPath, "ApiClients", "CSharp");
+      c.ClientNamespaceName = "MyCompanyName";
+      c.ClientClassName = "MyCsClient";
+      c.CreateZipArchive = true; //if you'd like a zip file as well
+    },
+    c =>
+    {
+      c.OpenApiDocumentName = "v1";
+      c.Language = GenerationLanguage.TypeScript;
+      c.OutputPath = Path.Combine(app.Environment.WebRootPath, "ApiClients", "Typescript");
+      c.ClientNamespaceName = "MyCompanyName";
+      c.ClientClassName = "MyTsClient";
+    });
+
+app.Run();
+```
+
+#### MSBuild Task
+
+If you'd like to generate the client files on every release build, you can set up an MSBuild task by setting up your app like above and adding the following to your **csproj** file.
+
+```xml copy+title=MyProject.csproj
+
+<Target Name="ClientExport" AfterTargets="Build" Condition="'$(Configuration)'=='Release'">
+    <Exec WorkingDirectory="$(ProjectDir)"
+          Command="dotnet '$(TargetPath)' --generateclients true"/>
+</Target>
+```
+
+:::admonition type=tip
+If you have multiple API projects in a single solution, the task can fail due to port collisions.
+To avoid this, add **_--urls http://127.0.0.1:0_** to the command or set **_ASPNETCORE_URLS_** to **_http://127.0.0.1:0_** via the **_EnvironmentVariables_** property on the **_<Exec>_** element. Using port 0 automatically selects an inactive port for your app to start the client export.
+:::
+
+#### How It Works
+
+The **GenerateApiClientsAndExitAsync()** method first checks to see if the correct commandline argument was passed in to the application. If it was, the client files are generated and persisted to disk according to the settings passed in to it. If not, it does nothing so program execution can continue and stand up your application as usual.
+
+In client generation mode, the application will be temporarily stood up with all the ASP.NET pipeline configuration steps that have been done up to that position of the code and shuts down and exits the program with a zero exit code once the client generation is complete.
+
+The thing to note is that you must place the **GenerateApiClientsAndExitAsync()** call right after **app.UseFastEndpoints()** in order to prevent the app from starting in normal mode if the app was run using the commandline argument for client generation.
+
+Any configuration steps that need to communicate with external services such as database migrations, third-party API calls, etc. must come after the **GenerateApiClientsAndExitAsync()** call.
+
+#### Exporting OpenAPI JSON Files With Kiota
+
+When using **FastEndpoints.OpenApi.Kiota**, you can also export **openapi.json** files to disk by using **app.ExportOpenApiJsonAndExitAsync(...)** and the CLI command **dotnet run --exportopenapijson true**.
+
+#### Extensions For Conditional Middleware Config
+
+When using **FastEndpoints.OpenApi.Kiota**, the following extension methods can be used for conditionally configuring your middleware pipeline depending on the mode the app is running in:
+
+**WebApplicationBuilder Extensions**
+
+```js
+bld.IsNotGenerationMode(); //returns true if running normally
+bld.IsApiClientGenerationMode(); //returns true if running in client gen mode
+bld.IsOpenApiJsonExportMode(); //returns true if running in openapi export mode
+```
+
+**WebApplication Extensions**
+
+```js
+app.IsNotGenerationMode(); //returns true if running normally
+app.IsApiClientGenerationMode(); //returns true if running in client gen mode
+app.IsOpenApiJsonExportMode(); //returns true if running in openapi export mode
+```
+
+If you're only using **FastEndpoints.OpenApi** without Kiota, the core package exposes **IsJsonExportMode()** and **IsNotJsonExportMode()** helpers instead.
+
+---
+
+## Export OpenAPI Documents
+
+The **FastEndpoints.OpenApi** package can also export generated OpenAPI documents to disk.
+
+```cs title=Program.cs
+using FastEndpoints;
+using FastEndpoints.OpenApi;
+
+var bld = WebApplication.CreateBuilder(args);
+bld.Services
+   .AddFastEndpoints()
+   .OpenApiDocument(o => o.DocumentName = "v1"); // doc name must match below
+
+var app = bld.Build();
+app.UseFastEndpoints();
+
+await app.ExportOpenApiDocsAndExitAsync("v1"); // doc name should match above
+
+app.Run();
+```
+
+Run the app with the following command to export the configured documents:
+
+```cs title=terminal
+dotnet run --export-openapi-docs true
+```
+
+Exported files are written to **wwwroot/openapi** by default. To change that path, set **OpenApiExportPath** in your **csproj** file:
+
+```xml title=MyProject.csproj
+
+<PropertyGroup>
+    <OpenApiExportPath>wwwroot/openapi</OpenApiExportPath>
+</PropertyGroup>
+```
+
+[See here](native-aot#export-openapi-documents) for more information on how the above works.

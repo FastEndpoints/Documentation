@@ -107,6 +107,7 @@ dist
 node_modules
 /build
 /.svelte-kit
+.playwright-cli
 /package
 .env
 .env.*
@@ -117,3 +118,5 @@ node_modules
 
 # JetBrains .idea directory
 .idea/
+
+.serena/

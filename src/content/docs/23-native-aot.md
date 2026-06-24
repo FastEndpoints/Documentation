@@ -1,0 +1,280 @@
+---
+title: Native AOT
+description: A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern.
+---
+
+# Native AOT Publishing
+
+A FastEndpoints application can be compiled down to a standalone native binary that can be executed on either Windows, Linux or macOS without the .NET Runtime being present on the machine. Native AOT compiled apps generally tend to be smaller, uses less memory, and starts up faster, at the expense of losing runtime performance optimizations provided by JIT compilation and taking much longer to compile and publish, as well as requiring the developer to jump through a few hoops to ensure compatibility with AOT compilation. FastEndpoints takes away much of the pain with automated source generation, but requires the project to be setup in a certain way.
+
+## Install Prerequisites
+
+### Visual Studio Users
+
+Ensure Visual Studio 2026 or later is installed along with the **Desktop development with C++** workload with all default components.
+
+### Rider/VS Code Users
+
+#### On Windows
+
+- Download [VS Build Tools](https://aka.ms/vs/stable/vs_BuildTools.exe)
+- Download [this zip file](https://github.com/user-attachments/files/24822561/build-tools-install-scripts.zip) with two CMD files and extract them to the same folder where **vs_BuildTools.exe** is located.
+- Execute **download.cmd** which will first create an offline layout with the required files.
+- Execute **install.cmd** which will do the actual installation from the created layout.
+
+#### On Linux
+
+Install the dependencies according to which flavor of Linux you're on:
+
+```ini
+# Arch
+sudo pacman -S --needed base-devel clang zlib krb5 icu
+
+# Debian
+sudo apt-get install clang zlib1g-dev
+
+# Alpine
+sudo apk add clang build-base zlib-dev
+
+# Fedora/RHEL
+sudo dnf install clang zlib-devel zlib-ng-devel zlib-ng-compat-devel
+```
+
+#### On macOS
+
+Install the [Command Line Tools](https://developer.apple.com/download/all/?q=Command%20Line%20Tools) for Xcode.
+
+## Project Setup
+
+:::admonition type=tip
+If you prefer to scaffold a new project that's already primed for AOT publishing, simply do the following:
+
+```sh copy
+dotnet new install FastEndpoints.TemplatePack
+dotnet new feaot -n MyProject
+```
+
+Have a quick read through the following so you know what's involved in developing and publishing a Native AOT application.
+
+:::
+
+If you'd like to start from scratch, create a new Web project and install the necessary nuget packages:
+
+```sh copy
+dotnet new web -n MyWebApp
+cd MyWebApp
+
+dotnet add package FastEndpoints
+dotnet add package FastEndpoints.Generator
+```
+
+### Enable AOT Publishing
+
+Add the following MSBuild properties to your project file.
+
+```jsx title=MyWebApp.csproj | copy
+<PropertyGroup>
+    <PublishAot>true</PublishAot>
+    <InvariantGlobalization>true</InvariantGlobalization> <!-- optional but recommended -->
+</PropertyGroup>
+```
+
+### Enable Source Generation
+
+Native AOT publishing requires source generation due to runtime reflection/compilation being unavailable.
+
+#### JsonSerializerContext Generation
+
+Typically in ASP.NET, when you develop an AOT compiled application, it requires you to manually create and manage STJ JsonSerializerContexts for your endpoints and wire them up yourself in startup code. **FastEndpoints.Generator** includes a tool that automatically generates the JsonSerializerContexts everytime you build the application. An extension method is also generated which helps to wire it up with the serializer options during startup with a single call.
+
+Enable serializer context generation in the csproj file like so:
+
+```jsx title=MyWebApp.csproj | copy
+<PropertyGroup>
+    <GenerateSerializerContexts>true</GenerateSerializerContexts>
+    <SerializerContextOutputPath>Generated/SerializerCtx</SerializerContextOutputPath> <!-- optional -->
+</PropertyGroup>
+```
+
+Serializer context generation is not the same as typical source generation and the generated files must be considered as code you've written yourself and should be checked in to source control. This is due to a limitation in .NET source generation which prevents incremental source generators from being chained. FastEndpoints work around this limitation by using a locally installed development time only CLI tool.
+
+#### Use Slim Builder and Type Discovery Generator
+
+Use the slim app builder and register the source generator discovered types.
+
+```csharp title=Program.cs | copy
+var bld = WebApplication.CreateSlimBuilder(args);
+bld.Services.AddFastEndpoints(DiscoveredTypes.All)
+```
+
+#### Register Generated SerializerContext & Reflection Data
+
+Hook up the generated serializer contexts and reflection data. The extension method name will have your assembly name at the end. If your endpoints are located in separate projects, install the **FastEndpoints.Generator** in each one, and chain the generated extension methods from those projects.
+
+```csharp title=Program.cs | copy
+app.UseFastEndpoints(
+    c =>
+    {
+        c.Serializer.Options.AddSerializerContextsFromMyWebApp();
+        c.Binding.ReflectionCache.AddFromMyWebApp();
+    });
+```
+
+## Publish AOT Executable
+
+The above is all that's needed for publishing an AOT compiled executable. Add a couple of endpoints to the app and fire off a "publish" with the following dotnet command. Change the runtime identifier for your target platform as needed. For example: **win-x64** for Windows 64-bit.
+
+```sh copy
+dotnet publish MyWebApp.csproj -c Release -r linux-x64 -o dist
+```
+
+[//]: # (## API Documentation Setup)
+
+---
+
+## Testing Native AOT Builds
+
+Unlike standard JIT builds, Native AOT applications do not support **WebApplicationFactory** for integration/end-to-end testing. In a JIT environment, you can spin up an in-memory instance of your application and modify its behavior by swapping services in the Dependency Injection container during testing.
+
+For Native AOT, you must instead rely on **Black Box Testing**. This approach treats the application as a sealed executable, providing no control over internal logic beyond hinting the app to run different configurations by passing it environment variables during startup. Testing typically involves launching the AOT compiled binary in a separate process and interacting with its public REST API endpoints as a real client would.
+
+The [AppFixture](integration-unit-testing#fastendpoints-testing-package) provided by the **FastEndpoints.Testing** package features a built-in "dual testing capability". It allows you to run the same suite of integration tests against both a standard **WAF** (during development) and the **Native AOT** executable of your target app without changing a single line of test code. To enable the dual testing mode, simply add the following to your test project's **.csproj** file:
+
+```jsx title=MyTests.csproj | copy
+<ItemGroup Condition="'$(NativeAotTestMode)' == 'true'">
+    <RuntimeHostConfigurationOption Include="NativeAotTestMode" Value="true"/>
+</ItemGroup>
+```
+
+Also add a Minimal API endpoint (or even a FE endpoint) that can be hit to determine the readiness of the application such as this one:
+
+```cs
+app.MapGet("/healthy", () => Results.Ok()).ExcludeFromDescription();
+```
+
+By default, running **dotnet test** or using your IDE’s test runner will execute tests in **WAF mode**. To switch to **Black Box mode** against the Native AOT build, run the following in your terminal:
+
+```sh | copy
+dotnet test -p:NativeAotTestMode=true
+
+```
+
+Under the hood, the library automates the heavy lifting:
+
+- Builds your application with Native AOT Compilation and launches it as a separate process.
+- Determines the app readiness by hitting the health endpoint before running tests against it.
+- Dynamically reconfigures your **HttpClients** to route traffic to the spawned AOT instance instead of a WAF instance.
+- To avoid the overhead of long AOT compilation times, a robust caching mechanism ensures the app is only rebuilt when source code changes are detected.
+
+**Note:** If you need to force a fresh AOT build, simply **touch** or modify any source file in your target project.
+
+### Customizing the AOT Publish & Run settings
+
+In 99% of project/solution layouts, the auto management of publishing and running the Native AOT build would work out of the box without you having to specify any of the following settings. In the rare occasions where auto detection fails, simply override the **ConfigureAotTargetAsync()** method of the AppFixture, and provide the relevant settings.
+
+```cs
+public class App : AppFixture<Program>
+{
+    protected override ValueTask ConfigureAotTargetAsync(AotTargetOptions o)
+    {
+        o.PathToTargetAotProject = "../Source/MyApp.csproj"; //csproj of the app to build with aot
+        o.AotBuildOutputPath = "bin/aot"; //where to publish aot build
+        o.PathToAotExecutable = "bin/aot/MyApp"; //full path of the aot executable
+        o.BuildTimeoutMinutes = 1; //max time allowed for aot building
+        o.HealthEndpointPath = "/healthy"; //app readiness route
+        o.ReadyTimeoutSeconds = 5; //timeout for app readiness
+        o.EnvironmentVariables["ASPNETCORE_ENVIRONMENT"] = "Testing"; //environment variables for the aot app
+
+        // make routeless test helpers use the same serializer settings as the app
+        new Config().Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+
+        return ValueTask.CompletedTask;
+    }
+}
+```
+
+---
+
+## Export OpenAPI Documents
+
+If your AOT application uses the **FastEndpoints.OpenApi** library, you can export static OpenAPI JSON files during publish by calling **ExportOpenApiDocsAndExitAsync()** during startup.
+
+Use it right after the **app.UseFastEndpoints()** call:
+
+```cs | title=Program.cs
+app.UseFastEndpoints(...);
+
+await app.ExportOpenApiDocsAndExitAsync("v1","v2");
+
+if (app.Environment.IsDevelopment())
+    app.MapOpenApi(); //serve live openapi docs in development
+else
+    app.UseStaticFiles(); //serve exported openapi json files in production
+```
+
+The document names passed to **ExportOpenApiDocsAndExitAsync()** must match the names used when registering documents with **.OpenApiDocument()**.
+
+In production, serve the exported JSON files as static content instead of generating them live. That allows tools such as Scalar to load the exported files from the published output while development still uses live OpenAPI generation.
+
+### How It Works
+
+The method only does any work when the application starts with the configuration value `export-openapi-docs=true`.
+
+When that flag is present, the following happens:
+
+- The app starts normally so the OpenAPI document providers can resolve from DI
+- Each requested document is generated and written as a `.json` file to the configured export folder
+- The app is stopped once export completes
+- The process exits immediately instead of continuing to run the web server
+
+### Enable Automatic Export During AOT Publish
+
+To activate automatic export during `dotnet publish` for Native AOT, add the following properties to your project file:
+
+```jsx title=MyWebApp.csproj | copy
+<PropertyGroup>
+    <PublishAot>true</PublishAot>
+    <ExportOpenApiDocs>true</ExportOpenApiDocs>
+    <OpenApiExportPath>wwwroot/openapi</OpenApiExportPath> <!-- optional -->
+</PropertyGroup>
+```
+
+- **PublishAot** enables Native AOT publishing
+- **ExportOpenApiDocs** turns on the pre-publish export step
+- **OpenApiExportPath** changes where the JSON files are written. Default is **wwwroot/openapi**
+
+During AOT publish, the build targets first compile a temporary non-AOT version of the app, runs it with the export flag, generate the OpenAPI files, and then copy those files into the final publish output. OpenAPI generation is performed before the native executable is produced.
+
+[See here](https://github.com/FastEndpoints/Template-Pack/blob/main/templates/aot/Source/Program.cs) for an example that utilizes the above.
+
+### Trigger Exports Manually
+
+To export the documents without doing an AOT publish, run the app manually with the export flag:
+
+```sh copy
+dotnet run -p:PublishAot=false --export-openapi-docs true
+```
+
+To export to a custom folder:
+
+```sh copy
+dotnet run -p:PublishAot=false -p:OpenApiExportPath=wwwroot/openapi --export-openapi-docs true
+```
+
+### Extensions For Conditional Middleware Config
+
+The following handy extension methods can be used for conditionally configuring your middleware pipeline depending on the mode the app is running in:
+
+**WebApplicationBuilder Extensions**
+
+```js
+bld.IsJsonExportMode(); //returns true if running in openapi export mode
+bld.IsNotJsonExportMode(); //returns true if running in normal mode
+```
+
+**WebApplication Extensions**
+
+```js
+app.IsJsonExportMode(); //returns true if running in openapi export mode
+app.IsNotJsonExportMode(); //returns true if running in normal mode
+```

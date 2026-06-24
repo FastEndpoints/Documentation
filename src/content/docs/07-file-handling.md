@@ -1,0 +1,161 @@
+---
+title: File Handling
+description: Uploading and downloading binary files with FastEndpoints is quick, easy and maintainable.
+---
+
+# {$frontmatter.title}
+
+## Handling File Uploads
+
+The following example relays back the image data uploaded to the endpoint in order to demonstrate both receiving and sending of file data:
+
+```cs
+public class MyEndpoint : Endpoint<MyRequest>
+{
+    public override void Configure()
+    {
+        Post("/api/uploads/image");
+        AllowFileUploads();
+    }
+
+    public override async Task HandleAsync(MyRequest req, CancellationToken ct)
+    {
+        if (Files.Count > 0)
+        {
+            var file = Files[0];
+
+            await Send.StreamAsync(
+                stream: file.OpenReadStream(),
+                fileName: "test.png",
+                fileLengthBytes: file.Length,
+                contentType: "image/png");
+
+            return;
+        }
+        await Send.NoContentAsync();
+    }
+}
+```
+
+Endpoints by default won't allow **"multipart/form-data"** content uploads. You'd have to enable file uploads by using the **AllowFileUploads()** method in the handler configuration like shown above. The received files are exposed to the endpoint handler via the **Files** property which is of **IFormFileCollection** type.
+
+## Binding Files To DTO
+
+File data can also be automatically bound to the request DTO by simply adding an **IFormFile** property with a matching name.
+
+```cs |title=MyRequest.cs
+public class MyRequest
+{
+    public int Width { get; set; }
+    public int Height { get; set; }
+    public IFormFile File1 { get; set; }
+    public IFormFile File2 { get; set; }
+    public IFormFile File3 { get; set; }
+}
+```
+
+Collections of form files can be bound by adding properties of the following types to the DTO as well:
+
+```cs |title=MyRequest.cs
+public class MyRequest
+{
+    public IEnumerable<IFormFile> Cars { get; set; }
+    public List<IFormFile> Boats { get; set; }    
+    public IFormFileCollection Jets { get; set; }
+}
+```
+
+When submitting collections of form files, the incoming field names can be one of the following 3 formats:
+
+|     | Format One | Format Two | Format Three |
+|-----|------------|------------|--------------|
+| # 1 | Cars       | Boats[1]   | Jets[]       |
+| # 2 | Cars       | Boats[2]   | Jets[]       |
+
+## Handling Large File Uploads
+
+In ASP.NET, accessing **IFormFileCollection** or **IFormFile** causes the complete uploaded file to be read from the request stream and buffered to either memory or disk.
+
+You can avoid this buffering and reduce server resource utilization by manually reading the multipart file sections with the combination of **AllowFileUploads(dontAutoBindFormData: true)** and **FormFileSectionsAsync()** methods as shown below:
+
+```cs
+public class Upload : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Post("/api/file-upload");
+        AllowFileUploads(dontAutoBindFormData: true); //turns off buffering
+    }
+
+    public override async Task HandleAsync(CancellationToken ct)
+    {
+        await foreach (var section in FormFileSectionsAsync(ct))
+        {
+            if (section is not null)
+            {
+                using (var fs = System.IO.File.Create(section.FileName))
+                {
+                    await section.Section.Body.CopyToAsync(fs, 1024 * 64, ct);
+                }
+            }
+        }
+
+        await Send.OkAsync("upload complete!");
+    }
+}
+```
+
+You may also need to increase the [max request body size limit in kestrel](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/servers/kestrel/options?view=aspnetcore-9.0#maximum-request-body-size) to allow large file uploads. This can be set per endpoint like so:
+
+```cs |title=Endpoint.cs
+public override void Configure()
+{
+    ...
+    MaxRequestBodySize(50 * 1024 * 1024);
+}
+```
+
+#### Reading form-field values together with file data
+
+When you turn off buffering, no automatic form-field value binding will occur either. If the incoming request contains form-file data as well as regular form-fields, you can use the **FormMultipartSectionsAsync()** method to obtain those values by iterating the provided async stream of **MultipartSection**s like so:
+
+```csharp
+await foreach (var sec in FormMultipartSectionsAsync(ct))
+{
+    //reading the value of a form field
+    if (sec.IsFormSection && sec.FormSection.Name == "formFieldName")
+    {
+        var formFieldValue = await sec.FormSection.GetValueAsync(ct);
+    }
+
+    //obtaining the stream of a file
+    if (sec.IsFileSection && sec.FileSection.Name == "fileFieldName")
+    {
+        var fileStream = sec.FileSection.FileStream;
+    }
+}
+```
+
+## Sending File Responses
+
+There are 3 methods you can use to send file data down to the client.
+
+| Method | Description |
+| ------ | ----------- |
+| **Send.StreamAsync()** | Supply a **System.IO.Stream** to this method for reading binary data from. |
+| **Send.FileAsync()** | Supply a **System.IO.FileInfo** instance as the source of the binary data. |
+| **Send.BytesAsync()** | Supply a byte array as the source of data to be sent to the client. |
+
+All 3 methods allow you to optionally specify the content-type and file name.
+
+If file name is specified, the **Content-Disposition: attachment** response header will be set with the given file name so that a file download will be initiated by the client/browser.
+
+Range requests/ partial responses are also supported by setting the **enableRangeProcessing** parameter to true.
+
+## Write To Response Stream
+
+Instead of using the above methods, you also have the choice of writing directly to the http response stream.
+
+:::admonition type="tip"
+[See here](https://github.com/dj-nitehawk/FastEndpoints-FileHandling-Demo) for an example project that stores and retrieves images in MongoDB.
+:::

@@ -1,0 +1,353 @@
+---
+title: Pre / Post Processors
+description: Writing shared common logic with many endpoints with pre/post processors in FastEndpoints opens up a world of possibility.
+---
+
+# {$frontmatter.title}
+
+Rather than writing a common piece of logic repeatedly that must be executed either before or after each request to your system, you can write it as a pre or post processor and attach it to endpoints that need them.
+
+There are two types of processors:
+
+- **Pre Processors**
+- **Post Processors**
+
+## Pre Processors
+
+Let's say for example that you'd like to log every request before being executed by your endpoint handlers. Simply write a pre-processor by implementing the interface **IPreProcessor<TRequest>**:
+
+```cs |title=MyRequestLogger.cs
+public class MyRequestLogger<TRequest> : IPreProcessor<TRequest>
+{
+    public Task PreProcessAsync(IPreProcessorContext<TRequest> ctx, CancellationToken ct)
+    {
+        var logger = ctx.HttpContext.Resolve<ILogger<TRequest>>();
+
+        logger.LogInformation(
+            $"request:{ctx.Request.GetType().FullName} path: {ctx.HttpContext.Request.Path}");
+
+        return Task.CompletedTask;
+    }
+}
+```
+
+And then attach it to the endpoints you need like so:
+
+```cs |title=CreateOrderEndpoint.cs
+public class CreateOrderEndpoint : Endpoint<CreateOrderRequest>
+{
+    public override void Configure()
+    {
+        Post("/sales/orders/create");
+        PreProcessor<MyRequestLogger<CreateOrderRequest>>();
+    }
+}
+```
+
+You can even write a request DTO specific processor like so:
+
+```cs |title=SalesRequestLogger.cs
+public class SalesRequestLogger : IPreProcessor<CreateSaleRequest>
+{
+    public Task PreProcessAsync(IPreProcessorContext<CreateSaleRequest> ctx, CancellationToken ct)
+    {
+        var logger = ctx.HttpContext.Resolve<ILogger<CreateSaleRequest>>();
+
+        logger.LogInformation($"sale value:{ctx.Request.SaleValue}");
+
+        return Task.CompletedTask;
+    }
+}
+```
+
+## Short-Circuiting Execution
+
+It is possible to end processing the request by returning a response from within a pre-processor like so:
+
+```cs |title=SecurityProcessor.cs
+public class SecurityProcessor<TRequest> : IPreProcessor<TRequest>
+{
+    public Task PreProcessAsync(IPreProcessorContext<TRequest> ctx, CancellationToken ct)
+    {
+        if (!ctx.HttpContext.Request.Headers.TryGetValue("x-tenant-id", out var tenantID))
+        {
+            ctx.ValidationFailures.Add(
+                new("MissingHeaders", "The [x-tenant-id] header needs to be set!"));
+
+            //sending response here
+            return ctx.HttpContext.Response.SendErrorsAsync(ctx.ValidationFailures);
+        }
+
+        if (tenantID != "001")
+            return ctx.HttpContext.Response.SendForbiddenAsync(); //sending response here
+
+        return Task.CompletedTask;
+    }
+}
+```
+
+All the [Send.\*Async() methods](misc-conveniences#send-methods) supported by endpoint handlers are available. The send methods are accessed from the **ctx.HttpContext.Response** property as shown above. When a response is sent from a pre-processor, the handler method is not executed.
+
+:::admonition type="note"
+If there are multiple pre-processors configured, they will be executed. If another pre-processor also wants to send a response, they must check if it's possible to do so by checking the result of **ctx.HttpContext.ResponseStarted()** to see if a previously executed pre-processor has already sent a response to the client. See example [here](#global-processors).
+:::
+
+## Post Processors
+
+Post-processors are executed after your endpoint handler has completed it's work.
+They can be created similarly by implementing the interface **IPostProcessor<TRequest, TResponse>**:
+
+```cs
+public class MyResponseLogger<TRequest, TResponse> : IPostProcessor<TRequest, TResponse>
+{
+    public Task PostProcessAsync(IPostProcessorContext<TRequest, TResponse> ctx, ...)
+    {
+        var logger = ctx.HttpContext.Resolve<ILogger<TResponse>>();
+
+        if (ctx.Response is CreateSaleResponse response)
+            logger.LogWarning($"sale complete: {response.OrderID}");
+
+        return Task.CompletedTask;
+    }
+}
+```
+
+And then attach it to endpoints like so:
+
+```cs
+public class CreateOrderEndpoint : Endpoint<CreateSaleResponse, CreateSaleResponse>
+{
+    public override void Configure()
+    {
+        Post("/sales/orders/create");
+        PostProcessor<MyResponseLogger<CreateSaleResponse, CreateSaleResponse>>();
+    }
+}
+```
+
+#### Handling unhandled exceptions with Post-Processors
+
+Post processors have access to unhandled exceptions that typically result in an automatic 500 response. This can be used as an alternative to an [exception
+handing middleware](exception-handler#unhandled-exception-handler). Take the following endpoint for an example:
+
+```cs
+public class WipEndpoint : Endpoint<Request, Response>
+{
+    public override void Configure()
+    {
+        ...
+        PostProcessor<ExceptionProcessor>();
+    }
+
+    public override Task HandleAsync(Request r, CancellationToken c)
+        => throw new NotImplementedException();
+}
+```
+
+For which you can implement a post-processor like this:
+
+```cs
+public class ExceptionProcessor : IPostProcessor<Request, Response>
+{
+    public async Task PostProcessAsync(IPostProcessorContext<Request, Response> ctx, ...)
+    {
+        if (!ctx.HasExceptionOccurred)
+            return;
+
+        if (ctx.ExceptionDispatchInfo.SourceException.GetType() == typeof(NotImplementedException))
+        {
+            ctx.MarkExceptionAsHandled(); //only if handling the exception here.
+        
+            await ctx.HttpContext.Response.SendAsync("This endpoint is not implemented yet!", 501);
+            return;
+        }
+
+        ctx.ExceptionDispatchInfo.Throw();
+    }
+}
+```
+
+The post-processor context has a property for accessing the captured [ExceptionDispatchInfo](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.exceptionservices.exceptiondispatchinfo) instance with which you get full access to the exception details. Calling the **MarkExceptionAsHandled()** method is only necessary if your post-processor is handling the exception and no further action is necessary to deal with that exception. Not calling that method will result in an automatic throwing of the captured exception once all the post-processors have run.
+
+#### Abstracting response sending logic into a Post-Processor
+
+A post-processor can be made the sole mechanism that decides what kind of response needs to be sent, such as when using the "Results Pattern". I.e. instead of
+placing response sending logic inside the endpoint handler itself, you can return whatever object you want from the endpoint handler method and let a processor
+receive that object as input and allow it to decide how/what shape of response is to be sent to the client. [Click here](https://gist.github.com/dj-nitehawk/6e23842dcb7640b165fd80ba57967540) to see a full example of this in action.
+
+#### Intercepting responses before being sent
+
+Post-processors run after the endpoint handler has sent the response to the client. As a result, they cannot modify response headers or write to the response stream. If you need to apply common logic to multiple endpoints right before the response is written to the stream, consider using a [Response Interceptor](https://gist.github.com/dj-nitehawk/7cef738cf5c0d5a26981524df9228349) or the less explicit [Global Response Modifier](https://gist.github.com/dj-nitehawk/be15f1125cafc4ddd1c233eca26c0a8a).
+
+## Multiple Processors
+
+Multiple processors can be attached to an endpoint with both **PreProcessor<>()** and **PostProcessor<>()** methods by calling them repeatedly. The processors are executed in the order they are specified in the endpoint configuration.
+
+## Global Processors
+
+Global pre/post processors that operate on multiple endpoints can be created implementing the **IGlobalPreProcessor** & **IGlobalPostProcessor** interfaces.
+
+```cs copy|title=TenantIDChecker.cs
+public class TenantIDChecker : IGlobalPreProcessor
+{
+    public async Task PreProcessAsync(IPreProcessorContext ctx, CancellationToken ct)
+    {
+        if (ctx.Request is MyRequest r) //can work on specific dto types if desired
+        {
+            var tID = ctx.HttpContext.Request.Headers["x-tenant-id"];
+
+            if (tID.Count > 0)
+            {
+                r.TenantID = tID[0];
+            }
+            else
+            {
+                ctx.ValidationFailures.Add(
+                    new("TenantID", "Unable to retrieve tenant id from header!"));
+                
+                if (!ctx.HttpContext.ResponseStarted())
+                    await ctx.HttpContext.Response.SendErrorsAsync(ctx.ValidationFailures);
+            }
+        }
+    }
+}
+```
+
+To attach the above pre-processor to all endpoints, add it in the global endpoint configurator function like so:
+
+```cs copy|title=Program.cs
+app.UseFastEndpoints(c =>
+{
+    c.Endpoints.Configurator = ep =>
+    {
+        ep.PreProcessor<TenantIDChecker>(Order.Before);
+    };
+});
+```
+
+The **Order** enum specifies whether to run the global processors before or after the endpoint level processors if there's also endpoint level processors configured.
+
+#### Open generic global processors
+
+Open generic processors that implement either **IPreProcessor\<TRequest\>** or <br/> **IPostProcessor\<TRequest, TResponse\>** can be registered globally using the endpoint configurator function as follows:
+
+```cs |title=Program.cs
+app.UseFastEndpoints(c =>
+{
+    c.Endpoints.Configurator = ep =>
+    {
+        ep.PreProcessors(Order.Before, typeof(RequestLogger<>));
+    };
+});
+```
+
+```cs |title=RequestLogger.cs
+sealed class RequestLogger<TRequest> : IPreProcessor<TRequest>
+{
+    public Task PreProcessAsync(IPreProcessorContext<TRequest> ctx, CancellationToken c)
+    {
+        ...
+    }
+}
+```
+
+## Sharing State
+
+In order to share state among pre/post processors and the endpoint, you have to first create a class to act as the state holder such as the following:
+
+```cs
+public class MyStateBag
+{
+    private readonly Stopwatch _sw = new();
+
+    public bool IsValidAge { get; set; }
+    public string Status { get; set; }
+    public long DurationMillis => _sw.ElapsedMilliseconds;
+
+    public MyStateBag() => _sw.Start();
+}
+```
+
+Then create processors implementing the following abstract classes instead of the interfaces mentioned above. They will have the state bag passed in to the process method like so:
+
+```cs 
+public class AgeChecker : PreProcessor<MyRequest, MyStateBag>
+{
+    public override Task PreProcessAsync(IPreProcessorContext<MyRequest> ctx, MyStateBag state)
+    {
+        if (ctx.Request.Age >= 18)
+            state.IsValidAge = true;
+
+        state.Status = $"age checked by pre-processor at {state.DurationMillis} ms.";
+
+        return Task.CompletedTask;
+    }
+}
+```
+
+```cs
+public class DurationLogger : PostProcessor<MyRequest, MyStateBag, object>
+{
+    public override Task PostProcessAsync(IPostProcessorContext<MyRequest, object> ctx, 
+                                          MyStateBag state, 
+                                          CancellationToken ct)
+    {
+        ctx.HttpContext.Resolve<ILogger<DurationLogger>>()
+           .LogInformation("request took {@duration} ms.", state.DurationMillis);
+
+        return Task.CompletedTask;
+    }
+}
+```
+
+The endpoint is able to access the same shared/common state by calling the **ProcessorState<MyStateBag>()** method like so:
+
+```cs
+public class MyEndpoint : Endpoint<MyRequest>
+{
+    public override void Configure()
+    {
+        ...
+        PreProcessor<AgeChecker>();
+        PostProcessor<DurationLogger>();
+    }
+
+    public override async Task HandleAsync(MyRequest r, CancellationToken c)
+    {
+        var state = ProcessorState<MyStateBag>();
+        Logger.LogInformation("endpoint executed at {@duration} ms.", state.DurationMillis);
+        await Task.Delay(100);
+        await Send.OkAsync(
+            new
+            {
+                r.Age,
+                state.Status
+            });
+    }
+}
+```
+
+It's also possible to access the common state when using the processor interfaces, but it has to be done via the http context like so:
+
+```cs
+public class MyPreProcessor : IPreProcessor<Request>
+{
+    public Task PreProcessAsync(IPreProcessorContext<Request> ctx, CancellationToken ct)
+    {
+        var state = ctx.HttpContext.ProcessorState<MyStateBag>();
+    }
+}
+```
+
+For global processors, you can implement the **GlobalPreProcessor<TState>** and **GlobalPostProcessor<TState>** abstract classes instead.
+
+## Dependency Injection
+
+Processors are singletons for [performance reasons](/benchmarks). I.e. there will only ever be one instance of a processor. You should not maintain state in them.
+Dependencies can be resolved as shown [here](dependency-injection#pre-post-processor-dependencies).
+
+---
+
+:::admonition type="tip"
+As an alternative to pre/post processors, you have the option of using Minimal APIs [endpoint filters](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis/min-api-filters?view=aspnetcore-7.0) with FastEndpoints as [shown here](https://gist.github.com/dj-nitehawk/3edcd59ce03230b98369e2f2259bc5d3).
+:::

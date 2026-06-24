@@ -1,0 +1,156 @@
+---
+title: Event Bus
+description: Developing event based applications in FastEndpoints is highly performant and convenient to use.
+---
+
+# In-Process Event Bus Pattern (Pub/Sub)
+
+If you'd like to take an event driven approach to building your application, you have the option to publish events and have completely decoupled **Event-Handlers** take action when events are published. An event can have more than one handler and has a one-to-many relationship. Due to the nature of pub/sub event bus pattern, handlers cannot return any results back to the caller/publisher.
+
+## 1. Define An Event Model/ DTO
+
+This is the data contract that will be delivered to the subscribers/event-handlers.
+
+```cs
+public class OrderCreatedEvent
+{
+    public string OrderID { get; set; }
+    public string CustomerName { get; set; }
+    public decimal OrderTotal { get; set; }
+}
+```
+
+## 2. Define An Event Handler
+
+This is the code that will be executed when events of the above DTO type gets published.
+
+```cs
+public class OrderCreationHandler : IEventHandler<OrderCreatedEvent>
+{
+    private readonly ILogger _logger;
+
+    public OrderCreationHandler(ILogger<OrderCreationHandler> logger)
+    {
+        _logger = logger;
+    }
+
+    public Task HandleAsync(OrderCreatedEvent eventModel, CancellationToken ct)
+    {
+        _logger.LogInformation($"order created event received:[{eventModel.OrderID}]");
+        return Task.CompletedTask;
+    }
+}
+```
+
+You can create as many implementations of **IEventHandler<OrderCreatedEvent>** as you like, and they all are receivers/subscribers of the **OrderCreatedEvent**.
+No other boilerplate (explicit subscription registration) is necessary.
+
+## 3. Publish The Event
+
+Simply hand in an event model to the **PublishAsync()** method.
+
+```cs
+public class CreateOrderEndpoint : Endpoint<CreateOrderRequest>
+{
+    public override void Configure()
+    {
+        Post("/sales/orders/create");
+    }
+
+    public override async Task HandleAsync(CreateOrderRequest req, CancellationToken ct)
+    {
+        var orderID = await orderRepo.CreateNewOrder(req);
+
+        await PublishAsync(new OrderCreatedEvent
+        {
+            OrderID = orderID,
+            CustomerName = req.Customer,
+            OrderTotal = req.OrderValue
+        });
+
+        await Send.OkAsync();
+    }
+}
+```
+
+## The PublishAsync() Method
+
+The **PublishAsync()** method has an overload that will take a **Mode** enum that lets you specify whether to wait for **all subscribers** to finish; wait for **any subscriber** to finish; or wait for **none of the subscribers** to finish.
+
+For example, you can publish an event in a fire-n-forget manner with the following:
+
+```cs
+await PublishAsync(eventModel, Mode.WaitForNone);
+```
+
+The default mode is **Mode.WaitForAll** which will await all subscribers. I.e. execution will only continue after each and every subscriber of the event has completed their work.
+
+## Publish From Anywhere
+
+It is possible to publish events even from outside of endpoints by marking the event model with the **IEvent** interface, which would provide **PublishAsync()** as an extension method.
+
+```cs
+public class OrderCreatedEvent : IEvent { ... }
+```
+
+```cs
+await new OrderCreatedEvent
+{
+    OrderID = "12345",
+    CustomerName = "scarlet johanson",
+    OrderTotal = 123.45m
+}
+.PublishAsync(Mode.WaitForAll);
+```
+
+## Dependency Injection
+
+Dependencies in event handlers can be resolved as described [here](dependency-injection#event-handler-dependencies).
+
+## Event Bus Without FastEndpoints
+
+The Event Bus can be used independently of the FastEndpoints library, even with Blazor WASM projects. Simply install the messaging library like so:
+
+```shell | copy
+dotnet add package FastEndpoints.Messaging 
+```
+
+Register the messaging services with the IOC container as shown in the following console application example:
+
+```csharp | title=Program.cs | copy
+using FastEndpoints; //add this
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+
+var bld = Host.CreateApplicationBuilder();
+bld.Services.AddMessaging(); //add this
+
+var host = bld.Build();
+host.Services.UseMessaging(); //add this
+
+var appStartedEvent = new AppStarted();
+await appStartedEvent.PublishAsync();
+
+await host.RunAsync();
+
+sealed class AppStarted : IEvent
+{
+    public string Message => "Welcome to the App!";
+}
+
+sealed class AppStartedHandler(ILogger<AppStartedHandler> logger) : IEventHandler<AppStarted>
+{
+    public Task HandleAsync(AppStarted e, CancellationToken c)
+    {
+        logger.LogInformation("{@msg}", e.Message);
+
+        return Task.CompletedTask;
+    }
+}
+```
+
+If you'd like event bus instances to be initialized during application startup instead of when the first event is published, enable warmup like this:
+
+```cs
+host.Services.UseMessaging(o => o.Warmup());
+```
