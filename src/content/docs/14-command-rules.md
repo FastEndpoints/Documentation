@@ -111,14 +111,14 @@ Register each rule with the input type it handles:
 var bld = WebApplication.CreateBuilder();
 
 bld.Services.AddFastEndpoints();
-bld.Services.AddCommandRule<OrderMessage, OrderCreatedRule>();
+bld.Services.AddCommandRules(o => o.Register<OrderMessage, OrderCreatedRule>());
 
 var app = bld.Build();
 app.UseFastEndpoints();
 app.Run();
 ```
 
-Calling **AddCommandRule<TInput, TRule>()** also registers the default **ICommandRuleEngine<TInput>** and **ICommandDispatcher<TInput>** services if they have not already been registered.
+Use **Register<TInput, TRule>()** on the builder for each rule. Calling **AddCommandRules(configure)** registers the configured rules plus the default **ICommandRuleEngine<TInput>** and **ICommandDispatcher<TInput>** services for each registered input type.
 
 Registered rules are transient and can use constructor injection. The default engine and dispatcher are scoped services. **CommandRulesOptions** is registered as a singleton.
 
@@ -184,6 +184,8 @@ By default, the engine collects commands from all matching rules. You can change
 bld.Services.AddCommandRules(o =>
 {
     o.MatchMode = CommandRuleMatchMode.First;
+    o.Register<OrderMessage, PriorityRule>();
+    o.Register<OrderMessage, OrderCreatedRule>();
 });
 ```
 
@@ -213,6 +215,7 @@ If you'd rather fail fast, configure **UnhandledRuleBehavior.Throw**.
 bld.Services.AddCommandRules(o =>
 {
     o.UnhandledBehavior = UnhandledRuleBehavior.Throw;
+    o.Register<OrderMessage, OrderCreatedRule>();
 });
 ```
 
@@ -244,6 +247,7 @@ You can also set the default mode globally:
 bld.Services.AddCommandRules(o =>
 {
     o.DefaultMode = CommandDispatchMode.ExecuteNow;
+    o.Register<OrderMessage, OrderCreatedRule>();
 });
 ```
 
@@ -285,10 +289,7 @@ Queueing requires job queues to be configured. See the [Job Queues](job-queues#e
 The dispatcher can force one mode for every planned command. This overrides both the planned command's **Mode** and the configured default mode.
 
 ```cs
-await dispatcher.DispatchAsync(
-    message,
-    CommandDispatchMode.QueueAsJob,
-    ct);
+await dispatcher.DispatchAsync(message, CommandDispatchMode.QueueAsJob, ct);
 ```
 
 ## Failure Behavior
@@ -299,6 +300,7 @@ By default, dispatching stops at the first failure and the exception is rethrown
 bld.Services.AddCommandRules(o =>
 {
     o.FailureBehavior = CommandDispatchFailureBehavior.StopOnFirstFailure;
+    o.Register<OrderMessage, OrderCreatedRule>();
 });
 ```
 
@@ -308,6 +310,7 @@ If you want to attempt the remaining commands, use **Continue**.
 bld.Services.AddCommandRules(o =>
 {
     o.FailureBehavior = CommandDispatchFailureBehavior.Continue;
+    o.Register<OrderMessage, OrderCreatedRule>();
 });
 ```
 
@@ -389,8 +392,7 @@ foreach (var outcome in result.Outcomes)
 If a rule needs async work, implement **ICommandRule<TInput>** directly or override **EvaluateAsync()**.
 
 ```cs
-public sealed class CustomerLookupRule(ICustomerApi api)
-    : ICommandRule<OrderMessage>
+public sealed class CustomerLookupRule(ICustomerApi api) : ICommandRule<OrderMessage>
 {
     public async ValueTask<CommandRuleMatch> EvaluateAsync(
         OrderMessage input,
@@ -426,6 +428,7 @@ bld.Services.AddCommandRules(o =>
     o.UnhandledBehavior = UnhandledRuleBehavior.NoOp;
     o.DefaultMode = CommandDispatchMode.ExecuteNow;
     o.FailureBehavior = CommandDispatchFailureBehavior.StopOnFirstFailure;
+    o.Register<OrderMessage, OrderCreatedRule>();
 });
 ```
 
@@ -438,7 +441,7 @@ bld.Services.AddCommandRules(o =>
 
 ## Command Rules Without FastEndpoints
 
-Command rules can be used outside FE endpoints. Register messaging and command rules with the IOC container, then initialize messaging from the built host/service provider.
+Command rules can be used independently of the main FastEndpoints REST library. Register messaging and command rules with the IOC container, then initialize messaging from the built host/service provider.
 
 ```cs | title=Program.cs | copy
 using FastEndpoints;
@@ -448,7 +451,7 @@ using Microsoft.Extensions.Hosting;
 var bld = Host.CreateApplicationBuilder();
 
 bld.Services.AddMessaging();
-bld.Services.AddCommandRule<OrderMessage, OrderCreatedRule>();
+bld.Services.AddCommandRules(o => o.Register<OrderMessage, OrderCreatedRule>());
 
 var host = bld.Build();
 host.Services.UseMessaging();
