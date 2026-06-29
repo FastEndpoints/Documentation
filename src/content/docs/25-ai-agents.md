@@ -19,8 +19,8 @@ Both are currently published as beta packages and versioned independently of the
 Install the package you need, or both if the same API should be callable by MCP clients and A2A agents.
 
 ```cs |copy|title=terminal
-dotnet add package FastEndpoints.Mcp --version 1.0.0-beta.2
-dotnet add package FastEndpoints.A2A --version 1.0.0-beta.2
+dotnet add package FastEndpoints.Mcp --version 1.0.0-beta.3
+dotnet add package FastEndpoints.A2A --version 1.0.0-beta.3
 ```
 
 ## Quick Start
