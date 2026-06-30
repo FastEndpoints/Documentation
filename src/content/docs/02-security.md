@@ -427,6 +427,34 @@ The interesting bits of info here would be the following:
 | **MyTokenService**                   | This is your implementation of a specialized abstract endpoint class which is configured with the relevant settings such as signing key/ audience/ issuer/ expiry times/ etc. See example below.                                                                                                                                                                               |
 | **TokenResponse**                    | This is the response DTO that the token service will return when token generation succeeds.                                                                                                                                                                                                                                                                                    |
 
+If the login endpoint returns a union type instead of `TokenResponse` directly, use the `CreateTokenWith<TTokenService, TTokenResponse>()` overload
+so the token response type can be specified separately from the endpoint response type.
+
+```cs | title="UnionLoginEndpoint.cs"
+public class UnionLoginEndpoint : Endpoint<
+    LoginRequest, 
+    Results<Ok<TokenResponse>,UnauthorizedHttpResult>>
+{
+    public override async Task<Results<Ok<TokenResponse>, UnauthorizedHttpResult>> 
+        ExecuteAsync(LoginRequest req, CancellationToken ct)
+    {
+        if (!CredentialsAreValid(req))
+            return TypedResults.Unauthorized();
+
+        var token = await CreateTokenWith<MyTokenService, TokenResponse>("user-id-001", u =>
+        {
+            u.Roles.Add("Admin");
+            u.Permissions.Add("Update_Something");
+        }, req);
+
+        return TypedResults.Ok(token);
+    }
+}
+```
+
+The optional request argument is forwarded to the token service's initial token-creation hooks. The login path still creates an initial token pair;
+renewal hooks such as `SetRenewalPrivilegesAsync()` only run from the refresh endpoint.
+
 ### Step 2 - Token Service:
 
 A token service is created by implementing the **RefreshTokenService<TRequest, TResponse>** abstract class. This class is a bit different from
