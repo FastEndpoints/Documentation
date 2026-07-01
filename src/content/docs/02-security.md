@@ -670,8 +670,24 @@ public static partial class Allow
 }
 ```
 
-Do note the namespace above. The auto generated **Allow** static class will be located in **<YourAssemblyName>.Auth**. So you need to use the
+If you'd rather centrally define just the permission names and let the source generator assign the codes, add partial string properties instead:
+
+```cs
+namespace MyProject.Auth;
+
+public static partial class Allow
+{
+    public static partial string Inventory_Create { get; }
+    public static partial string Inventory_Update { get; }
+}
+```
+
+The generator will implement the above properties and assign the same kind of stable 3 letter hashes you'd get from **AccessControl()** calls.
+
+:::admonition type=note
+The auto generated **Allow** static class will be located in **<YourAssemblyName>.Auth**. So you need to use the
 same namespace when adding your own partial class or the compiler will not be able to combine your partial class with the auto generated class.
+:::
 
 ### Generating Permission Groups
 
