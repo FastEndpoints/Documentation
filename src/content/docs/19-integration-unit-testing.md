@@ -90,6 +90,28 @@ The aforementioned caching behavior can be turned off simply by annotating the d
 public class MyApp : AppFixture<Program>
 ```
 
+When WAF caching is enabled, final cleanup tied to the shared WAF instance can be done by overriding **OnCachedWafDisposedAsync()**. It runs once per derived AppFixture after all test-classes in the assembly are done using the cached WAF and after the WAF itself has been disposed.
+
+This hook requires enabling **advanced testing** mode in the test assembly like so:
+
+```csharp|title="AssemblyInfo.cs"|copy
+using FastEndpoints.Testing;
+
+[assembly: EnableAdvancedTesting]
+```
+
+```cs
+public class MyApp : AppFixture<Program>
+{
+    protected override async ValueTask OnCachedWafDisposedAsync()
+    {
+        await ResetExternalResourceAsync();
+    }
+}
+```
+
+The hook only runs for the default cached WAF mode. It won't run for fixtures annotated with **[DisableWafCache]**.
+
 If some async work needs to be performed that directly contributes to the creation of the WAF instances, as in the case of using TestContainers, that work
 can be performed by overriding the **PreSetupAsync()** method as shown in [this example](https://gist.github.com/dj-nitehawk/04a78cea10f2239eb81c958c52ec84e0).
 
