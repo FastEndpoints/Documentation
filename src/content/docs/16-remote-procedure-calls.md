@@ -493,3 +493,74 @@ If you'd like a hub to act as a broker as well while in round-robin mode, config
 ```cs
 .RegisterEventHub<SomeEvent>(HubMode.EventBroker | HubMode.RoundRobin);
 ```
+
+## Local Inter-Process Communication
+
+If the handler server and the client/subscriber applications are running on the same machine, you can use local inter-process communication (IPC) instead of TCP by making Kestrel listen on a Unix domain socket. This avoids opening a TCP port and keeps the transport local to the machine, while still using the same gRPC based remote messaging functionality described above.
+
+This is enabled on the handler server with **ListenInterProcess(...)** by providing a unique service name:
+
+```cs
+var bld = WebApplication.CreateBuilder();
+
+bld.WebHost.ConfigureKestrel(o => o.ListenInterProcess("orders-service"));
+bld.AddHandlerServer();
+
+var app = bld.Build();
+app.MapHandlers(h =>
+{
+    h.Register<CreateOrderCommand, CreateOrderHandler, CreateOrderResult>();
+});
+app.Run();
+```
+
+The service name is used to create a local socket file in the operating system's temp directory. The above configuration creates a socket named **orders-service.sock** and configures Kestrel to accept **HTTP/2** traffic over it.
+
+On the client side, use the same service name with **MapRemote(...)** instead of an HTTP URL:
+
+```cs
+var bld = WebApplication.CreateBuilder();
+var app = bld.Build();
+
+app.MapRemote("orders-service", c =>
+{
+    c.Register<CreateOrderCommand, CreateOrderResult>();
+});
+```
+
+The same approach can be used for remote event queues as well:
+
+```cs
+app.MapRemote("orders-service", c =>
+{
+    c.Subscribe<SomethingHappened, WhenSomethingHappens>();
+});
+```
+
+This can be a convenient way to develop a system in a decoupled and event driven manner from the beginning. Each application can be built as an independent service with its own contracts, handlers and subscriptions, while everything is initially deployed to a single server using fast local IPC transport. As requirements grow and parts of the system need to scale independently, individual services can be lifted out to their own servers without changing the command/event contracts or handler/subscriber code. Only the startup transport configuration needs to change.
+
+For example, the IPC setup:
+
+```cs
+bld.WebHost.ConfigureKestrel(o => o.ListenInterProcess("orders-service"));
+
+app.MapRemote("orders-service", c =>
+{
+    c.Register<CreateOrderCommand, CreateOrderResult>();
+});
+```
+
+Can later be switched to TCP/HTTP like this:
+
+```cs
+//server
+bld.WebHost.ConfigureKestrel(o => o.ListenAnyIP(6000, o => o.Protocols = HttpProtocols.Http2));
+
+//client
+app.MapRemote("http://order-service.ip.address:6000", c =>
+{
+    c.Register<CreateOrderCommand, CreateOrderResult>();
+});
+```
+
+This makes it possible to start with a single-machine deployment while still following EDA principles and keeping service boundaries explicit from the outset.
