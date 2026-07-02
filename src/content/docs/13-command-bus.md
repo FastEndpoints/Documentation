@@ -292,6 +292,12 @@ bld.Services.AddStreamCommandMiddleware(
 
 ---
 
+## Testing Executed Commands
+
+When writing integration tests, you can register test command receivers and assert that a given command was executed without replacing the actual handler. See [capturing commands & events](integration-unit-testing#capturing-commands-events) in the testing docs for details.
+
+---
+
 ## Command Bus Without FastEndpoints
 
 The Command Bus can be used independently of the FastEndpoints library, even with Blazor WASM projects. Simply install the messaging library like so:

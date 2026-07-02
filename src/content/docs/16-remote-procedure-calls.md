@@ -176,6 +176,10 @@ var result = await new MyCommand
 
 [MessagePack](https://github.com/neuecc/MessagePack-CSharp#messagepack-for-c-net-net-core-unity-xamarin) binary serialization is used (instead of Protobuf) with it's contractless resolver (eliminates the need for annotating properties) together with Lz4BlockArray compression to (de)serialize commands/results.
 
+### Testing Remote Commands
+
+The **FastEndpoints.Messaging.Remote.Testing** package exposes the same command receiver pattern for remote command tests. Register the receiver with **RegisterTestCommandReceivers()** and resolve it with **GetTestCommandReceiver<TCommand>()** to assert that a command reached the handler server. See [capturing commands & events](integration-unit-testing#capturing-commands-events) in the testing docs for the general usage pattern.
+
 ---
 
 ## Remote Pub/Sub Event Queues
@@ -305,6 +309,10 @@ new SomethingHappened
 The full source code for the above examples are available on [this GitHub repo](https://github.com/FastEndpoints/Remote-Procedure-Call-Demo).
 
 Blazor Wasm applications in the browser can be made an event subscriber, but requires a slightly different configuration. See [this project](https://github.com/FastEndpoints/Blazor-Wasm-Remote-Messaging-Demo/) for an example.
+
+#### Testing Remote Events
+
+The **FastEndpoints.Messaging.Remote.Testing** package exposes the same event receiver pattern for remote event tests. Register the receiver with **RegisterTestEventReceivers()** and resolve it with **GetTestEventReceiver<TEvent>()** to assert that an event reached the hub. See [capturing commands & events](integration-unit-testing#capturing-commands-events) in the testing docs for the general usage pattern.
 
 ### Reliable Event Queues With Persistence
 

@@ -107,6 +107,10 @@ await new OrderCreatedEvent
 
 Dependencies in event handlers can be resolved as described [here](dependency-injection#event-handler-dependencies).
 
+## Testing Published Events
+
+When writing integration tests, you can register test event receivers and assert that a given event was published without replacing the actual handlers. See [capturing commands & events](integration-unit-testing#capturing-commands-events) in the testing docs for details.
+
 ## Event Bus Without FastEndpoints
 
 The Event Bus can be used independently of the FastEndpoints library, even with Blazor WASM projects. Simply install the messaging library like so:
