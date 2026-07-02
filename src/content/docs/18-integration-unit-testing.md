@@ -347,6 +347,63 @@ With the above setup in place, the test methods are executed in the following or
 
 **_First() > Second() > Third() > Fourth() > Fifth() > Sixth() > Seventh() > Eighth()_**
 
+---
+
+### Capturing Commands & Events
+
+When testing code paths that publish events or execute commands, you may want to assert that the expected message went through the bus without replacing the actual handlers. This can be done by registering the test receivers on the app fixture.
+
+```cs
+public class MyApp : AppFixture<Program>
+{
+    protected override void ConfigureServices(IServiceCollection s)
+    {
+        s.RegisterTestEventReceivers();
+        s.RegisterTestCommandReceivers();
+    }
+}
+```
+
+The receivers can then be resolved from the fixture's service provider and queried for a match.
+
+```cs
+public class OrderTests(MyApp App) : TestBase<MyApp>
+{
+    [Fact]
+    public async Task Create_Order()
+    {
+        var orderID = Guid.NewGuid().ToString();
+
+        await App.Client.POSTAsync<CreateOrderEndpoint, CreateOrderRequest>(new()
+        {
+            OrderID = orderID
+        });
+
+        var eventReceiver = App.Services.GetTestEventReceiver<OrderCreatedEvent>();
+        var commandReceiver = App.Services.GetTestCommandReceiver<CreateInvoiceCommand>();
+
+        var events = await eventReceiver.WaitForMatchAsync(e => e.OrderID == orderID);
+        var commands = await commandReceiver.WaitForMatchAsync(c => c.OrderID == orderID);
+
+        events.ShouldNotBeEmpty();
+        commands.ShouldNotBeEmpty();
+    }
+}
+```
+
+The **WaitForMatchAsync()** method keeps polling until one or more matching messages are found or the timeout elapses, which is **2 seconds** by default. You can specify a different timeout or pass a cancellation token if needed.
+
+```cs
+var matches = await eventReceiver
+    .WaitForMatchAsync(e => e.OrderID == orderID, timeoutSeconds: 5, ct: Cancellation);
+```
+
+:::admonition type="tip"
+When WAF caching is enabled, receivers are singleton test services for the lifetime of the cached app fixture. Use unique IDs/correlation values in assertions so that a test only matches messages produced by that test.
+:::
+
+---
+
 ### Integration Test Samples
 
 Please refer the following resources to get a deeper understanding of recommended patterns for common tasks such as, working with a real database, fake data generation, test organization with feature folders, swapping out test/fake services, etc.
@@ -523,7 +580,7 @@ public async Task GetSingleUserById()
 
 ### Units with Command executions or Event publishes
 
-If a code path you're unit testing has command executions or event publishes, fake handlers for those commands/events can be registered as shown below.
+If a code path you're unit testing has command executions or event publishes, fake handlers for those commands/events can be registered as shown below. Use fake handlers when you need to replace the behavior of a handler. If you only need to assert that a command was executed or an event was published, the [test receivers](#capturing-commands-events) described above can be used instead.
 
 #### Registering Fake Command Handlers
 
