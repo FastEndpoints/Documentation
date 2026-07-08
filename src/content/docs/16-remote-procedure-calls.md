@@ -282,6 +282,8 @@ app.MapRemote("http://localhost:6000", c =>
 app.Run()
 ```
 
+#### Known Subscriber IDs
+
 If you need the hub to start queuing events for a subscriber before it ever connects, supply an explicit **subscriber ID** on the client and register that same ID on the hub:
 
 ```cs
