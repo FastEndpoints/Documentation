@@ -291,6 +291,15 @@ app.MapRemote("http://localhost:6000", c =>
 });
 ```
 
+Register the same ID with the hub by passing it to **RegisterEventHub(...)**:
+
+```cs
+app.MapHandlers(h =>
+{
+    h.RegisterEventHub<SomethingHappened>(["worker-a"]);
+});
+```
+
 If you subscribe to a hub without providing an explicit ID, a stable ID is generated automatically. However, the hub only recognizes these subscribers once they connect. To ensure the hub stores events for a subscriber while it is offline, you must manually define a subscriber ID on both the client and the hub. While this requires manual upkeep, it is the only way to guarantee delivery of all events unless subscribers are active before the hub starts.
 
 #### Broadcast/Publish Events On the Server
