@@ -293,6 +293,18 @@ app.MapRemote("http://localhost:6000", c =>
 });
 ```
 
+If several subscriptions on the same remote connection should use the same explicit ID, set it once on the connection instead:
+
+```cs
+app.MapRemote("http://localhost:6000", c =>
+{
+    c.SubscriberID = "worker-a";
+    c.Subscribe<SomethingHappened, WhenSomethingHappens>();
+});
+```
+
+A **SubscribeWithExplicitId(...)** call still takes precedence over the connection-level **SubscriberID** value when both are specified.
+
 Register the same ID with the hub by passing it to **RegisterEventHub(...)**:
 
 ```cs
