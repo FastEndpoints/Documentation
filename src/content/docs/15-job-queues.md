@@ -522,3 +522,52 @@ If you don't reset **DequeueAfter**, the job will remain "claimed" until the lea
 If a worker crashes mid-execution without calling **MarkJobAsCompleteAsync** or **OnHandlerExecutionFailureAsync**, the job's **DequeueAfter** remains set to the lease expiry time. Once that time passes, the record satisfies the **DequeueAfter <= now** condition again, and any worker can claim and re-process it. No manual intervention is required.
 
 During a normal application shutdown, the queue stops claiming new jobs and lets any already running executions finish their completion/failure bookkeeping before the executor exits.
+
+## Idempotent Job Queueing
+
+If the same business action can accidentally queue a command more than once (retries, double-clicks, at-least-once producers), configure a business key so only the first job is stored. Later attempts are discarded with a warning log, and `QueueJobAsync` returns the **existing** tracking id.
+
+```cs
+app.UseJobQueues(o =>
+{
+    o.IdempotencyKeyFor<ProcessOrderCommand>(c => c.OrderId);
+    o.IdempotencyKeyFor<ChargeCustomerCommand>(c => c.PaymentId.ToString("D"));
+});
+```
+
+Requirements:
+
+1. Your storage record implements **`IHasIdempotencyKey`** (property is set by the library).
+2. Your storage provider enforces uniqueness on **`(QueueID + IdempotencyKey)`** while the row exists, including completed jobs. After purge/delete, the key may be reused.
+3. On unique violation, look up the existing row's **`TrackingID`** and throw **`DuplicateJobException`** with that id. The library does **not** unwrap raw SQL/Mongo unique-violation errors.
+
+```cs |title=JobRecord.cs
+sealed class JobRecord : IJobStorageRecord, IHasIdempotencyKey
+{
+    ...
+    public string? IdempotencyKey { get; set; }
+}
+```
+
+```cs |title=JobStorageProvider.cs
+public async Task StoreJobAsync(JobRecord job, CancellationToken ct)
+{
+    try
+    {
+        await db.SaveAsync(job, ct);
+    }
+    catch (/* unique index violation */)
+    {
+        // recommended index: UNIQUE (QueueID, IdempotencyKey) WHERE IdempotencyKey IS NOT NULL
+        var existing = await db.FindByQueueAndKeyAsync(job.QueueID, job.IdempotencyKey!, ct);
+        throw new DuplicateJobException(existing.TrackingID, job.IdempotencyKey, job.QueueID);
+    }
+}
+```
+
+Notes:
+
+- Null/empty/whitespace keys returned by the selector are treated as **no key** (not deduped).
+- Uniqueness is per queue (`QueueID` = command type hash), so the same business key string on two command types is allowed.
+- Completed-but-not-purged rows still block the key by design. Purge stale jobs when reuse is desired.
+- The selector must return a stable string. Format non-string values yourself (e.g. `Guid.ToString("D")`).
