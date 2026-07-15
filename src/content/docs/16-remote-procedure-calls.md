@@ -180,9 +180,7 @@ var result = await new MyCommand
 
 The **FastEndpoints.Messaging.Remote.Testing** package exposes the same command receiver pattern for remote command tests. Register the receiver with **RegisterTestCommandReceivers()** and resolve it with **GetTestCommandReceiver<TCommand>()** to assert that a command reached the handler server. See [capturing commands & events](integration-unit-testing#capturing-commands-events) in the testing docs for the general usage pattern.
 
----
-
-## gRPC Reflection
+### gRPC Reflection
 
 Standard [gRPC server reflection](https://grpc.io/docs/guides/reflection/) can be enabled so that tooling such as **grpcurl** and **Postman** is able to discover and describe your command handlers without a hand-authored **.proto** file. Any protoc/buf toolchain can then generate clients for non-dotnet consumers, which is otherwise the main friction point of the MessagePack wire format.
 
@@ -215,9 +213,9 @@ grpcurl -plaintext localhost:6000 list
 grpcurl -plaintext -d '{"FirstName":"johnny"}' localhost:6000 MyApp.GetFullName/Execute
 ```
 
-### Field Number Stability
+#### Field Number Stability
 
-The attribute-free numbering is positional. Adding, removing or renaming a property renumbers everything after it, which silently breaks clients generated from an older schema. If a contract has to survive changes, annotate it and pin the numbers yourself — an explicit contract is honoured as authored:
+The attribute-free numbering is positional. Adding, removing or renaming a property renumbers everything after it, which silently breaks clients generated from an older schema. If a contract has to survive changes, annotate it and pin the numbers yourself. An explicit contract is honored as authored:
 
 ```csharp
 [ProtoContract]
@@ -231,11 +229,10 @@ public class GetFullName : ICommand<FullNameResult>
 }
 ```
 
-### Things To Note
+#### Things To Note
 
 - **Security:** as with the stock **MapGrpcReflectionService()**, the reflection endpoints are anonymous. Your handlers keep their own auth, so nobody can execute anything they couldn't before, but the published schema is readable by anyone who can reach the port. Chain **.RequireAuthorization()** on what **MapHandlerReflection()** returns to restrict it.
 - **Unsupported property types:** `DateTime`, `TimeSpan`, `decimal` and `Guid` properties are not described yet. Such a command is simply left out of the reflection listing with a warning logged, and the handler itself still executes normally.
-- **Default is unchanged:** none of this affects servers/clients on the default MessagePack format.
 
 ---
 
@@ -509,6 +506,8 @@ Which you need to be registering in DI like so:
 bld.Services.AddEventHubExceptionReceiver<MyHubErrorReceiver>();
 ```
 
+---
+
 ## Event Broker Mode
 
 By default, when you register an event hub via **RegisterEventHub<TEvent>()**, the hub doesn't accept any events from remote clients/publishers. Only the server itself can broadcast events to it's subscribers.
@@ -553,6 +552,8 @@ Do note the **RemotePublishAsync()** extension method is a **Synchronous/In-Line
 
 See [this GitHub repo](https://github.com/FastEndpoints/Event-Broker-Demo) for a complete example of an Event Broker in use together with an external publisher and subscriber.
 
+---
+
 ## Round-Robin Mode
 
 Typically, an event hub will send an event to all known subscribers. Each subscriber receives a copy of the exact same events. Event hubs can be configured to deliver each event to just one of the connected subscribers in a round-robin fashion. Say for example, there's 3 events being published and 2 subscribers A and B connected to the hub. In round-robin mode, they will be delivered like so:
@@ -581,6 +582,8 @@ If you'd like a hub to act as a broker as well while in round-robin mode, config
 ```cs
 .RegisterEventHub<SomeEvent>(HubMode.EventBroker | HubMode.RoundRobin);
 ```
+
+---
 
 ## Local Inter-Process Communication
 
