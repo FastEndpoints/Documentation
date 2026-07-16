@@ -798,3 +798,29 @@ Exported files are written to **wwwroot/openapi** by default. To change that pat
 ```
 
 [See here](native-aot#export-openapi-documents) for more information on how the above works.
+
+---
+
+## Export ".http" Files
+
+In addition to `.json`, the **FastEndpoints.OpenApi** package can export each document as a REST Client compatible **.http** file, useful for quickly trying out endpoints from your editor (VS Code, Rider, or Visual Studio).
+
+```cs title=Program.cs
+await app.ExportHttpFilesAndExitAsync("v1"); // doc name should match .OpenApiDocument() config
+```
+
+Run the app with the following command to export the configured documents:
+
+```cs title=terminal
+dotnet run --export-http-files true
+```
+
+Exported `.http` files are written to the same **OpenApiExportPath** as the `.json` files. Each file contains one placeholder request per operation, using a `@baseUrl` variable you can edit per environment, and `{{param}}` placeholders for path, query, and header parameters.
+
+To also generate `.http` files during AOT publish, add this to your **csproj**:
+
+```xml title=MyProject.csproj
+<PropertyGroup>
+    <ExportHttpFiles>true</ExportHttpFiles>
+</PropertyGroup>
+```
