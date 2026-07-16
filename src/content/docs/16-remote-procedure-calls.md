@@ -233,7 +233,7 @@ public class GetFullName : ICommand<FullNameResult>
 
 - **Security:** as with the stock **MapGrpcReflectionService()**, the reflection endpoints are anonymous. Your handlers keep their own auth, so nobody can execute anything they couldn't before, but the published schema is readable by anyone who can reach the port. Chain **.RequireAuthorization()** on what **MapHandlerReflection()** returns to restrict it.
 - **Unsupported property types (descriptors):** `DateTime`, `DateOnly`, `TimeOnly`, `TimeSpan`, `decimal`, `Guid` and `Uri` properties are not described yet. Such a command is simply left out of the reflection listing with a warning logged; the handler itself still executes normally via protobuf-net.
-- **Unsupported property types (wire):** `DateTimeOffset`, `Half`, `Int128`, `UInt128`, `Version` and `object` have no safe attribute-free mapping. Marshaller creation fails at handler bind / client `Register` instead of silently dropping values. Prefer a supported type (e.g. `DateTime` UTC, `string`) or an explicit `[ProtoContract]` surrogate.
+- **Unsupported property types (wire):** `DateTimeOffset`, `Half`, `Int128`, `UInt128`, `Version`, `object`, `JsonElement`, `JsonDocument`, `StringBuilder`, `TimeZoneInfo`, `IPAddress`, `Exception` (and subclasses), `Stream`/`MemoryStream`, and similar BCL specials have no safe attribute-free mapping. Marshaller creation fails at handler bind / client `Register` instead of silently dropping or hollowing values. Prefer a supported type (e.g. `DateTime` UTC, `string`/`byte[]` for open JSON) or an explicit `[ProtoContract]` surrogate.
 
 ---
 
