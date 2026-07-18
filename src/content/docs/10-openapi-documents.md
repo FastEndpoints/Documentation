@@ -815,12 +815,21 @@ Run the app with the following command to export the configured documents:
 dotnet run --export-http-files true
 ```
 
-Exported `.http` files are written to the same **OpenApiExportPath** as the `.json` files. Each file contains one placeholder request per operation, using a `@baseUrl` variable you can edit per environment, and `{{param}}` placeholders for path, query, and header parameters.
+Exported `.http` files are written to the same **OpenApiExportPath** as the `.json` files (one file per document name). Each file contains one placeholder request per operation with:
 
-To also generate `.http` files during AOT publish, add this to your **csproj**:
+- **`@baseUrl`** — taken from the first OpenAPI server URL when present, otherwise a localhost default you can edit per environment
+- **`{{param}}`** placeholders for path, query, header, and cookie parameters (`Cookie: name={{name}}`)
+- **`Authorization: Bearer {{bearerToken}}`** when the operation (or document) security uses an HTTP bearer / JWT scheme
+- **JSON request bodies** as a property-keyed skeleton derived from the OpenAPI schema (`""` / `0` / `false`), including schemas that are `$ref`s — not live examples and never a bare `null` body
+- **Non-JSON bodies** — form content types omit a structured body (with a short comment); other types use `{{body}}`
+
+To also generate `.http` files during AOT publish, add this to your **csproj** (shares **OpenApiExportPath** with JSON export):
 
 ```xml title=MyProject.csproj
 <PropertyGroup>
     <ExportHttpFiles>true</ExportHttpFiles>
+    <!-- <OpenApiExportPath>wwwroot/openapi</OpenApiExportPath> -->
 </PropertyGroup>
 ```
+
+[See here](native-aot#export-openapi-documents) for how pre-publish export works (same mechanism as JSON export).
