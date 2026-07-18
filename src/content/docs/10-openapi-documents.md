@@ -817,24 +817,24 @@ dotnet run --export-http-files true
 
 Exported `.http` files are written to the same **OpenApiExportPath** as the `.json` files (one file per document name). Each file contains one placeholder request per operation with:
 
-- **`@baseUrl`** — taken from the first OpenAPI server URL when present, otherwise a localhost default you can edit per environment
+- **`@baseUrl`** - taken from the first OpenAPI server URL when present, otherwise a localhost default you can edit per environment
 - **`{{param}}`** placeholders for path, query, header, and cookie parameters (`Cookie: name={{name}}`)
 - **`Authorization: Bearer {{bearerToken}}`** when the operation (or document) security uses an HTTP bearer / JWT scheme
-- **JSON request bodies** as a property-keyed skeleton derived from the OpenAPI schema (`""` / `0` / `false`), including schemas that are `$ref`s — not live examples and never a bare `null` body
-- **Non-JSON bodies** — form content types omit a structured body (with a short comment); other types use `{{body}}`
+- **JSON request bodies** as a property-keyed skeleton derived from the OpenAPI schema (`""` / `0` / `false`), including schemas that are `$ref`s. Not live examples and never a bare `null` body
+- **Non-JSON bodies** - form content types omit a structured body (with a short comment); other types use `{{body}}`
 
 To also generate `.http` files during AOT publish, add this to your **csproj** (shares **OpenApiExportPath** with JSON export):
 
 ```xml title=MyProject.csproj
+
 <PropertyGroup>
     <ExportHttpFiles>true</ExportHttpFiles>
-    <!-- <OpenApiExportPath>wwwroot/openapi</OpenApiExportPath> -->
 </PropertyGroup>
 ```
 
 ### Export both `.json` and `.http` in one run
 
-When both flags (or both MSBuild properties) are enabled, a **single** export call after **UseFastEndpoints** writes every requested format. Format selection is driven only by the CLI/MSBuild flags — the host starts once, each document is loaded once, and the process exits when export finishes:
+When both flags (or both MSBuild properties) are enabled, a **single** export call after **UseFastEndpoints** writes every requested format. Format selection is driven only by the CLI/MSBuild flags. The host starts once, each document is loaded once, and the process exits when export finishes:
 
 ```cs title=Program.cs
 await app.ExportOpenApiArtifactsAndExitAsync("v1");
@@ -846,6 +846,7 @@ dotnet run --export-openapi-docs true --export-http-files true
 ```
 
 ```xml title=MyProject.csproj
+
 <PropertyGroup>
     <ExportOpenApiDocs>true</ExportOpenApiDocs>
     <ExportHttpFiles>true</ExportHttpFiles>
