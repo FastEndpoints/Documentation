@@ -832,4 +832,24 @@ To also generate `.http` files during AOT publish, add this to your **csproj** (
 </PropertyGroup>
 ```
 
+### Export both `.json` and `.http` in one run
+
+When both flags (or both MSBuild properties) are enabled, call **both** export APIs in sequence after **UseFastEndpoints**. The host starts once and the process exits only after every requested format finishes:
+
+```cs title=Program.cs
+await app.ExportOpenApiDocsAndExitAsync("v1");
+await app.ExportHttpFilesAndExitAsync("v1");
+```
+
+```cs title=terminal
+dotnet run --export-openapi-docs true --export-http-files true
+```
+
+```xml title=MyProject.csproj
+<PropertyGroup>
+    <ExportOpenApiDocs>true</ExportOpenApiDocs>
+    <ExportHttpFiles>true</ExportHttpFiles>
+</PropertyGroup>
+```
+
 [See here](native-aot#export-openapi-documents) for how pre-publish export works (same mechanism as JSON export).
