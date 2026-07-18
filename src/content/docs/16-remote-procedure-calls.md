@@ -174,11 +174,66 @@ var result = await new MyCommand
 
 ### Binary Serializer
 
-[MessagePack](https://github.com/neuecc/MessagePack-CSharp#messagepack-for-c-net-net-core-unity-xamarin) binary serialization is used (instead of Protobuf) with it's contractless resolver (eliminates the need for annotating properties) together with Lz4BlockArray compression to (de)serialize commands/results.
+[MessagePack](https://github.com/neuecc/MessagePack-CSharp#messagepack-for-c-net-net-core-unity-xamarin) binary serialization is used by default (instead of Protobuf) with it's contractless resolver (eliminates the need for annotating properties) together with Lz4BlockArray compression to (de)serialize commands/results. The wire format is pluggable however, which is what makes [gRPC reflection](#grpc-reflection) possible.
 
 ### Testing Remote Commands
 
 The **FastEndpoints.Messaging.Remote.Testing** package exposes the same command receiver pattern for remote command tests. Register the receiver with **RegisterTestCommandReceivers()** and resolve it with **GetTestCommandReceiver<TCommand>()** to assert that a command reached the handler server. See [capturing commands & events](integration-unit-testing#capturing-commands-events) in the testing docs for the general usage pattern.
+
+### gRPC Reflection
+
+Standard [gRPC server reflection](https://grpc.io/docs/guides/reflection/) can be enabled so that tooling such as **grpcurl** and **Postman** is able to discover and describe your command handlers without a hand-authored **.proto** file. Any protoc/buf toolchain can then generate clients for non-dotnet consumers, which is otherwise the main friction point of the MessagePack wire format.
+
+Reflection publishes a Protobuf schema, so it requires the handler server to be speaking Protobuf instead of the default MessagePack. Install the **FastEndpoints.Messaging.Remote.Reflection** package and opt in:
+
+```csharp |title=Server/Program.cs
+bld.AddHandlerServer(marshaller: new ProtobufMarshallerFactory());
+bld.Services.AddHandlerReflection();
+
+var app = bld.Build();
+app.MapHandlers(h => h.Register<GetFullName, GetFullNameHandler, FullNameResult>());
+app.MapHandlerReflection();
+app.Run();
+```
+
+The client has to speak the same wire format. Set it before registering any command, as each registration captures the format at that moment:
+
+```csharp |title=Client/Program.cs
+app.MapRemote("http://localhost:6000", c =>
+{
+    c.MarshallerFactory = new ProtobufMarshallerFactory();
+    c.Register<GetFullName, FullNameResult>();
+});
+```
+
+Your commands and results need no Protobuf annotations. Their public properties are mapped alphabetically and numbered from 1, mirroring the contractless shape of the MessagePack format. The descriptors that reflection publishes are generated from the very same model that serializes the wire, so the schema can't drift from the bytes.
+
+```sh
+grpcurl -plaintext localhost:6000 list
+grpcurl -plaintext -d '{"FirstName":"johnny"}' localhost:6000 MyApp.GetFullName/Execute
+```
+
+#### Field Number Stability
+
+The attribute-free numbering is positional. Adding, removing or renaming a property renumbers everything after it, which silently breaks clients generated from an older schema. If a contract has to survive changes, annotate it and pin the numbers yourself. An explicit contract is honored as authored:
+
+```csharp
+[ProtoContract]
+public class GetFullName : ICommand<FullNameResult>
+{
+    [ProtoMember(1)]
+    public string FirstName { get; set; }
+
+    [ProtoMember(2)]
+    public string LastName { get; set; }
+}
+```
+
+#### Things To Note
+
+- **Security:** as with the stock **MapGrpcReflectionService()**, the reflection endpoints are anonymous. Your handlers keep their own auth, so nobody can execute anything they couldn't before, but the published schema is readable by anyone who can reach the port. Chain **.RequireAuthorization()** on what **MapHandlerReflection()** returns to restrict it.
+- **Unsupported property types (descriptors):** `DateTime`, `DateOnly`, `TimeOnly`, `TimeSpan`, `decimal`, `Guid` and `Uri` properties are not described yet. Such a command is simply left out of the reflection listing with a warning logged; the handler itself still executes normally via protobuf-net.
+- **Unsupported property types (wire):** `DateTimeOffset`, `Half`, `Int128`, `UInt128`, `Version`, `object`, `JsonElement`, `JsonDocument`, `StringBuilder`, `TimeZoneInfo`, `IPAddress`, `Exception` (and subclasses), `Stream`/`MemoryStream`, and similar BCL specials have no safe attribute-free mapping. Marshaller creation fails at handler bind / client `Register` instead of silently dropping or hollowing values. Prefer a supported type (e.g. `DateTime` UTC, `string`/`byte[]` for open JSON) or an explicit `[ProtoContract]` surrogate.
 
 ---
 
@@ -282,6 +337,8 @@ app.MapRemote("http://localhost:6000", c =>
 app.Run()
 ```
 
+#### Known Subscriber IDs
+
 If you need the hub to start queuing events for a subscriber before it ever connects, supply an explicit **subscriber ID** on the client and register that same ID on the hub:
 
 ```cs
@@ -290,6 +347,18 @@ app.MapRemote("http://localhost:6000", c =>
     c.SubscribeWithExplicitId<SomethingHappened, WhenSomethingHappens>("worker-a");
 });
 ```
+
+If several subscriptions on the same remote connection should use the same explicit ID, set it once on the connection instead:
+
+```cs
+app.MapRemote("http://localhost:6000", c =>
+{
+    c.SubscriberID = "worker-a";
+    c.Subscribe<SomethingHappened, WhenSomethingHappens>();
+});
+```
+
+A **SubscribeWithExplicitId(...)** call still takes precedence over the connection-level **SubscriberID** value when both are specified.
 
 Register the same ID with the hub by passing it to **RegisterEventHub(...)**:
 
@@ -438,6 +507,8 @@ Which you need to be registering in DI like so:
 bld.Services.AddEventHubExceptionReceiver<MyHubErrorReceiver>();
 ```
 
+---
+
 ## Event Broker Mode
 
 By default, when you register an event hub via **RegisterEventHub<TEvent>()**, the hub doesn't accept any events from remote clients/publishers. Only the server itself can broadcast events to it's subscribers.
@@ -482,6 +553,8 @@ Do note the **RemotePublishAsync()** extension method is a **Synchronous/In-Line
 
 See [this GitHub repo](https://github.com/FastEndpoints/Event-Broker-Demo) for a complete example of an Event Broker in use together with an external publisher and subscriber.
 
+---
+
 ## Round-Robin Mode
 
 Typically, an event hub will send an event to all known subscribers. Each subscriber receives a copy of the exact same events. Event hubs can be configured to deliver each event to just one of the connected subscribers in a round-robin fashion. Say for example, there's 3 events being published and 2 subscribers A and B connected to the hub. In round-robin mode, they will be delivered like so:
@@ -510,6 +583,8 @@ If you'd like a hub to act as a broker as well while in round-robin mode, config
 ```cs
 .RegisterEventHub<SomeEvent>(HubMode.EventBroker | HubMode.RoundRobin);
 ```
+
+---
 
 ## Local Inter-Process Communication
 
