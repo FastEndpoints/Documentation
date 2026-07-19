@@ -757,8 +757,6 @@ app.IsApiClientGenerationMode(); //returns true if running in client gen mode
 app.IsOpenApiJsonExportMode(); //returns true if running in openapi export mode
 ```
 
-If you're only using **FastEndpoints.OpenApi** without Kiota, the core package exposes **IsJsonExportMode()** and **IsNotJsonExportMode()** helpers instead.
-
 ---
 
 ## Export OpenAPI Documents
