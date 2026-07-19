@@ -818,7 +818,7 @@ Exported `.http` files are written to the same **OpenApiExportPath** as the `.js
 - **`@baseUrl`** - taken from the first OpenAPI server URL when present, otherwise a localhost default you can edit per environment
 - **`{{param}}`** placeholders for path, query, header, and cookie parameters (`Cookie: name={{name}}`)
 - **`Authorization: Bearer {{bearerToken}}`** when the operation (or document) security uses an HTTP bearer / JWT scheme
-- **JSON request bodies** as a property-keyed skeleton derived from the OpenAPI schema (`""` / `0` / `false`), including schemas that are `$ref`s. Not live examples and never a bare `null` body
+- **JSON request bodies** prefer OpenAPI media-type `example` / first named `examples` value, then schema or property `example` / `default`, then type placeholders (`""` / `0` / `false`), including `$ref` schemas. Never a bare `null` body
 - **Non-JSON bodies** - form content types omit a structured body (with a short comment); other types use `{{body}}`
 
 To also generate `.http` files during AOT publish, add this to your **csproj** (shares **OpenApiExportPath** with JSON export):
