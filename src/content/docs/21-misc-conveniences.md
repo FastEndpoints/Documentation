@@ -197,6 +197,44 @@ The following 5 hook methods allow you to do something before and after DTO vali
 | **OnBeforeHandle()**     | Override this method if you'd like to do something to the request DTO before the handler is executed. |
 | **OnAfterHandle()**      | Override this method if you'd like to do something after the handler is executed.                     |
 
+### Short-circuiting from hooks
+
+[Pre-processors](pre-post-processors#short-circuiting-execution) can already end the pipeline by sending a response. Endpoint hooks such as **OnBeforeHandle** can also call **Send.\*Async()**, but by default the handler still runs afterward.
+
+To skip **HandleAsync**/**ExecuteAsync** (and **OnAfterHandle**) when a response has already been started, opt in per endpoint or via the [global configurator](configuration-settings#global-endpoint-options):
+
+```cs
+public override void Configure()
+{
+    Get("/resources");
+    DontExecuteHandlerIfResponseStarted();
+}
+
+public override async Task OnBeforeHandleAsync(Request req, CancellationToken ct)
+{
+    if (req.Ids.Count == 0)
+        await Send.OkAsync(...);
+}
+
+public override Task HandleAsync(Request req, CancellationToken ct)
+{
+    // happy path only
+    return Send.OkAsync(...);
+}
+```
+
+```cs
+app.UseFastEndpoints(c =>
+{
+    c.Endpoints.Configurator = ep =>
+    {
+        ep.DontExecuteHandlerIfResponseStarted();
+    };
+});
+```
+
+Post-processors still run after an early return. Sending a response from **OnAfterValidate** is already covered by the pre-processor short-circuit check that runs immediately afterward.
+
 ## HealthCheck Endpoints
 
 You can use the opt-in nuget package **FastEndpoints.HealthChecks** which provides a helpful extension method that eliminates boilerplate health check wiring for apps running behind orchestrators such as Kubernetes or .NET Aspire.
