@@ -190,7 +190,7 @@ public override void Configure()
 
 An endpoint marked as above only starts showing up in OpenAPI docs marked **ReleaseVersion = 2** and higher. This strategy may be preferred by most as it's closer to the traditional versioning approach in ASP.NET with packages such as [Asp.Versioning.Http](#asp-versioning-http-package-support), but with less verbosity & effort.
 
-**_Note:_** If you don't specify **StartingRelease (n)**, it is assumed the starting release is the same version as the endpoint version. For example, if you just specify `Version(3)`, that endpoint will only start showing up in **ReleaseVersion = 3** and higher OpenAPI docs (until being marked as deprecated).
+**_Note:_** If you don't specify `StartingRelease(n)`, it is assumed the starting release is the same version as the endpoint version. For example, if you just specify `Version(3)`, that endpoint will only start showing up in **ReleaseVersion = 3** and higher OpenAPI docs (until being marked as deprecated).
 
 Deprecating endpoints can be done like so:
 
