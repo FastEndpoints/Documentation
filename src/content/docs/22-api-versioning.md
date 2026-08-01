@@ -7,7 +7,9 @@ description: FastEndpoints provides a unique, yet simplified model for versionin
 
 ## Release Group Strategy
 
-This is a simplified route based versioning strategy that requires less effort by the developer compared to traditional versioning. Each endpoint is evolved/versioned independently and ultimately grouped into an OpenAPI document which we call a "release group". When it's time for an endpoint contract to change, simply leave the existing endpoint alone and create (either by inheriting the old one) or creating a brand-new endpoint class and call the **Version(n)** method of the endpoint to indicate its version.
+This is a simplified route based versioning strategy that requires less effort by the developer compared to traditional versioning. Each endpoint is evolved/versioned independently and ultimately grouped into an OpenAPI document which we call a "release group". When it's time for an endpoint contract to change, simply leave the existing endpoint alone and create (either by inheriting the old one) or creating a brand-new endpoint class and call the `Version(n)` method of the endpoint to indicate its version.
+
+For each bare route, a release group includes only the **latest** endpoint version that is less than or equal to that document's **MaxEndpointVersion**. Older iterations of the same route are omitted. Groups are computed from the endpoints that currently exist in the app (they are not frozen historical snapshots of past releases).
 
 For example, let's assume the following:
 
@@ -34,12 +36,12 @@ At this point you can have 2 OpenAPI documents (release groups) that look like t
 
 ```
 OpenAPI Docs
-├── Initial Release
+├── Initial Release          (MaxEndpointVersion = 0)
 │   ├── /admin/login
 │   └── /order/{OrderID}
-└── Release 1
+└── Release 1                (MaxEndpointVersion = 1)
     ├── /admin/login/v1
-    └── /order/{OrderID}
+    └── /order/{OrderID}     <-- still the latest order version ≤ 1
 ```
 
 **After another change:**
@@ -57,20 +59,20 @@ Your releases can now look like this:
 
 ```
 OpenAPI Docs
-├── Initial Release
+├── Initial Release          (MaxEndpointVersion = 0)
 │   ├── /admin/login
 │   └── /order/{OrderID}
-├── Release 1
+├── Release 1                (MaxEndpointVersion = 1)
 │   ├── /admin/login/v1
-│   └── /order/{OrderID}
-└── Release 2
+│   └── /order/{OrderID}/v1  <-- latest order version ≤ 1 (not the unversioned route)
+└── Release 2                (MaxEndpointVersion = 2)
     ├── /admin/login/v2
-    └── /order/{OrderID}/v1
+    └── /order/{OrderID}/v1  <-- still the latest order version ≤ 2
 ```
 
-A release group contains only the latest iteration of each endpoint in your project. All older/previous iterations will not show up. How to define release groups is described below.
+Notice that once `/order/{OrderID}/v1` exists, **Release 1** also lists that version for the order route. Release groups always pick the newest version of each route that still falls under the document's **MaxEndpointVersion**. How to define release groups is described below.
 
-## Enable Versioning
+### Enable Versioning
 
 Simply specify one of the versioning options during startup to activate versioning.
 
@@ -92,7 +94,7 @@ At least one of the following settings should be set in order to enable versioni
 
 - **PrependToRoute** : By default, the version string is **appended** to the endpoint route. By setting this to **true**, you can have it **prepended** to the route.
 
-## Define OpenAPI Documents (Release Groups)
+### Define OpenAPI Documents (Release Groups)
 
 ```cs |title=Program.cs
 bld.Services
@@ -118,9 +120,9 @@ bld.Services
    });
 ```
 
-The thing to note here is the **MaxEndpointVersion** property. This is where you specify the **max version** of an endpoint which a release group should include. Any endpoint versions that are greater than this number will not be included in that release group/OpenAPI document. If you don't specify this, only the initial version of each endpoint will be listed in the group.
+The thing to note here is the **MaxEndpointVersion** property. This is the highest endpoint version a release group may include. For each bare route, only the **latest** version that is less than or equal to this number is kept. Versions greater than **MaxEndpointVersion** are excluded. If you don't specify this (it defaults to **0**), only the initial version of each endpoint is listed in the group.
 
-## Mark Endpoint With a Version
+### Mark Endpoint With a Version
 
 ```cs
 public class AdminLoginEndpoint_V2 : Endpoint<LoginRequest, LoginResponse>
@@ -133,7 +135,7 @@ public class AdminLoginEndpoint_V2 : Endpoint<LoginRequest, LoginResponse>
 }
 ```
 
-## Deprecate an Endpoint
+### Deprecate an Endpoint
 
 You can specify that an endpoint should not be visible after (and including) a given version group like so:
 
@@ -156,7 +158,7 @@ OpenAPI Docs
     └── /user/profile/v2
 ```
 
-If you mark the **/user/delete/v1 endpoint** with **Version(1, deprecateAt: 2)** then **Release 2** and newer will not have any **/user/delete** endpoints listed. The release will look like this:
+If you mark the **/user/delete/v1 endpoint** with `Version(1, deprecateAt: 2)` then **Release 2** and newer will not have any **/user/delete** endpoints listed. The release will look like this:
 
 ```
 Release 2
@@ -188,7 +190,7 @@ public override void Configure()
 
 An endpoint marked as above only starts showing up in OpenAPI docs marked **ReleaseVersion = 2** and higher. This strategy may be preferred by most as it's closer to the traditional versioning approach in ASP.NET with packages such as [Asp.Versioning.Http](#asp-versioning-http-package-support), but with less verbosity & effort.
 
-**_Note:_** If you don't specify **StartingRelease(n)**, it is assumed the starting release is the same version as the endpoint version. For example, if you just specify **Version(3)**, that endpoint will only start showing up in **ReleaseVersion = 3** and higher OpenAPI docs (until being marked as deprecated).
+**_Note:_** If you don't specify **StartingRelease (n)**, it is assumed the starting release is the same version as the endpoint version. For example, if you just specify `Version(3)`, that endpoint will only start showing up in **ReleaseVersion = 3** and higher OpenAPI docs (until being marked as deprecated).
 
 Deprecating endpoints can be done like so:
 
@@ -209,6 +211,7 @@ It's possible to group a bunch of endpoints together into an OpenAPI document by
 bld.Services.OpenApiDocument(o =>
 {
     o.EndpointFilter = ep => ep.EndpointTags?.Contains("GroupA") is true;
+    o.MaxEndpointVersion = 1; // required when endpoints call Version(1) or higher
     o.DocumentName = "Group A (v1)";
     o.Title = "My App";
     o.Version = "v1.0";
@@ -217,13 +220,14 @@ bld.Services.OpenApiDocument(o =>
 bld.Services.OpenApiDocument(o =>
 {
     o.EndpointFilter = ep => ep.EndpointTags?.Contains("GroupB") is true;
+    o.MaxEndpointVersion = 1;
     o.DocumentName = "Group B (v1)";
     o.Title = "My App";
     o.Version = "v1.0";
 });
 ```
 
-If the predicate returns true for a particular endpoint definition, it will be included in the OpenAPI document. In the above example, only endpoints that has the tag **"GroupA"** associated with it would be included in the **"Group A"** OpenAPI document. It can be any criteria that can be matched against the supplied [endpoint definition](https://api-ref.fast-endpoints.com/api/FastEndpoints.EndpointDefinition.html). The example uses endpoint tags which are specified like so:
+If the predicate returns true for a particular endpoint definition, it is a candidate for the OpenAPI document. Version filtering still applies: **MaxEndpointVersion** defaults to **0**, so endpoints that call `Version(1)` (or higher) are excluded unless you raise **MaxEndpointVersion** accordingly (as shown above). In the example, only endpoints that have the tag **"GroupA"** and a version within the configured max are included in the **"Group A"** OpenAPI document. The filter can match any criteria against the supplied [endpoint definition](https://api-ref.fast-endpoints.com/api/FastEndpoints.EndpointDefinition.html). Endpoint tags are specified like so:
 
 ```cs
 public override void Configure()
