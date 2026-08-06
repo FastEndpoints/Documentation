@@ -119,7 +119,7 @@ In this particular case, the client will receive the following error response:
 ```json |title=json
 {
   "statusCode": 400,
-  "message": "One or more errors occured!",
+  "message": "One or more errors occurred!",
   "errors": {
     "generalErrors": [
       "an error added by the endpoint!",

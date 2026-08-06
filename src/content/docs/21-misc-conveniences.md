@@ -109,7 +109,7 @@ If the provided response sending methods are not sufficient, you can easily add 
 ```cs
 public static class SendExtensions
 {
-    public static Task SendStatusCode(this IResponseSender sender, int statusCode)
+    public static Task StatusCode(this IResponseSender sender, int statusCode)
     {
         sender.HttpContext.MarkResponseStart(); //don't forget to always do this
         sender.HttpContext.Response.StatusCode = statusCode;
