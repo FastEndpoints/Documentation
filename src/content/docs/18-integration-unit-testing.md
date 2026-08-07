@@ -236,7 +236,7 @@ This approach allows your test suite to have just a couple of derived **AppFixtu
 
 ### Test-Collections & Collection Fixtures
 
-A test-collection is an arbitrary grouping of multiple test-classes which results in all test-methods of the collection running serially (never in parallel) in order to avoid contention between test-methods from multiple test-classes. A test-collection can be thought of as a mega test-class but physically seperated into multiple class files.
+A test-collection is an arbitrary grouping of multiple test-classes which results in all test-methods of the collection running serially (never in parallel) in order to avoid contention between test-methods from multiple test-classes. A test-collection can be thought of as a mega test-class but physically separated into multiple class files.
 
 An **AppFixture** can be made into a [collection-fixture](https://xunit.net/docs/shared-context#collection-fixture) for the purpose of being shared just among the test-classes of a given collection. It will be instantiated before any of the tests from the collection is run and torn down once all tests from the collection is complete. Inherit from **AppFixture<TProgram>** as usual:
 

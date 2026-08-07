@@ -51,7 +51,7 @@ If a request is received that doesn't meet the above model validation criteria, 
 ```json |title=json
 {
   "StatusCode": 400,
-  "Message": "One or more errors occured!",
+  "Message": "One or more errors occurred!",
   "Errors": {
     "FullName": [
       "your name is required!",
