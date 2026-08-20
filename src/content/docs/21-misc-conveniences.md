@@ -92,7 +92,7 @@ The following built-in methods are available via the **Send** property of endpoi
 | **Send.OkAsync()**                          | Sends a 200 ok response with or without a body.                                                                                                                                                                                                                                                                                                                                                            |
 | **Send.NoContentAsync()**                   | Sends a 204 no content response.                                                                                                                                                                                                                                                                                                                                                                           |
 | **Send.RedirectAsync()**                    | Sends a 30X moved response with a location header containing the URL to redirect to.                                                                                                                                                                                                                                                                                                                       |
-| **Send.ErrorsAsync()**                      | Sends a 400 error response with the current list of validation errors describing the validation failures.                                                                                                                                                                                                                                                                                                  |
+| **Send.ErrorsAsync()**                      | Sends an error response with the current list of validation failures (default status code 400).                                                                                                                                                                                                                                                                                                            |
 | **Send.NotFoundAsync()**                    | Sends a 404 not found response.                                                                                                                                                                                                                                                                                                                                                                            |
 | **Send.UnauthorizedAsync()**                | Sends a 401 unauthorized response.                                                                                                                                                                                                                                                                                                                                                                         |
 | **Send.ForbiddenAsync()**                   | Sends a 403 forbidden response.                                                                                                                                                                                                                                                                                                                                                                            |
@@ -196,6 +196,44 @@ The following 5 hook methods allow you to do something before and after DTO vali
 | **OnValidationFailed()** | Override this method if you'd like to do something when validation fails.                             |
 | **OnBeforeHandle()**     | Override this method if you'd like to do something to the request DTO before the handler is executed. |
 | **OnAfterHandle()**      | Override this method if you'd like to do something after the handler is executed.                     |
+
+### Short-circuiting from hooks
+
+[Pre-processors](pre-post-processors#short-circuiting-execution) can already end the pipeline by sending a response. Endpoint hooks such as **OnBeforeHandle** can also call **Send.\*Async()**, but by default the handler still runs afterward.
+
+To skip **HandleAsync**/**ExecuteAsync** (and **OnAfterHandle**) when a response has already been started, opt in per endpoint or via the [global configurator](configuration-settings#global-endpoint-options):
+
+```cs
+public override void Configure()
+{
+    Get("/resources");
+    DontExecuteHandlerIfResponseStarted();
+}
+
+public override async Task OnBeforeHandleAsync(Request req, CancellationToken ct)
+{
+    if (req.Ids.Count == 0)
+        await Send.OkAsync(...);
+}
+
+public override Task HandleAsync(Request req, CancellationToken ct)
+{
+    // happy path only
+    return Send.OkAsync(...);
+}
+```
+
+```cs
+app.UseFastEndpoints(c =>
+{
+    c.Endpoints.Configurator = ep =>
+    {
+        ep.DontExecuteHandlerIfResponseStarted();
+    };
+});
+```
+
+Post-processors still run after an early return. Sending a response from **OnAfterValidate** is already covered by the pre-processor short-circuit check that runs immediately afterward.
 
 ## HealthCheck Endpoints
 

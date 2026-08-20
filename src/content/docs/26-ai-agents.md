@@ -19,8 +19,8 @@ Both are currently published as beta packages and versioned independently of the
 Install the package you need, or both if the same API should be callable by MCP clients and A2A agents.
 
 ```cs |copy|title=terminal
-dotnet add package FastEndpoints.Mcp --version 1.0.0-beta.3
-dotnet add package FastEndpoints.A2A --version 1.0.0-beta.3
+dotnet add package FastEndpoints.Mcp --version 1.0.0-beta.5
+dotnet add package FastEndpoints.A2A --version 1.0.0-beta.5
 ```
 
 ## Quick Start
@@ -121,7 +121,7 @@ sealed class WeatherResponse
 }
 ```
 
-The **this.** prefix on **.McpTool()** and **.A2ASkill()** is required by C# when calling these extension methods from inside **Configure()**.
+The **this.** prefix on `.McpTool()` and `.A2ASkill()` is required by C# when calling these extension methods from inside **Configure ()**.
 
 After startup:
 
@@ -187,7 +187,7 @@ app.UseAuthentication()
 app.Run();
 ```
 
-Call **UseMcp()** after **UseFastEndpoints()** so the FastEndpoints endpoint registry is ready. **RequireAuthorization()** is not required for MCP to function. It protects the transport route. **ToolVisibilityFilter** controls which opted-in endpoints are listed and invokable for the current caller.
+Call `UseMcp()` after `UseFastEndpoints()` so the FastEndpoints endpoint registry is ready. `RequireAuthorization()` is not required for MCP to function. It protects the transport route. **ToolVisibilityFilter** controls which opted-in endpoints are listed and invokable for the current caller.
 
 ### Opt In With Fluent Configuration
 
@@ -209,7 +209,7 @@ public override void Configure()
 }
 ```
 
-You can also call **Definition.McpTool(...)** from helper methods that receive an **EndpointDefinition** instead of an endpoint instance.
+You can also call `Definition.McpTool(...)` from helper methods that receive an **EndpointDefinition** instead of an endpoint instance.
 
 ### Opt In With An Attribute
 
@@ -244,7 +244,7 @@ The tool name is the stable identifier MCP clients use when calling the endpoint
 | Generated name          | Converted to `snake_case`, sanitized to MCP-safe characters, and truncated to 64 chars. |
 | Duplicate visible names | Rejected with a clear startup/call-time exception.                                      |
 
-The description comes from the **McpTool()** argument first, then the endpoint summary description. Set descriptions deliberately. LLMs rely on them to decide when and how to use a tool.
+The description comes from the `McpTool()` argument first, then the endpoint summary description. Set descriptions deliberately. LLMs rely on them to decide when and how to use a tool.
 
 ### Tool Hints
 
@@ -261,7 +261,7 @@ With fluent configuration, hints are nullable. Leave a hint unset if you don't w
 
 ### MCP Options
 
-Configure MCP behavior in **AddMcp()**.
+Configure MCP behavior in `AddMcp()`.
 
 | Option                 | Default                    | Notes                                                             |
 |------------------------|----------------------------|-------------------------------------------------------------------|
@@ -406,11 +406,11 @@ app.UseAuthentication()
 app.Run();
 ```
 
-Call **UseA2A()** after **UseFastEndpoints()** so the endpoint registry is ready. Route authorization is not required for A2A to function. It protects the transport and discovery routes. **SkillVisibilityFilter** controls which opted-in endpoints appear in the agent card and can be dispatched by the current caller.
+Call `UseA2A()` after `UseFastEndpoints()` so the endpoint registry is ready. Route authorization is not required for A2A to function. It protects the transport and discovery routes. **SkillVisibilityFilter** controls which opted-in endpoints appear in the agent card and can be dispatched by the current caller.
 
 ### A2A Options
 
-Configure A2A behavior in **AddA2A()**.
+Configure A2A behavior in `AddA2A()`.
 
 | Option                  | Default                    | Notes                                                                                         |
 |-------------------------|----------------------------|-----------------------------------------------------------------------------------------------|
@@ -445,7 +445,7 @@ public override void Configure()
 }
 ```
 
-You can also call **Definition.A2ASkill(...)** from helper methods that receive an **EndpointDefinition**.
+You can also call `Definition.A2ASkill(...)` from helper methods that receive an **EndpointDefinition**.
 
 ### Opt In With An Attribute
 

@@ -757,8 +757,6 @@ app.IsApiClientGenerationMode(); //returns true if running in client gen mode
 app.IsOpenApiJsonExportMode(); //returns true if running in openapi export mode
 ```
 
-If you're only using **FastEndpoints.OpenApi** without Kiota, the core package exposes **IsJsonExportMode()** and **IsNotJsonExportMode()** helpers instead.
-
 ---
 
 ## Export OpenAPI Documents
@@ -798,3 +796,59 @@ Exported files are written to **wwwroot/openapi** by default. To change that pat
 ```
 
 [See here](native-aot#export-openapi-documents) for more information on how the above works.
+
+---
+
+## Export ".http" Files
+
+In addition to `.json`, the **FastEndpoints.OpenApi** package can export each document as a REST Client compatible **.http** file, useful for quickly trying out endpoints from your editor (VS Code, Rider, or Visual Studio).
+
+```cs title=Program.cs
+await app.ExportHttpFilesAndExitAsync("v1"); // doc name should match .OpenApiDocument() config
+```
+
+Run the app with the following command to export the configured documents:
+
+```cs title=terminal
+dotnet run --export-http-files true
+```
+
+Exported `.http` files are written to the same **OpenApiExportPath** as the `.json` files (one file per document name). Each file contains one placeholder request per operation with:
+
+- **`@baseUrl`** - taken from the first OpenAPI server URL when present, otherwise a localhost default you can edit per environment
+- **`{{param}}`** placeholders for path, query, header, and cookie parameters (`Cookie: name={{name}}`)
+- **`Authorization: Bearer {{bearerToken}}`** when the operation (or document) security uses an HTTP bearer / JWT scheme
+- **JSON request bodies** prefer OpenAPI media-type `example` / first named `examples` value, then schema or property `example` / `default`, then type placeholders (`""` / `0` / `false`), including `$ref` schemas. Never a bare `null` body
+- **Non-JSON bodies** - form content types omit a structured body (with a short comment); other types use `{{body}}`
+
+To also generate `.http` files during AOT publish, add this to your **csproj** (shares **OpenApiExportPath** with JSON export):
+
+```xml title=MyProject.csproj
+
+<PropertyGroup>
+    <ExportHttpFiles>true</ExportHttpFiles>
+</PropertyGroup>
+```
+
+### Export both `.json` and `.http` in one run
+
+When both flags (or both MSBuild properties) are enabled, a **single** export call after **UseFastEndpoints** writes every requested format. Format selection is driven only by the CLI/MSBuild flags. The host starts once, each document is loaded once, and the process exits when export finishes:
+
+```cs title=Program.cs
+await app.ExportOpenApiArtifactsAndExitAsync("v1");
+// ExportOpenApiDocsAndExitAsync / ExportHttpFilesAndExitAsync are aliases that do the same
+```
+
+```cs title=terminal
+dotnet run --export-openapi-docs true --export-http-files true
+```
+
+```xml title=MyProject.csproj
+
+<PropertyGroup>
+    <ExportOpenApiDocs>true</ExportOpenApiDocs>
+    <ExportHttpFiles>true</ExportHttpFiles>
+</PropertyGroup>
+```
+
+[See here](native-aot#export-openapi-documents) for how pre-publish export works (same mechanism as JSON export).

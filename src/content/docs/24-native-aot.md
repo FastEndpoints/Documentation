@@ -268,13 +268,17 @@ The following handy extension methods can be used for conditionally configuring 
 **WebApplicationBuilder Extensions**
 
 ```js
-bld.IsJsonExportMode(); //returns true if running in openapi export mode
-bld.IsNotJsonExportMode(); //returns true if running in normal mode
+bld.IsExportMode(); //returns true if exporting JSON and/or '.http' artifacts
+bld.IsNotExportMode(); //returns true if running in normal mode
+bld.IsJsonExportMode(); //returns true if the JSON export flag is set
+bld.IsHttpExportMode(); //returns true if the '.http' export flag is set
 ```
 
 **WebApplication Extensions**
 
 ```js
-app.IsJsonExportMode(); //returns true if running in openapi export mode
-app.IsNotJsonExportMode(); //returns true if running in normal mode
+app.IsExportMode(); //returns true if exporting JSON and/or '.http' artifacts
+app.IsNotExportMode(); //returns true if running in normal mode
+app.IsJsonExportMode(); //returns true if the JSON export flag is set
+app.IsHttpExportMode(); //returns true if the '.http' export flag is set
 ```

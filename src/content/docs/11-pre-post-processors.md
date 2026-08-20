@@ -92,6 +92,8 @@ All the [Send.\*Async() methods](misc-conveniences#send-methods) supported by en
 If there are multiple pre-processors configured, they will be executed. If another pre-processor also wants to send a response, they must check if it's possible to do so by checking the result of **ctx.HttpContext.ResponseStarted()** to see if a previously executed pre-processor has already sent a response to the client. See example [here](#global-processors).
 :::
 
+To short-circuit from endpoint hooks such as **OnBeforeHandle** (instead of a pre-processor), see [DontExecuteHandlerIfResponseStarted()](misc-conveniences#short-circuiting-from-hooks).
+
 ## Post Processors
 
 Post-processors are executed after your endpoint handler has completed it's work.
