@@ -1,6 +1,7 @@
 ---
 title: API Versioning
 description: FastEndpoints provides a unique, yet simplified model for versioning your endpoints to ease the developer's life.
+group: rest-apis
 ---
 
 # {$frontmatter.title}

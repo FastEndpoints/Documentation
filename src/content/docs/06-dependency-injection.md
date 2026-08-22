@@ -1,0 +1,346 @@
+---
+title: Dependency Injection
+description: FastEndpoints supports both property injection and constructor injection to make your life easier.
+group: rest-apis
+---
+
+# {$frontmatter.title}
+
+There are three different ways to get access to services registered in the IOC container.
+Consider the following service registration.
+
+```cs |title=HelloWorldService.cs
+public interface IHelloWorldService
+{
+    string SayHello();
+}
+
+public class HelloWorldService : IHelloWorldService
+{
+    public string SayHello() => "hello world!";
+}
+```
+
+**IOC Registration**
+
+```cs |title=Program.cs
+bld.Services.AddScoped<IHelloWorldService, HelloWorldService>();
+```
+
+## Property Injection
+
+Services can be automatically property injected by simply adding properties to the endpoint like so:
+
+```cs |title=MyEndpoint.cs
+public class MyEndpoint : EndpointWithoutRequest
+{
+    public IHelloWorldService HelloService { get; set; }
+
+    public override void Configure()
+    {
+        Get("/api/hello-world");
+    }
+
+    public override async Task HandleAsync(CancellationToken ct)
+    {
+        await Send.OkAsync(HelloService.SayHello());
+    }
+}
+```
+
+[Keyed services](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-8.0#keyed-services) can be property
+injected like so:
+
+```csharp
+[KeyedService("KeyName")]
+public IHelloWorldService HelloService { get; set; }
+```
+
+## Constructor Injection
+
+Constructor injection is also supported. Just make sure not to assign the injected dependencies to public properties if using together with property injection.
+
+```cs |title=MyEndpoint.cs
+public class MyEndpoint : EndpointWithoutRequest
+{
+    private IHelloWorldService _helloService;
+
+    public MyEndpoint(IHelloWorldService helloScv)
+    {
+        _helloService = helloScv;
+    }
+
+    public override void Configure()
+    {
+        Get("/api/hello-world");
+    }
+
+    public override async Task HandleAsync(CancellationToken ct)
+    {
+        await Send.OkAsync(_helloService.SayHello());
+    }
+}
+
+```
+
+[Keyed services](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-8.0#keyed-services) can be constructor injected like so:
+
+```csharp
+public MyEndpoint([FromKeyedServices("KeyName")]IHelloWorldService helloScv)
+{
+    ...
+}
+```
+
+## Manual Resolving
+
+Services can be resolved manually like so:
+
+```cs
+public override async Task HandleAsync(CancellationToken ct)
+{
+    IHelloWorldService? helloSvc = TryResolve<IHelloWorldService>();
+
+    if (helloSvc is null)
+        ThrowError("service not resolved!");
+
+    var logger = Resolve<ILogger<MyEndpoint>>();
+
+    logger.LogInformation("hello service is resolved...");
+
+    await Send.OkAsync(helloSvc.SayHello());
+}
+```
+
+- **TryResolve()** - This method will try to resolve the given service. returns null if not resolved.
+
+- **Resolve()** - This method will throw an exception if the requested service cannot be resolved.
+
+[Keyed services](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-8.0#keyed-services) can be manually resolved like so:
+
+```csharp
+Resolve<IHelloWorldService>("KeyName");
+```
+
+## Pre-Resolved Services
+
+The following services are pre-resolved and available for every endpoint handler with the following properties:
+
+```
+property: Config
+service : IConfiguration
+
+property: Env
+service : IWebHostEnvironment
+
+property: Logger
+service : ILogger
+```
+
+They can be used in the endpoint handlers like so:
+
+```cs
+public override async Task HandleAsync(CancellationToken ct)
+{
+    Logger.LogInformation("this is a log message");
+    var isProduction = Env.IsProduction();
+    var smtpServer = Config["SMTP:HostName"];
+}
+```
+
+---
+
+## Validator Dependencies
+
+Validators are singletons for [performance reasons](/benchmarks). Constructor injection as well as the above-mentioned **\*Resolve()** methods are available for
+validators to get access to the dependencies. Take care not to maintain state in the validator unless that data is also singleton/static.
+
+Trying to resolve a scoped dependency in the constructor will cause an error to be thrown. Scoped dependencies can be resolved in the constructor by creating a new scope
+and disposing it as shown below:
+
+```cs title=MyValidator.cs
+public class MyValidator : Validator<Request>
+{
+    public MyValidator(ISomeSingletonService singletonService)
+    {
+        var singletonSvc = singletonService; //from ctor injection
+        var anotherSingletonService = Resolve<IAnotherSingletonService>(); //manual resolving
+
+        //scoped dependency resolving
+        using var scope = CreateScope();
+        var scopedService = scope.Resolve<ISomeScopedService>();
+    }
+}
+```
+
+Most importantly don't forget the **using** keyword or manually dispose the **scope** at the end.
+
+You can however call **\*Resolve()** when needing to access scoped dependencies inside the rules without having to create a new scope on each execution. The same scope as
+the current http context scope is used in this case.
+
+```cs
+public class MyValidator : Validator<Request>
+{
+    public MyValidator()
+    {
+        RuleFor(x => x.Id).MustAsync(async (id, ct) =>
+        {
+            var idChecker = Resolve<IScopedService>();
+            return await idChecker.IsValidId(id, ct);
+        });
+    }
+}
+```
+
+## Entity Mapper Dependencies
+
+Just like validators, mappers are also singletons and you need to create a scope and dispose it if you need to resolve scoped dependencies in the constructor.
+
+```cs title=MyMapper.cs
+public class MyMapper : Mapper<Request, Response, Person>
+{
+    public MyMapper(ISomeSingletonService singletonService)
+    {
+        var singletonSvc = singletonService; //from ctor injection
+        var anotherSingletonService = Resolve<IAnotherSingletonService>(); //manual resolving
+
+        //scoped dependency resolving
+        using var scope = CreateScope();
+        var scopedService = scope.Resolve<ISomeScopedService>();
+    }
+}
+```
+
+Non-constructor methods can call **\*Resolve()** when needing to access scoped dependencies without having to create a new scope on each execution. The same scope as the
+current http context scope is used.
+
+```cs
+public class Mapper : Mapper<Request, Response, Person>
+{
+    public override Task<Person> ToEntityAsync(Request r)
+    {
+        var db = Resolve<DbContext>();
+        return db.GetPerson(r.Id);
+    }
+}
+```
+
+## Pre/Post Processor Dependencies
+
+Processors are also singletons, and they support both constructor injection and resolving via **HttpContext**. Since the constructor is only ever executed once, you
+must inject an **IServiceScopeFactory** and use that to create a scope in order to resolve scoped dependencies inside the *ProcessAsync methods. Scoped dependencies can
+also be resolved via the **HttpContext** without the need for an **IServiceScopeFactory**. Singleton dependencies can be injected as usual in the constructor.
+
+```cs title=MyRequestLogger.cs
+public class MyRequestLogger<TRequest> : IPreProcessor<TRequest>
+{
+    readonly IServiceScopeFactory _scopeFactory;
+
+    public MyRequestLogger(IServiceScopeFactory scopeFactory, ILogger<TRequest> logger)
+    {
+        _scopeFactory = scopeFactory;
+        logger.LogInformation("this will only be logged once");
+    }
+
+    public async Task PreProcessAsync(IPreProcessorContext<TRequest> ctx, CancellationToken ct)
+    {
+        var serviceA = ctx.HttpContext.Resolve<IScopedServiceA>();
+
+        using var scope = _scopeFactory.CreateScope();
+        var serviceB = scope.Resolve<IScopedServiceB>();
+    }
+}
+```
+
+## Event Handler Dependencies
+
+Event handlers are also singletons, and they only support constructor injection. Since the constructor is only ever executed once, you must inject an
+**IServiceScopeFactory** and use that to create a scope in order to resolve scoped dependencies in the HandleAsync method. Singleton dependencies can be injected as
+usual in the constructor.
+
+```cs title=MyEventHandler.cs
+public class MyEventHandler : IEventHandler<MyEvent>
+{
+    private readonly IServiceScopeFactory _scopeFactory;
+
+    public MyEventHandler(IServiceScopeFactory scopeFactory, ILogger<MyEventHandler> logger)
+    {
+        _scopeFactory = scopeFactory;
+        logger.LogInformation("this will only be logged once");
+    }
+
+    public async Task HandleAsync(MyEvent eventModel, CancellationToken ct)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var service = scope.Resolve<IScopedService>();
+        await service.DoSomething();
+    }
+}
+```
+
+## Command Handler Dependencies
+
+Unlike event handlers, command handlers are not singletons and the constructor is executed per each command execution. Scoped dependencies can therefore simply be
+injected using the constructor and used inside the execute method like so:
+
+```cs
+public class MyCommandHandler : ICommandHandler<MyCommand, string>
+{
+    private readonly IScopedService _scopedService;
+
+    public MyCommandHandler(IScopedService scopedService, ILogger<MyCommandHandler> logger)
+    {
+        _scopedService = scopedService;
+        logger.LogInformation("this will logged on each execution");
+    }
+
+    public async Task<string> ExecuteAsync(MyCommand command, CancellationToken ct)
+    {
+        return await _scopedService.GetSomething();
+    }
+}
+```
+
+:::admonition type=note
+If the command handler execution happens outside the duration of an http request and it needs to access a scoped dependency, an exception will be thrown. In such
+situations you can inject an **IServiceScopeFactory** in the constructor and create a scope as described in the event handler section above. I.e. the need for a scope
+factory would only arise if/when you execute commands outside of endpoints.
+:::
+
+---
+
+## Source Generated Service Registrations
+
+Instead of manually registering services at startup, you can have our source generator automatically generate a single service registration extension method per assembly
+just by annotating the individual services with an attribute. Specify the service type as the generic argument of the attribute and the service lifetime using the
+**LifeTime** enum in the attribute constructor.
+
+```cs
+[RegisterService<IHelloWorldService>(LifeTime.Scoped)]
+public class HelloWorldService : IHelloWorldService
+{
+    ...
+}
+```
+
+The source generator will create an extension method containing all the services from the assembly.
+
+```cs | title="Generated Code:"
+public static class ServiceRegistrationExtensions
+{
+    public static IServiceCollection RegisterServicesFromMyProject(this IServiceCollection sc)
+    {
+        sc.AddScoped<IHelloWorldService, HelloWorldService>();
+        ...
+    }
+}
+```
+
+The generated extension method name will end with the name of your assembly. If the services are in multiple projects, you can add the source generator to each one and
+separate extension methods will be created per assembly.
+
+Installation of the source generator can be done from Nuget like so:
+
+```sh | copy
+dotnet add package FastEndpoints.Generator
+```

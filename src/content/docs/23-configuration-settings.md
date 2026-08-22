@@ -1,6 +1,7 @@
 ---
 title: Configuration Settings
 description: A light-weight REST Api framework for ASP.Net 6 that implements REPR (Request-Endpoint-Response) Pattern.
+group: tooling
 ---
 
 # {$frontmatter.title}

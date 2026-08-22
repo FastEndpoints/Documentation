@@ -1,6 +1,7 @@
 ---
 title: OpenAPI Documents
 description: OpenAPI is a first class citizen in the land of FastEndpoints enabling API documentation generation with minimal effort.
+group: rest-apis
 ---
 
 # {$frontmatter.title}

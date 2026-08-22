@@ -1,6 +1,7 @@
 ---
 title: Command Rules
 description: Match arbitrary input models with command rules and dispatch the resulting commands immediately or as queued jobs.
+group: messaging
 ---
 
 # Command Rules

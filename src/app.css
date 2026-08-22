@@ -484,7 +484,56 @@ pre code {
 .on-this-page nav {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.25rem;
+}
+
+.docs-sidebar nav {
+    gap: 0.35rem;
+}
+
+.docs-sidebar__group {
+    --sidebar-link-indent: calc(1.4rem + 0.45rem);
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.docs-sidebar__heading {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    margin: 0 0 0.15rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgb(125, 232, 255);
+}
+
+.docs-sidebar__heading-icon {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 0.35rem;
+    border: 1px solid rgba(0, 223, 255, 0.22);
+    background: rgba(0, 223, 255, 0.1);
+    color: rgb(125, 232, 255);
+}
+
+.docs-sidebar__heading-icon svg {
+    width: 0.85rem;
+    height: 0.85rem;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.docs-sidebar__group + .docs-sidebar__group {
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .docs-sidebar a,
@@ -496,6 +545,10 @@ pre code {
     line-height: 1.25;
     transition: background-color 0.16s ease,
     color 0.16s ease;
+}
+
+.docs-sidebar a {
+    padding-inline-start: var(--sidebar-link-indent);
 }
 
 .on-this-page a {
@@ -681,12 +734,20 @@ pre code {
     }
 
     .docs-sidebar nav {
+        gap: 0.75rem;
+    }
+
+    .docs-sidebar__group {
         gap: 0.2rem;
+    }
+
+    .docs-sidebar__heading {
+        padding: 0.45rem 0.5rem 0.25rem;
     }
 
     .docs-sidebar a {
         border-radius: 0.45rem;
-        padding: 0.15rem 0.65rem;
+        padding: 0.15rem 0.65rem 0.15rem calc(0.5rem + var(--sidebar-link-indent));
         font-size: 0.92rem;
     }
 

@@ -1,6 +1,7 @@
 ---
 title: File Handling
 description: Uploading and downloading binary files with FastEndpoints is quick, easy and maintainable.
+group: rest-apis
 ---
 
 # {$frontmatter.title}

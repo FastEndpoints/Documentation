@@ -1,6 +1,7 @@
 ---
 title: AI Agents
 description: Expose FastEndpoints as MCP tools and A2A skills for AI agents.
+group: guides
 ---
 
 # {$frontmatter.title}

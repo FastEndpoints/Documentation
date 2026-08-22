@@ -1,6 +1,7 @@
 ---
 title: Event Bus
 description: Developing event based applications in FastEndpoints is highly performant and convenient to use.
+group: messaging
 ---
 
 # In-Process Event Bus Pattern (Pub/Sub)

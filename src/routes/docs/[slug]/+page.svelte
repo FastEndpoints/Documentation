@@ -1,13 +1,13 @@
 <script lang="ts">
 	import DocsSidebar from '$lib/components/docs/DocsSidebar.svelte';
 	import OnThisPage from '$lib/components/docs/OnThisPage.svelte';
-	import type { RenderedPage, SidebarLink } from '$lib/content/types';
+	import type { RenderedPage, SidebarSection } from '$lib/content/types';
 
-	export let data: { doc: RenderedPage; sidebar: SidebarLink[] };
+	export let data: { doc: RenderedPage; sidebar: SidebarSection[] };
 </script>
 
 <div class="docs-layout">
-	<DocsSidebar links={data.sidebar} />
+	<DocsSidebar groups={data.sidebar} />
 	<main class="docs-main">
 		<article class="prose docs-article">
 			{@html data.doc.html}

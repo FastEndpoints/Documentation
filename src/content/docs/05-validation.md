@@ -1,6 +1,7 @@
 ---
 title: Validation
 description: Request DTO validation with the help of FluentValidation rules makes validation in FastEndpoints a snap.
+group: rest-apis
 ---
 
 # {$frontmatter.title}

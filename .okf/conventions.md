@@ -25,7 +25,10 @@ Required YAML frontmatter on every content file:
 - `title` (string)
 - `description` (string)
 
-Optional: `slug`, `order` (defaults come from filename).
+Docs under `src/content/docs/` also require:
+- `group` (must match an id in `src/lib/content/groups.ts`: `getting-started`, `rest-apis`, `messaging`, `tooling`, `guides`)
+
+Optional: `slug`, `order` (defaults come from filename). Standalone pages in `src/content/pages/` do not use `group`.
 
 Body conventions:
 - Title line often `# {$frontmatter.title}` (replaced at load time).
@@ -39,7 +42,7 @@ Body conventions:
 - Headings through `####` feed TOC and search; anchors are slugified (leading digits prefixed with `_`).
 
 ## Errors and validation
-- Missing/invalid doc filename or frontmatter throws at load/build time.
+- Missing/invalid doc filename or frontmatter throws at load/build time (including missing or unknown `group`).
 - Unknown doc slug → 404 via `error(404, ...)`.
 - Prerender fails on missing HTML element ids.
 
@@ -55,5 +58,6 @@ No DI container. Server load functions call pure content helpers. Client search 
 - `.prettierrc`
 - `.eslintrc.cjs`
 - `src/lib/content/docs.ts`
+- `src/lib/content/groups.ts`
 - `src/lib/content/markdown.ts`
 - `tsconfig.json`

@@ -1,6 +1,7 @@
 ---
 title: Model Binding
 description: Model binding in FastEndpoints is quite intuitive yet powerful enough to cater to almost any scenario.
+group: rest-apis
 ---
 
 # {$frontmatter.title}
