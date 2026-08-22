@@ -1,6 +1,7 @@
 ---
 title: Security
 description: Securing your endpoints in FastEndpoints has been simplified to provide a good developer experience.
+group: rest-apis
 ---
 
 # {$frontmatter.title}

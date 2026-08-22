@@ -10,6 +10,7 @@ tags: [gotcha]
 - **`docs/` is build output**, not markdown source. Source content is `src/content/`. Hand-editing `docs/` is wrong and gitignored.
 - Doc filenames must match `NN-slug.md`. Wrong pattern throws at load. Order comes from `NN` (or frontmatter `order`).
 - Frontmatter `title` and `description` are mandatory; missing either throws during load/build.
+- Docs also require `group` matching `src/lib/content/groups.ts`. Missing or unknown group throws at load/build. Pages under `src/content/pages/` do not.
 - `/docs` always redirects to `/docs/get-started`; there is no docs index page body.
 - Search indexes **docs only** (not `src/content/pages/*` such as benchmarks).
 - Markdown HMR: Vite plugin forces full reload on `src/content/**/*.md` changes (not granular HMR).
@@ -24,6 +25,7 @@ tags: [gotcha]
 
 ## Sources
 - `src/lib/content/docs.ts`
+- `src/lib/content/groups.ts`
 - `src/config.ts`
 - `svelte.config.js`
 - `vite.config.ts`

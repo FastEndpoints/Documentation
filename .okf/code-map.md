@@ -27,7 +27,7 @@ tags: [layout]
 | `.svelte-kit/` | SvelteKit generated (gitignored) |
 
 ## Modules
-- **Content:** `docs.ts` (list/get/sidebar/routes/pages), `markdown.ts` (render), `slug.ts`, `types.ts`
+- **Content:** `docs.ts` (list/get/sidebar/routes/pages), `groups.ts` (sidebar section catalog), `markdown.ts` (render), `slug.ts`, `types.ts`
 - **Search server:** `content.ts` (blocks), `markdown.ts` (plaintext for index)
 - **Search client:** `search.ts`, `worker.ts`, `store.ts`, `SearchBox` / `SearchModal`
 - **Docs UI:** `DocsSidebar.svelte`, `OnThisPage.svelte`

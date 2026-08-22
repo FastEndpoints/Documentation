@@ -17,7 +17,7 @@ Source for the [FastEndpoints](https://fast-endpoints.com) documentation website
 - SvelteKit app under `src/` with static adapter output to `docs/`
 
 ## Capabilities
-- Numbered markdown docs with frontmatter, sidebar, TOC headings
+- Numbered markdown docs with frontmatter, grouped sidebar, TOC headings
 - Custom markdown: Shiki code fences (copy/title meta), admonitions
 - Client search over prerendered `search.json` (FlexSearch in a worker)
 - Homepage contributor list from GitHub API (build/prerender time)

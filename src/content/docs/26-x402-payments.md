@@ -1,6 +1,7 @@
 ---
 title: x402 Payments
 description: Protect FastEndpoints routes with x402 payment requirements.
+group: guides
 ---
 
 # {$frontmatter.title}

@@ -2,7 +2,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import matter from 'gray-matter';
 import { slugify, stripMarkdown } from './slug';
-import type { DocPage, Heading, SidebarLink } from './types';
+import { isSidebarGroupId, sidebarGroups } from './groups';
+import type { DocPage, Heading, SidebarSection } from './types';
 
 const docsDir = path.join(process.cwd(), 'src/content/docs');
 const pagesDir = path.join(process.cwd(), 'src/content/pages');
@@ -11,7 +12,13 @@ function readMarkdown(filePath: string) {
 	const source = fs.readFileSync(filePath, 'utf-8');
 	const parsed = matter(source);
 	return {
-		data: parsed.data as { title?: string; description?: string; slug?: string; order?: number },
+		data: parsed.data as {
+			title?: string;
+			description?: string;
+			slug?: string;
+			order?: number;
+			group?: string;
+		},
 		body: parsed.content.trimStart()
 	};
 }
@@ -51,6 +58,9 @@ function readDocFile(file: string): DocPage {
 
 	if (!title) throw new Error(`Missing title frontmatter: ${file}`);
 	if (!description) throw new Error(`Missing description frontmatter: ${file}`);
+	if (!isSidebarGroupId(data.group)) {
+		throw new Error(`Missing or unknown group frontmatter: ${file}`);
+	}
 
 	const body = normalizeBody(rawBody, title);
 	const stat = fs.statSync(fullPath);
@@ -60,6 +70,7 @@ function readDocFile(file: string): DocPage {
 		description,
 		slug: data.slug ?? slug,
 		order: data.order ?? order,
+		group: data.group,
 		path: fullPath,
 		body,
 		headings: extractHeadings(body),
@@ -79,8 +90,18 @@ export function getDoc(slug: string) {
 	return getDocs().find((doc) => doc.slug === slug);
 }
 
-export function getSidebar(): SidebarLink[] {
-	return getDocs().map((doc) => ({ title: doc.title, slug: `/docs/${doc.slug}` }));
+export function getSidebar(): SidebarSection[] {
+	const docs = getDocs();
+
+	return sidebarGroups
+		.map((group) => ({
+			id: group.id,
+			title: group.title,
+			links: docs
+				.filter((doc) => doc.group === group.id)
+				.map((doc) => ({ title: doc.title, slug: `/docs/${doc.slug}` }))
+		}))
+		.filter((group) => group.links.length > 0);
 }
 
 export function getAllRoutes() {

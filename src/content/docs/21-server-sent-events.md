@@ -1,6 +1,7 @@
 ---
 title: Server Sent Events
 description: FastEndpoints supports real-time one-way communication via Server-Sent-Events out of the box with very little effort from the developer.
+group: messaging
 ---
 
 # {$frontmatter.title}

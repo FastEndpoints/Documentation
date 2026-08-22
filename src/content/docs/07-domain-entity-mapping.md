@@ -1,6 +1,7 @@
 ---
 title: Domain Entity Mapping
 description: Mapping to and from domain entities in FastEndpoints is a really nice alternative to automated mappers.
+group: rest-apis
 ---
 
 # {$frontmatter.title}

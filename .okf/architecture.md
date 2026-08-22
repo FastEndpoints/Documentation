@@ -27,7 +27,7 @@ Docs also → search server content → search.json
 | `src/routes` | Pages and endpoints (`/`, `/docs/[slug]`, `/benchmarks`, `/search`, `/search.json`, `/sitemap.xml`) |
 | `src/content/docs` | Ordered documentation markdown |
 | `src/content/pages` | Standalone pages (benchmarks) |
-| `src/lib/content` | Read/parse docs, slugs, headings, sidebar |
+| `src/lib/content` | Read/parse docs, slugs, headings, grouped sidebar |
 | `src/lib/content/markdown.ts` | HTML render: fences, admonitions, heading anchors |
 | `src/lib/search/server` | Build search blocks from doc bodies |
 | `src/lib/search/client` | FlexSearch index, modal UI, web worker |
@@ -52,7 +52,7 @@ None. Content is markdown on disk; output is static files.
 
 ## Invariants
 - Site is fully prerenderable; missing heading ids fail build (`handleMissingId: 'fail'`).
-- Doc filenames must match `NN-slug.md`; frontmatter `title` and `description` required.
+- Doc filenames must match `NN-slug.md`; frontmatter `title`, `description`, and `group` required (`group` from `src/lib/content/groups.ts`).
 - `/docs` redirects to `/docs/get-started`.
 - Search index is derived only from `src/content/docs` (not pages like benchmarks).
 - Branch policy: develop on `dev`; PRs against `dev`; never open PRs against `main`.
@@ -60,6 +60,7 @@ None. Content is markdown on disk; output is static files.
 ## Sources
 - `svelte.config.js`
 - `src/lib/content/docs.ts`
+- `src/lib/content/groups.ts`
 - `src/lib/content/markdown.ts`
 - `src/lib/search/server/content.ts`
 - `src/routes/docs/[slug]/+page.server.ts`

@@ -1,6 +1,7 @@
 ---
 title: Get Started
 description: Getting started with FastEndpoints is extremely easy. Just follow the simple steps to create your first endpoint.
+group: getting-started
 ---
 
 # {$frontmatter.title}

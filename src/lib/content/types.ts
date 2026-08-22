@@ -1,3 +1,5 @@
+import type { SidebarGroupId } from './groups';
+
 export type Heading = {
 	level: number;
 	text: string;
@@ -9,6 +11,7 @@ export type DocPage = {
 	description: string;
 	slug: string;
 	order: number;
+	group?: SidebarGroupId;
 	path: string;
 	body: string;
 	headings: Heading[];
@@ -18,6 +21,12 @@ export type DocPage = {
 export type SidebarLink = {
 	title: string;
 	slug: string;
+};
+
+export type SidebarSection = {
+	id: SidebarGroupId;
+	title: string;
+	links: SidebarLink[];
 };
 
 export type RenderedPage = DocPage & {

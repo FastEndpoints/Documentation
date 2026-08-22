@@ -1,6 +1,7 @@
 ---
 title: Job Queues
 description: Developing using command queues in FastEndpoints is highly performant and convenient to use.
+group: messaging
 ---
 
 # Job Queueing With Commands
