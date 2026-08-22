@@ -91,6 +91,7 @@ At least one of the following settings should be set in order to enable versioni
 
 - **DefaultVersion** : This value will be used for endpoints that do not specify a version in its configuration.
   The default value is **0**. When the version of an endpoint is 0 it does not get added to the route making that version the initial version of that endpoint.
+  Call `DontVersion()` on an endpoint to keep it at version 0 even when a default is set (for example a health check that should stay `/health` instead of `/v1/health`). `Version(0)` is still treated as unset and receives the default. Last call wins against `Version(n)`.
 
 - **PrependToRoute** : By default, the version string is **appended** to the endpoint route. By setting this to **true**, you can have it **prepended** to the route.
 
