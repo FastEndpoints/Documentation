@@ -540,7 +540,7 @@ You have the ability to write unit tests [like this](https://github.com/FastEndp
 
 ### Adding Route Parameters
 
-For passing down route parameters you will have to alter the **HttpContext** by setting them in the **Factory.Create**. See the example below:
+Because model binding is skipped (see the tip above), route values are **not** copied from `HttpContext.Request.RouteValues` into the request DTO. Put those values on the DTO you pass to **HandleAsync()** / **ExecuteAsync()**:
 
 ```cs | title=Endpoint.cs
 public class Endpoint : Endpoint<Request, Response>
@@ -566,8 +566,8 @@ public class Endpoint : Endpoint<Request, Response>
 public class Request
 {
     public int Id { get; set; }
-    public string FirstName { get; set;}
-    public string LastName { get; set;}
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
 }
 
 public class Response
@@ -581,25 +581,31 @@ public class Response
 [Fact]
 public async Task GetSingleUserById()
 {
-    // Arrange
-    var ep = Factory.Create<Endpoint>(ctx => ctx.Request.RouteValues.Add("id", "1"));
+    var ep = Factory.Create<Endpoint>();
 
-    var req = new Request 
+    var req = new Request
     {
-      FirstName = "Jeff",
-      LastName = "Bridges"
+        Id = 1, // set route-bound properties on the DTO
+        FirstName = "Jeff",
+        LastName = "Bridges"
     };
 
-    // Act
     await ep.HandleAsync(req, default);
     var rsp = ep.Response;
 
-    // Assert
     Assert.IsNotNull(rsp);
     Assert.AreEqual(1, rsp.Id);
     Assert.AreEqual("Jeff Bridges", rsp.FullName);
 }
 ```
+
+Only seed `HttpContext.Request.RouteValues` when the handler itself reads them, for example with **[Route<T>()](model-binding#route-values-without-a-dto)**:
+
+```cs
+var ep = Factory.Create<Endpoint>(ctx => ctx.Request.RouteValues.Add("id", "1"));
+```
+
+To cover actual HTTP binding of route params, use an [integration test](#integration-testing) instead.
 
 ### Units with Command executions or Event publishes
 
