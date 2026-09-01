@@ -223,6 +223,8 @@ sealed class MyRequest
 }
 ```
 
+Route and query parameter values are URL-encoded by these helpers, so reserved characters in the request DTO values are preserved when the request is sent.
+
 Helper methods such as **{POST/PUT/PATCH}Async()** methods even has an optional argument which allows you to automatically convert the supplied request DTO instance in to multipart form-data for submitting to form accepting endpoints.
 
 ### State Fixture
