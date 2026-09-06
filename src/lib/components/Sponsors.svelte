@@ -10,16 +10,10 @@
                 </a>
             </div>
 
-            <div class="flex flex-col items-center justify-center text-center">
-                <a href="https://sent.dm" target="_blank">
-                    <img src="sponsors/sent.png" alt="Sent - Unified Messaging API" class="h-auto max-h-20 mx-auto"/>
+            <div class="flex w-full items-center justify-center">
+                <a href="https://dodotech.dev/" target="_blank" class="block w-full">
+                    <img src="sponsors/dodotech_logo.svg" class="block mx-auto max-w-[72%]" alt="DodoTech"/>
                 </a>
-                <a href="https://sent.dm" target="_blank" class="mt-2 font-semibold text-sm hover:underline">
-                    Sent Unified Messaging API
-                </a>
-                <p class="prose text-sm mt-1">
-                    Sent is a unified API for messaging across<br/> SMS, RCS, and apps like WhatsApp
-                </p>
             </div>
 
             <div class="flex items-center justify-center p-4">
