@@ -581,7 +581,11 @@ Response headers are documented automatically for response DTO properties decora
 
 ## FluentValidation Integration
 
-FluentValidation rules are automatically applied to documented schemas. This includes things such as required properties, minimum/maximum lengths, regex patterns, numeric ranges, and nested validators.
+FluentValidation rules are automatically applied to documented request bodies **and** operation parameters (query, path, header, and cookie). This includes things such as required properties, minimum/maximum lengths, regex patterns, numeric ranges, and nested validators.
+
+GET and other bodyless endpoints therefore document filter constraints from your validator on the query parameters themselves. Mixed endpoints (JSON body plus `[QueryParam]` / `[FromHeader]` properties) apply the matching rules to each surface.
+
+Parameter names follow the documented query/header/path names (`[BindFrom]`, header name, etc.). Rules are matched by the request DTO property identity, including `[JsonPropertyName]`. Flattened `[FromQuery]` complex objects are not expanded into nested validator paths yet.
 
 If there is a special circumstance where a validation rule should not affect the generated document, you can disable documentation integration for that rule like so:
 
