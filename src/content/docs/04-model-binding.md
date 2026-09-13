@@ -611,6 +611,10 @@ By default if the user does not have a claim type called **UserID**, then a vali
 
 Doing so will allow the endpoint handler to execute even if the current user doesn't have the specified claim and model binding will take the value from the highest priority source of the other binding sources mentioned above.
 
+:::admonition type="warning"
+Those other binding sources are supplied by the client. When the claim is missing, the client can set the property value via the JSON body, form fields, route or query parameters. Do not rely on optional claim properties for authorization decisions.
+:::
+
 ### Accepted Claim Value Formats
 
 The claim values can be in any of the following formats:
@@ -750,6 +754,12 @@ The property value will be set to **true** if the current principal has the **Ar
 ```cs
 [HasPermission("Article_Update", IsRequired = false)]
 ```
+
+Doing so will allow the endpoint handler to execute even if the current user doesn't have the specified permission. In that case the property is not set by the permission check, so it keeps the value from the JSON request body, or the default value if the client didn't send one.
+
+:::admonition type="warning"
+Because the client can set an optional permission property when the user doesn't have the permission, do not use it to make authorization decisions. Keep **IsRequired** enabled, or check the user principal in the handler instead (e.g. `User.HasPermission("Article_Update")` from the **FastEndpoints.Security** package).
+:::
 
 ---
 
