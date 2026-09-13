@@ -232,7 +232,7 @@ Helper methods such as **{POST/PUT/PATCH}Async()** methods even has an optional 
 When the app under test runs in a separate process (such as with Aspire **DistributedApplication** testing), the helper methods look up endpoint routes by calling an internal route on the app. For security reasons that route is only mapped when the configuration value **FastEndpoints:ExposeTestUrlCache** is set to **true** in the app under test. Set it only for the test run, for example on the project resource from your test:
 
 ```cs
-var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.AspireApp_AppHost>(ct);
+var appHost = await DistributedApplicationTestingBuilder.CreateAsync<AspireApp_AppHost>(ct);
 appHost.CreateResourceBuilder<ProjectResource>("apiservice")
        .WithEnvironment("FastEndpoints__ExposeTestUrlCache", "true");
 ```
