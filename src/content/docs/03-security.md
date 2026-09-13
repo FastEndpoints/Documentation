@@ -549,6 +549,10 @@ app.UseJwtRevocation<MyBlacklistChecker>() //must come before auth middleware
    .UseAuthorization()
 ```
 
+Endpoints that allow anonymous access are not checked. Every other request is checked, including requests that haven't been matched to an endpoint yet.
+
+The middleware checks the token in the `Authorization` header, as well as the token the JWT bearer handler actually accepted. So tokens your app reads from the query string or a cookie in `JwtBearerEvents.OnMessageReceived` (such as for SSE or SignalR clients) are checked too. This requires `JwtBearerOptions.SaveToken` to be enabled. `AddAuthenticationJwtBearer()` enables it by default. If you configure JWT bearer auth with `AddJwtBearer()` directly and accept tokens from other sources, set `SaveToken = true` yourself.
+
 The default response can be overridden like so:
 
 ```csharp
