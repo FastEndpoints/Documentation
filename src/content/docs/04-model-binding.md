@@ -751,6 +751,8 @@ The property value will be set to **true** if the current principal has the **Ar
 [HasPermission("Article_Update", IsRequired = false)]
 ```
 
+When the validation error is disabled, the property is set to **false** if the principal does not have the permission. Permission properties are only ever bound from the user's claims, so any value the client sends for them (e.g. in the JSON body) is ignored.
+
 ---
 
 ## Supported DTO Property Types
