@@ -227,6 +227,18 @@ Route and query parameter values are URL-encoded by these helpers, so reserved c
 
 Helper methods such as **{POST/PUT/PATCH}Async()** methods even has an optional argument which allows you to automatically convert the supplied request DTO instance in to multipart form-data for submitting to form accepting endpoints.
 
+#### Out-of-process Apps (Aspire)
+
+When the app under test runs in a separate process (such as with Aspire **DistributedApplication** testing), the helper methods look up endpoint routes by calling an internal route on the app. For security reasons that route is only mapped when the configuration value **FastEndpoints:ExposeTestUrlCache** is set to **true** in the app under test. Set it only for the test run, for example on the project resource from your test:
+
+```cs
+var appHost = await DistributedApplicationTestingBuilder.CreateAsync<Projects.AspireApp_AppHost>(ct);
+appHost.CreateResourceBuilder<ProjectResource>("apiservice")
+       .WithEnvironment("FastEndpoints__ExposeTestUrlCache", "true");
+```
+
+In-process **AppFixture** tests don't need this, and [Native AOT](native-aot#testing-native-aot-builds) tests set it automatically. Never enable it in production, as the route lists every endpoint route and type name to anonymous callers.
+
 ### State Fixture
 
 There's a generic variant **TestBase<TAppFixture,TStateFixture>** you can use to share a common state/resource amongst the test-methods of a test-class. Simply implement a **StateFixture** and use it with the test-class like so:
