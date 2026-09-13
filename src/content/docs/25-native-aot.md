@@ -185,6 +185,7 @@ public class App : AppFixture<Program>
         o.HealthEndpointPath = "/healthy"; //app readiness route
         o.ReadyTimeoutSeconds = 5; //timeout for app readiness
         o.EnvironmentVariables["ASPNETCORE_ENVIRONMENT"] = "Testing"; //environment variables for the aot app
+        o.EnvironmentVariables["FastEndpoints__ExposeTestUrlCache"] = "true"; //set by default. required for routeless test helpers
 
         // make routeless test helpers use the same serializer settings as the app
         new Config().Serializer.Options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
