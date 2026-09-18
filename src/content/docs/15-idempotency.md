@@ -76,28 +76,6 @@ The performance impact lies in the fact that each incoming request must be inspe
 
 If the requesting clients are under strict quality control and can be guaranteed that the same idempotency-key value will not be mistakenly re-used, you can mitigate most of this performance impact by making the request body content not participate in the cache-key generation. In which case, the uniqueness of the requests will be determined solely by the request URL, route/query params and header values. The body content will be ignored, and no content buffering will occur.
 
-### Financial Mode
-
-The default behavior above is **request fingerprinting**: the idempotency key is only one part of the cache-key. The same key with a different body or query string is treated as a new request, and the handler runs again.
-
-**Financial mode** (Stripe-style) treats the key itself as the request identity, scoped to the endpoint URL and isolating headers such as `Authorization` and `Cookie`.
-
-- same key and same payload: the original response is replayed
-- same key and a different payload: `409 Conflict`
-
-The key is only bound after a successful **2xx** response. Validation failures and errors do not lock the key, so the client can retry with a corrected payload.
-
-```cs
-Idempotency(
-    o =>
-    {
-        o.Mode = IdempotencyMode.Financial;
-        o.ReplayStatusCode = 200; // optional: replay a 201 as 200
-    });
-```
-
-Add extra headers to `AdditionalHeaders` when they should isolate identity (for example `X-Tenant-Id`). `IgnoreRequestBody` is ignored in this mode. The body is always compared so mismatched payloads can be rejected. Form uploads use the same identity as fingerprinting: fields, file names, and file sizes. Actual file bytes are not considered, so two files with the same name and size count as the same payload.
-
 ## Customization Options
 
 The following options can be customized per endpoint as well as globally with the use of an [endpoint configurator](configuration-settings#global-endpoint-options).
@@ -113,17 +91,10 @@ Idempotency(
         o.AdditionalHeaders.Add("My-Header");
 
         //controls whether body content participates in cache-key generation.
-        //ignored when Mode is Financial.
         o.IgnoreRequestBody = true;
-
-        //fingerprint (default) vs financial (same key + different payload => 409).
-        o.Mode = IdempotencyMode.Fingerprint;
 
         //the time limit to cache responses for.
         o.CacheDuration = TimeSpan.FromDays(1);
-
-        //optional status override when a successful cached response is replayed.
-        o.ReplayStatusCode = 200;
 
         //automatically adds the idempotency-key header to the response.
         o.AddHeaderToResponse = true;
