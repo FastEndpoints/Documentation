@@ -4,7 +4,7 @@ description: FastEndpoints makes it easy to implement Idempotent endpoints.
 group: rest-apis
 ---
 
-# {$frontmatter.title}
+# {$frontmatter.title} (Request Fingerprint Mode)
 
 Making an endpoint **idempotent** simply means that it will return the exact same response (from a cache) for a particular "unique" request everytime until the cached response is purged from the cache. The first time a particular request comes in, the cache will be checked to see if that exact request has come in before. If the request is not an original request and there is a cached response for that exact request, the previously cached response is served without executing the endpoint handler for it. If it is an original request and there is no cached response, the endpoint handler is executed, the response is cached and returned to the client. Any subsequent/repeated requests consisting of the exact same set of parameters such as headers, route/query params, request body, will result in the cached response being served without executing the endpoint.
 
@@ -113,3 +113,127 @@ Idempotency(
 ## Distributed Cache Storage
 
 The idempotency feature is implemented as a custom cache policy for the built-in output caching middleware. By default, the output caching middleware uses the in-memory cache storage provider. You can either plug in your own implementation of [IOutputCacheStore](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.outputcaching.ioutputcachestore?view=aspnetcore-8.0) or use the Microsoft provided [Redis provider](https://learn.microsoft.com/en-us/aspnet/core/performance/caching/output?preserve-view=true&view=aspnetcore-8.0#redis-cache).
+
+
+---
+
+## Financial Mode Idempotency (Stripe Style)
+
+Consider a client submitting a payment request. The server processes the payment, but the connection drops before the client receives the response. The client retries, not knowing whether the payment went through. Without protection against duplicate execution, the customer could be charged twice.
+
+Financial idempotency is designed for situations like this. Before running your endpoint, it reserves the request key for that caller. A retry can then receive the stored successful response without running the endpoint again. If the outcome of the first request is uncertain, the reservation is kept rather than allowing another attempt that might repeat the charge.
+
+This is separate from the output caching based request fingerprinting approach described above. Use `FinancialIdempotency()` instead of `Idempotency()` on financial endpoints, not both together.
+
+:::admonition type="warning"
+The middleware does not guarantee exactly-once charging. Real payments also need durable storage and transactional business records or idempotency support from your payment provider. The built-in memory store loses its reservations on crash/restart and does not protect operations across multiple servers. No Redis or SQL provider is included.
+:::
+
+### Enabling Financial Idempotency
+
+First, register the services and add the middleware before `UseFastEndpoints()` like so:
+
+```cs | title=Program.cs
+bld.Services
+   .AddFastEndpoints()
+   .AddFinancialIdempotency(c =>
+   {
+       c.CallerScope = ctx => ctx.User.FindFirst("account_id")?.Value;
+       c.DefaultDuration = TimeSpan.FromHours(24);
+   });
+
+app.UseFinancialIdempotency()
+   .UseFastEndpoints();
+```
+
+The `CallerScope` identifies who the request belongs to. In this example, it comes from an `account_id` claim supplied by your authentication setup. Use a stable account or tenant identifier from validated authentication, not a raw bearer token or cookie. This keeps the same operation protected even when the caller refreshes their credentials.
+
+A caller scope is required globally or per endpoint. If it is missing for a request, the request fails before a reservation is created. Supporting anonymous callers requires an explicit scope choice.
+
+Then enable financial idempotency on the endpoint:
+
+```cs | title=Endpoint.cs
+public override void Configure()
+{
+    Post("/charges");
+    FinancialIdempotency(o => o.ReplayStatusCode = 200);
+}
+```
+
+The example configures stored responses to be replayed with a `200` status code. Place routing, authentication, authorization and exception handling before the financial middleware. If you use response compression, place that before it too, so the middleware captures uncompressed content.
+
+### Sending And Retrying Requests
+
+The client sends an **Idempotency-Key** header, just as in the client-side setup above. Generate a new key for each new operation and reuse that key when retrying the same operation. The header must contain a single, nonblank value of at most `MaxKeyLength` characters (256 by default).
+
+For example, when a client retries a charge, the middleware handles it as follows:
+
+| Situation                                                    | Result                                                                                                |
+|--------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
+| The same key and payload were already processed successfully | The stored response is returned without running binding, validation, processors or the handler again. |
+| The first request is still running                           | The retry receives `409 Conflict` immediately instead of waiting.                                     |
+| The key is reused with a different payload                   | The request receives `409 Conflict`.                                                                  |
+| The earlier attempt cannot safely be replayed                | The retry receives `500`. An unresolved active request continues to return `409`.                     |
+
+The payload comparison includes query values, body bytes, and uploaded file contents and metadata. Changing a query value therefore counts as changing the payload, not as starting a separate operation. Successful empty responses, including `204`, are stored too.
+
+`DefaultDuration`, or the endpoint's `Duration` option, determines how long a completed response is kept. The timer starts when the request completes. Once that period ends, the same key may execute again. Active reservations and reservations with an uncertain outcome do not expire automatically.
+
+### Handling Failed Requests
+
+An error does not necessarily mean that nothing happened. A payment provider could accept a charge and then time out before returning its response. Releasing the reservation in that situation would make a duplicate charge possible.
+
+For this reason, exceptions, cancellation, ambiguous non-2xx responses, response capture overflow and failures to save the final result do not automatically release protection. A surrounding exception handler can return an error, but cannot release the reservation. Uncertain operations need to be checked against your business records or payment provider and reconciled through your storage provider, not simply retried as new requests.
+
+If your application can prove that a rejected request made **no business side effects**, it can explicitly allow another attempt:
+
+```cs
+HttpContext.RejectFinancialIdempotencyWithoutSideEffects();
+await Send.ErrorsAsync();
+```
+
+This declaration only takes effect when the request finishes normally with a non-2xx response. Validation failures do not make it automatically. Never call it after a payment timeout, an uncertain downstream result or a partially committed transaction.
+
+### Response Buffering
+
+Financial endpoints buffer their responses rather than streaming them to the client. `MaxResponseBodySize` limits the response body to 128 MB by default. Exceeding this limit interrupts execution and keeps the reservation, so the original response may not reach the client.
+
+Do not replace response features, disable buffering or use streaming and upgrade protocols in these endpoints. Pending pipe bytes and response-start callbacks are finalized before capture. Outer middleware must not change the business status or response representation in later response-start callbacks, since those changes are outside the replay contract.
+
+Replayed responses exclude `Set-Cookie`, hop-by-hop headers and headers named by `Connection`.
+
+### Choosing Storage
+
+The built-in memory store is useful for getting started. For production financial operations across restarts or multiple servers, implement `IFinancialIdempotencyStore` using durable storage.
+
+For the memory store, configure `InMemoryMaxEntries` (10,000 by default) and `InMemoryStoreSize` (1 GB for completed bodies and headers). Reservation keys are limited to 1,024 characters and payload hashes to 128 bytes. Monitor capacity: a full store must reject new reservations rather than remove unresolved ones to make room.
+
+#### Implementing A Custom Store
+
+A provider must ensure that only one request can own a reservation, even when requests arrive at different servers at the same time:
+
+- Reserve the identity and payload atomically, returning an opaque, unique ownership token.
+- For complete, unreplayable and abandon operations, compare the key, token and state. Return `Applied`, `AlreadySettled` or `OwnershipLost` as appropriate.
+- Never downgrade a completed record because its acknowledgement failed.
+- Copy mutable hashes, bodies and nested headers so later changes cannot alter stored records.
+- Keep the reservation intact if saving the final state is unavailable. Settlement uses bounded, server-owned cancellation independently of client disconnects.
+
+Administrative reconciliation must be a separate, conditional provider operation, not part of an ordinary request retry.
+
+### Deployment And Upgrades
+
+The caller scope and request key are only part of identifying an operation. The HTTP method, scheme, host, path and selected additional headers also participate. Additional headers are empty by default, so credential rotation does not create a new reservation.
+
+Keep forwarded-header configuration and host/path handling consistent across deployments. Changing these values can cause a retry to be treated as a new operation, bypassing an existing reservation.
+
+The following details matter when implementing a provider or upgrading an existing deployment:
+
+- Identity fields and individual values of multi-value headers are framed separately to keep their boundaries unambiguous.
+- Paths include `PathBase`. A single trailing slash is ignored, so `/charges` and `/charges/` share a reservation even with `UseCaseSensitivePaths` enabled. Empty and `/` root paths are equivalent. Repeated trailing slashes and internal slashes are preserved.
+- The payload hash is versioned. Whether the request was already buffered must not affect that hash.
+
+#### Migrating Existing Reservations
+
+Identity, payload and store contract changes require a coordinated migration. Before rollout, migrate reservations or stop accepting affected operations, let in-flight work finish and reconcile outstanding reservations, including uncertain ones. Changing identity namespaces can bypass old protection, while incompatible payload layouts fail closed. Do not run incompatible versions against the same operation namespace without a migration strategy.
+
+For the trailing-slash normalization change, non-root paths without a trailing slash keep their existing keys. Reservations created with a single trailing slash, or an empty root path without `PathBase`, have different identities after the change. Migrate or drain and reconcile these before upgrading. Do not mix versions with and without normalization for the same operations. Migrating old hashed keys requires the original identity inputs.
