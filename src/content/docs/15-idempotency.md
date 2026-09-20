@@ -171,6 +171,7 @@ For example, when a client retries a charge, the middleware handles it as follow
 | Situation                                                    | Result                                                                                                |
 |--------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
 | The same key and payload were already processed successfully | The stored response is returned without running binding, validation, processors or the handler again. |
+| The handler finished a 2xx but the client disconnected       | The stored response is still replayed. Settlement does not depend on delivering the first response.   |
 | The first request is still running                           | The retry receives `409 Conflict` immediately instead of waiting.                                     |
 | The key is reused with a different payload                   | The request receives `409 Conflict`.                                                                  |
 | The earlier attempt cannot safely be replayed                | The retry receives `500`. An unresolved active request continues to return `409`.                     |
@@ -183,7 +184,7 @@ The payload comparison includes query values, body bytes, and uploaded file cont
 
 An error does not necessarily mean that nothing happened. A payment provider could accept a charge and then time out before returning its response. Releasing the reservation in that situation would make a duplicate charge possible.
 
-For this reason, exceptions, cancellation, ambiguous non-2xx responses, response capture overflow and failures to save the final result do not automatically release protection. A surrounding exception handler can return an error, but cannot release the reservation. Uncertain operations need to be checked against your business records or payment provider and reconciled through your storage provider, not simply retried as new requests.
+For this reason, exceptions, cancellation during the handler, ambiguous non-2xx responses, response capture overflow and failures to save the final result do not automatically release protection. If the handler has already finished a 2xx, the response is stored even when the client has disconnected. A surrounding exception handler can return an error, but cannot release the reservation. Uncertain operations need to be checked against your business records or payment provider and reconciled through your storage provider, not simply retried as new requests.
 
 If your application can prove that a rejected request made **no business side effects**, it can explicitly allow another attempt:
 
