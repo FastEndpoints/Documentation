@@ -287,6 +287,22 @@ The MCP package builds an input schema from the endpoint request DTO using **Sys
 
 The validation rules currently reflected into the schema include required values, length limits, numeric ranges, regex patterns, and email format. Rules that cannot be expressed as JSON Schema still run through the normal FastEndpoints validation pipeline.
 
+### MCP Property Descriptions
+
+Annotate request DTO properties with the standard `System.ComponentModel.DescriptionAttribute` to include a `description` in the tool's `inputSchema`:
+
+```cs
+using System.ComponentModel;
+
+public class Request
+{
+    [Description("City name or zip code")]
+    public string Location { get; set; }
+}
+```
+
+Descriptions follow the serialized property names, including naming policies and `[JsonPropertyName]`, and apply to nested DTO properties. Endpoint serializer contexts are supported. Properties excluded by `[JsonIgnore]` remain excluded, and empty descriptions are omitted. The same annotation on response DTO properties adds descriptions to `outputSchema`.
+
 ### MCP Output Schemas And Structured Content
 
 When the endpoint has an object-shaped response DTO, MCP output schemas are included by default.
