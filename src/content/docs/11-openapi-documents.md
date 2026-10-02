@@ -418,6 +418,18 @@ bld.Services.OpenApiDocument(o =>
 Here's an [example](https://gist.github.com/dj-nitehawk/4efe5ef70f813aec2c55fff3bbb833c0) of a full implementation of API Key authentication with FastEndpoints.
 :::
 
+### OAuth2 and OpenID Connect Scopes
+
+Configure the scopes required by operations with the `globalScopeNames` argument of `AddAuth()`. For example, after defining an OAuth2 security scheme with an `api://example/access` scope:
+
+```cs
+o.AddAuth("oauth2", oauth2Scheme, globalScopeNames: ["api://example/access"]);
+```
+
+These scopes apply to authenticated operations using that scheme. Declaring available scopes in the scheme's OAuth flows and selecting scopes in Scalar are separate settings from the operation's required scopes.
+
+`Roles("User")` and `[Authorize(Roles = "User")]` continue to enforce role authorization at runtime. `FastEndpoints.OpenApi` keeps those role names out of operation security requirements.
+
 ## Excluding Non-FastEndpoints
 
 By default, all discovered endpoints will be included in the document. You can instruct the generator to only include FastEndpoints in the document like so:
