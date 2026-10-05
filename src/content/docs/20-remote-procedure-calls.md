@@ -464,6 +464,8 @@ Choose an allowance that covers those delays. If you extend a hub event's expiry
 When upgrading an existing acknowledgement-enabled deployment, migrate subscriber storage first, then upgrade hubs before subscribers. Backfill **RetainUntil** on existing acknowledgement records to cover the old hub replay window plus your clock-skew allowance before enabling cleanup.
 :::
 
+See [this repo](https://github.com/FastEndpoints/Acked-Event-Queues-Demo) for a full example of event acknowledgement.
+
 ### Event Queue Error Notifications
 
 You have the choice of taking some action when errors occur in both the publisher & subscriber event queues/ storage providers. This is totally optional and the default behavior is to simply log the issues and retry the operations. Subscribing to these error notifications may be beneficial in case you'd like to do something like the following:
@@ -534,13 +536,13 @@ bld.Services.AddEventHubExceptionReceiver<MyHubErrorReceiver>();
 
 ---
 
-## Event Broker Mode
+### Event Broker Mode
 
 By default, when you register an event hub via **RegisterEventHub<TEvent>()**, the hub doesn't accept any events from remote clients/publishers. Only the server itself can broadcast events to it's subscribers.
 
 If there's a requirement to allow remote/external event publishers to send events to the hub, you can easily configure the event hub to act as a relay (event broker) and distribute the events received from external publishers to the connected subscribers. To enable the event broker mode, simply do the following on the gRPC server:
 
-### Hub Setup
+#### Hub Setup
 
 ```cs
 app.MapHandlers(h =>
@@ -551,7 +553,7 @@ app.MapHandlers(h =>
 
 In event broker mode, both the server itself and external publishers can issue events.
 
-### Remote Publisher Setup
+#### Remote Publisher Setup
 
 An external publisher app needs to be configured like so during startup:
 
@@ -580,7 +582,7 @@ See [this GitHub repo](https://github.com/FastEndpoints/Event-Broker-Demo) for a
 
 ---
 
-## Round-Robin Mode
+### Round-Robin Mode
 
 Typically, an event hub will send an event to all known subscribers. Each subscriber receives a copy of the exact same events. Event hubs can be configured to deliver each event to just one of the connected subscribers in a round-robin fashion. Say for example, there's 3 events being published and 2 subscribers A and B connected to the hub. In round-robin mode, they will be delivered like so:
 
@@ -590,7 +592,7 @@ Typically, an event hub will send an event to all known subscribers. Each subscr
 
 And so on. No two subscribers will ever receive the same event. This comes in handy when you want to distribute the workload to a pool of remote nodes, while ensuring that only one subscriber will be processing a particular event.
 
-### Hub Setup (gRPC Server)
+#### Hub Setup (gRPC Server)
 
 ```cs
 app.MapHandlers(h =>
@@ -601,7 +603,7 @@ app.MapHandlers(h =>
 
 You just need to change the hub-mode when configuring the app. The subscriber (gRPC client) setup and event publishing would be [the same](#event-subscriber-project-grpc-client).
 
-#### Combining Event Broker & Round-Robin Modes
+### Combining Event Broker & Round-Robin Modes
 
 If you'd like a hub to act as a broker as well while in round-robin mode, configure the hub like this:
 
@@ -611,13 +613,13 @@ If you'd like a hub to act as a broker as well while in round-robin mode, config
 
 ---
 
-## Testing Remote Events
+### Testing Remote Events
 
 The **FastEndpoints.Messaging.Remote.Testing** package exposes the same event receiver pattern for remote event tests. Register the receiver with **RegisterTestEventReceivers()** and resolve it with **GetTestEventReceiver<TEvent>()** to assert that an event reached the hub. See [capturing commands & events](integration-unit-testing#capturing-commands-events) in the testing docs for the general usage pattern.
 
 ---
 
-## Local Inter-Process Communication
+### Local Inter-Process Communication
 
 If the handler server and the client/subscriber applications are running on the same machine, you can use local inter-process communication (IPC) instead of TCP by making Kestrel listen on a Unix domain socket. This avoids opening a TCP port and keeps the transport local to the machine, while still using the same gRPC based remote messaging functionality described above.
 
