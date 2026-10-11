@@ -311,6 +311,8 @@ A subset of XML comments are supported on request/response DTOs as well as endpo
 </PropertyGroup>
 ```
 
+`FastEndpoints.OpenApi` removes common source indentation from multi-line XML summaries and remarks. Put the opening XML tag on its own line to preserve relative indentation for nested Markdown lists and indented code blocks. Trailing spaces on content lines are preserved, including the two spaces Markdown uses for a hard line break.
+
 ## Adding Query Params To OpenAPI
 
 By default, GET request DTO properties are automatically converted to query parameters because most OpenAPI tooling expects GET input to come from the query string rather than the request body.
