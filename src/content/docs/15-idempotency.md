@@ -199,7 +199,11 @@ This declaration only takes effect when the request finishes normally with a non
 
 Financial endpoints buffer their responses rather than streaming them to the client. `MaxResponseBodySize` limits the response body to 128 MB by default. Exceeding this limit interrupts execution and keeps the reservation, so the original response may not reach the client.
 
-Do not replace response features, disable buffering or use streaming and upgrade protocols in these endpoints. Pending pipe bytes and response-start callbacks are finalized before capture. Outer middleware must not change the business status or response representation in later response-start callbacks, since those changes are outside the replay contract.
+Do not replace response features, disable buffering or use streaming and upgrade protocols in these endpoints. Pending pipe bytes and response-start callbacks are finalized before settlement. `AddFinancialIdempotency()` installs a startup filter that collects application `OnStarting` callbacks, including those registered by middleware before `UseFinancialIdempotency()`. These callbacks run in last-registered-first order against the captured response. Their final status and replayable headers determine the stored result, before any response is delivered to the client. Callback exceptions retain the reservation with an uncertain outcome.
+
+Callbacks must access the current response through `HttpContext.Response`. Holding and mutating an earlier response feature is unsupported. Cached header dictionaries bypass sealing after the captured response starts. Response-mutating callbacks registered outside this startup filter are unsupported on financial endpoints. Register callbacks before invoking the next middleware so capture can include them.
+
+The first response includes cookies appended or deleted by the endpoint or its response-start callbacks, including when earlier middleware has already accessed `HttpContext.Response.Cookies` or installed cookie policy. Set or delete cookies before the captured response starts.
 
 Replayed responses exclude `Set-Cookie`, hop-by-hop headers and headers named by `Connection`.
 
