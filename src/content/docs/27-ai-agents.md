@@ -20,8 +20,8 @@ Both are currently published as beta packages and versioned independently of the
 Install the package you need, or both if the same API should be callable by MCP clients and A2A agents.
 
 ```cs |copy|title=terminal
-dotnet add package FastEndpoints.Mcp --version 1.0.0-beta.5
-dotnet add package FastEndpoints.A2A --version 1.0.0-beta.5
+dotnet add package FastEndpoints.Mcp --version 1.0.0-beta.6
+dotnet add package FastEndpoints.A2A --version 1.0.0-beta.6
 ```
 
 ## Quick Start
@@ -288,6 +288,8 @@ The MCP package builds an input schema from the endpoint request DTO using **Sys
 The validation rules currently reflected into the schema include required values, length limits, numeric ranges, regex patterns, and email format. Rules that cannot be expressed as JSON Schema still run through the normal FastEndpoints validation pipeline.
 
 ### MCP Property Descriptions
+
+Requires `FastEndpoints.Mcp` version `1.0.0-beta.6` or later.
 
 Annotate request DTO properties with the standard `System.ComponentModel.DescriptionAttribute` to include a `description` in the tool's `inputSchema`:
 
