@@ -26,8 +26,8 @@ bld.Services
    .OpenApiDocument(); //define a open-api document
 
 var app = bld.Build();
-app.UseFastEndpoints()
-   .MapOpenApi(); //add this
+app.UseFastEndpoints();
+app.MapOpenApi(); //add this
 app.Run();
 ```
 
