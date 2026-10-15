@@ -48,7 +48,7 @@ This project only needs to reference FastEndpoints core messaging library:
 
 ### The Handler Server Project
 
-This project hosts the command handlers served via Kestrel as gRPC endpoints and it needs to reference the **Contracts** project as well as the FastEndpoints remote messaging library (**net8.0+**).
+This project hosts the command handlers served via Kestrel as gRPC endpoints and it needs to reference the **Contracts** project as well as the FastEndpoints remote messaging library (**net10.0+).
 
 ```xml
 
@@ -95,7 +95,7 @@ app.Run();
 
 ### Client / Command Initiator Project
 
-This application (**net8.0+**) would also need to reference both the **Contracts** project as well as FastEndpoints remote messaging library like so:
+This application (**net10.0 or net11.0**) would also need to reference both the **Contracts** project as well as FastEndpoints remote messaging library like so:
 
 ```xml
 
