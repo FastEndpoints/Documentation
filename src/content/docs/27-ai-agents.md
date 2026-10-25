@@ -268,9 +268,33 @@ Configure MCP behavior in `AddMcp()`.
 |------------------------|----------------------------|-------------------------------------------------------------------|
 | `ToolFilter`           | `null`                     | Static filter for which opt-in endpoints are registered as tools. |
 | `ToolVisibilityFilter` | authenticated callers only | Per-caller filter used for tool listing and tool invocation.      |
+| `OnToolCallRefused`    | `null`                     | Optional callback for auditing calls refused by the visibility filter. |
 | `IncludeOutputSchemas` | `true`                     | Includes `outputSchema` for object-shaped response DTOs.          |
 
 **ToolFilter** is for app-wide inclusion. **ToolVisibilityFilter** is for request-time authorization and user-specific visibility.
+
+### Auditing Refused MCP Calls
+
+Use **OnToolCallRefused** to record actual tool calls rejected by **ToolVisibilityFilter**, without logging every hidden tool during `tools/list`:
+
+```cs |copy
+bld.Services.AddMcp(o =>
+{
+    o.OnToolCallRefused = (def, user, ctx) =>
+    {
+        var logger = ctx.RequestServices
+                        .GetRequiredService<ILoggerFactory>()
+                        .CreateLogger("McpAudit");
+
+        logger.LogWarning("MCP call refused for endpoint {EndpointType}, caller {Caller}",
+                          def.EndpointType.FullName, user.Identity?.Name);
+    };
+});
+```
+
+The callback receives the endpoint definition, current caller, and HTTP context. It runs once per call refused during name resolution or the final visibility check before invocation. Tool listings, allowed calls, unknown tool names, and endpoints excluded by **ToolFilter** don't trigger it. If multiple hidden endpoints share the requested name, only the first matching endpoint is reported. A hidden candidate doesn't trigger it when another endpoint with that name is visible and the call succeeds.
+
+The hook doesn't change the response sent to the client. Hidden and unknown tools still receive the same "not available" error. The callback runs synchronously, so keep it short and handle any audit-storage failures inside it. Exceptions from the callback propagate and the endpoint remains uninvoked.
 
 ### MCP Input Schemas
 
