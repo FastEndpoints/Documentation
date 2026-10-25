@@ -10,13 +10,10 @@ tags: [conventions]
 ## Naming
 - Doc files: `NN-slug.md` where `NN` is a zero-padded order integer and `slug` becomes the URL segment (`/docs/{slug}`) unless frontmatter `slug` overrides.
 - Standalone pages: `src/content/pages/{name}.md` loaded by name (e.g. `benchmarks`).
-- SvelteKit routes follow Kit file naming (`+page.svelte`, `+page.server.ts`, `+server.ts`).
-- Components: PascalCase `.svelte` under feature folders (`site/`, `docs/`).
 
 ## Style
-- Prettier: tabs, single quotes, no trailing commas, printWidth 100 (`.prettierrc`).
-- TypeScript strict; `noUnusedLocals` / `noUnusedParameters` on.
-- ESLint: recommended + `@typescript-eslint` + prettier; lint globs `src/**/*.{ts,js}`, `svelte.config.js`, `vite.config.ts`.
+- Code formatting and lint rules are defined in `.prettierrc`, `.eslintrc.cjs`, and `tsconfig.json`.
+- `.prettierignore` excludes Markdown, so `npm run format` does not reformat content or OKF. Preserve existing Markdown formatting.
 - Tailwind utility classes in components; brand colors via `feBlue` / `feDarkBlue` / `feLightBlue` and CSS vars.
 - Dark mode: Tailwind `class` strategy.
 
@@ -26,13 +23,14 @@ Required YAML frontmatter on every content file:
 - `description` (string)
 
 Docs under `src/content/docs/` also require:
-- `group` (must match an id in `src/lib/content/groups.ts`: `getting-started`, `rest-apis`, `messaging`, `tooling`, `guides`)
+- `group` (must match an id in `src/lib/content/groups.ts`)
 
 Optional: `slug`, `order` (defaults come from filename). Standalone pages in `src/content/pages/` do not use `group`.
 
 Body conventions:
 - Title line often `# {$frontmatter.title}` (replaced at load time).
 - Code fences: language plus optional `|copy` and `|title=...` (also `+` separators). `cs` maps to C# highlighting.
+  Example: `cs |copy|title=Program.cs`.
 - Admonitions:
   ```md
   :::admonition type="note"
@@ -49,15 +47,9 @@ Body conventions:
 ## APIs and data
 - Prefer `$lib/...` imports.
 - Config is frozen object in `src/config.ts` (not env-driven today).
-- GitHub contributor fetch fails soft (empty array on non-OK response).
-
-## Config and DI
-No DI container. Server load functions call pure content helpers. Client search init is explicit via worker messages.
 
 ## Sources
-- `.prettierrc`
 - `.eslintrc.cjs`
 - `src/lib/content/docs.ts`
-- `src/lib/content/groups.ts`
 - `src/lib/content/markdown.ts`
 - `tsconfig.json`

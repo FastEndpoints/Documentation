@@ -21,9 +21,17 @@ OKF guides, but it does not replace checking source, tests, or manifests for exa
 
 Preserve conventions, boundaries, and workflows from OKF. On conflict with source/tests/generated artifacts/manifests: prefer verified current behavior, update OKF, mention the correction.
 
+### OKF content discipline
+
+- Keep operational knowledge that guides decisions: boundaries, contracts, commands, non-obvious failure modes, and owner-approved policies. OKF is not a change log or second documentation site.
+- Give each detailed fact one topic owner; use short summaries or links elsewhere only when needed for navigation.
+- Replace superseded guidance instead of appending another account. Omit routine implementation narration and exhaustive API/test inventories.
+- Test guidance should identify suites, commands, setup, and isolation requirements, not enumerate assertions.
+- Before finishing an OKF edit, check duplication, stale detail, and reading cost. Preserve safety, compatibility, persistence, and owner-approved constraints.
+
 ### Before finishing
 
-Sync `.okf/` when the change hits the update triggers in `.okf/maintenance.md`. Default trigger inventory: architecture/boundaries; public APIs/routes/schemas/events/contracts; persistence/migrations; deps/runtime; build/run/test/lint/format/generate/deploy; testing strategy; security/auth; config/env/ports/ops; conventions/layout; gotchas.
+Evaluate `.okf/` when the change hits the update triggers in `.okf/maintenance.md`. Update only when existing guidance becomes incorrect or incomplete, or durable operational knowledge would otherwise need rediscovery. A trigger requires evaluation, not an automatic addition. If existing guidance remains sufficient, report `OKF unaffected (existing guidance remains accurate and sufficient)`.
 
 If no update needed, state why (pure comment/typo/formatting: `OKF unaffected (non-behavioral edit)`). Task is incomplete until OKF is synced or explicitly unaffected.
 

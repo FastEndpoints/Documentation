@@ -10,11 +10,9 @@ resource: package.json
 
 ## Setup
 ```bash
-npm install
+npm ci
 ```
-Node engines are strict (`engine-strict=true` in `.npmrc`). Use a Node version compatible with Vite 8 / SvelteKit 2 / Svelte 5 toolchain in `package.json`.
-
-Branch: work on `dev` only for site changes.
+Use the locked toolchain's Node requirements in [Dependencies](dependencies.md). Use `npm install` when intentionally changing dependencies.
 
 ## Build and run
 | Command | Purpose |
@@ -22,31 +20,19 @@ Branch: work on `dev` only for site changes.
 | `npm run dev` | Vite dev server (`vite dev`); markdown under `src/content/**` triggers full reload |
 | `npm run build` | Production static build into `docs/` |
 | `npm run preview` | Preview production build (`vite preview`) |
-| `npm run package` | `svelte-kit sync` (Kit generated types/config) |
+| `npm run package` | `svelte-kit sync`; refresh generated Kit types/config after route or relevant dependency changes (build/dev also syncs) |
 
-Homepage contributor load hits GitHub during prerender/build; offline or rate-limited builds may show empty contributors (fetch returns `[]` on failure).
+Build-time GitHub access and failure behavior: [Operations](operations.md).
 
 ## Lint and format
 | Command | Purpose |
 | --- | --- |
 | `npm run format` | `prettier --write .` |
 | `npm run lint` | Prettier check + ESLint on configured globs |
-| `npm run check` | `svelte-check` with project tsconfig |
-| `npm run check:watch` | Watch mode svelte-check |
 
-## Codegen and migrations
-- No DB migrations.
-- Content "codegen" is the static build: docs → HTML + `search.json` + `sitemap.xml`.
-- After adding routes or deps that affect Kit types, run `npm run package` or a build/dev cycle.
-
-## Common content workflow
-1. Add or edit `src/content/docs/NN-slug.md` (or `src/content/pages/*.md`).
-2. Run `npm run dev` and verify page, sidebar order, anchors, search.
-3. Run `npm run check` / `npm run lint` before PR.
-4. Open PR against `dev`.
+Validation commands and content/UI checks: [Testing](testing.md). Markdown is excluded from Prettier checks and formatting.
 
 ## Sources
 - `package.json`
 - `vite.config.ts`
 - `svelte.config.js`
-- `AGENTS.md`
