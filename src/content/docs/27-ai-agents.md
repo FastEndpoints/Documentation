@@ -296,6 +296,8 @@ The callback receives the endpoint definition, current caller, and HTTP context.
 
 The hook doesn't change the response sent to the client. Hidden and unknown tools still receive the same "not available" error. The callback runs synchronously, so keep it short and handle any audit-storage failures inside it. Exceptions from the callback propagate and the endpoint remains uninvoked.
 
+Leave **OnToolCallRefused** unset when you don't need auditing. Name resolution then skips refusal-tracking allocations. Configure the callback before resolving a call, not from inside **ToolVisibilityFilter**. Enabling it inside the filter doesn't enable auditing for that name-resolution attempt. The final invocation check reads the current callback separately.
+
 ### MCP Input Schemas
 
 The MCP package builds an input schema from the endpoint request DTO using **System.Text.Json** metadata.
@@ -662,6 +664,8 @@ The following parts of the normal endpoint pipeline still run:
 - Endpoint handler or executor
 - Post-processors
 - Response serialization
+
+Custom metadata added with `Definition.Metadata(...)` is available through `HttpContext.GetEndpoint()?.Metadata` during MCP and A2A calls, in registration order. Pre-processors can use the same `GetMetadata<T>()` and `GetOrderedMetadata<T>()` lookups as on HTTP requests. This does not include all metadata added by HTTP routing conventions or `Options(...)` callbacks, and it does not run the HTTP middleware pipeline.
 
 Agent calls can bind the same DTO shapes used by normal HTTP clients.
 
