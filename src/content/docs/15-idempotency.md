@@ -174,11 +174,32 @@ For example, when a client retries a charge, the middleware handles it as follow
 | Situation                                                    | Result                                                                                                |
 |--------------------------------------------------------------|-------------------------------------------------------------------------------------------------------|
 | The same key and payload were already processed successfully | The stored response is returned without running binding, validation, processors or the handler again. |
-| The first request is still running                           | The retry receives `409 Conflict` immediately instead of waiting.                                     |
-| The key is reused with a different payload                   | The request receives `409 Conflict`.                                                                  |
-| The earlier attempt cannot safely be replayed                | The retry receives `500`. An unresolved active request continues to return `409`.                     |
+| The first request is still running                           | The retry receives `409 Conflict` immediately with `Retry-After: 1`. Retry after the indicated delay. |
+| The key is reused with a different payload                   | The request receives `422 Unprocessable Entity`. Retrying the same request will not succeed.          |
+| The earlier attempt cannot safely be replayed                | The retry receives `409 Conflict` without `Retry-After`. Reconcile the outcome before retrying.        |
 
 The payload comparison includes query values, body bytes, and uploaded file contents and metadata. Changing a query value therefore counts as changing the payload, not as starting a separate operation. Successful responses, including empty responses such as `204`, are stored even if the client disconnects before receiving them.
+
+#### Machine-Readable Error Codes
+
+These three rejections set a stable `ValidationFailure.ErrorCode` so clients can distinguish them without parsing messages:
+
+| Constant in `FinancialIdempotencyErrorCodes` | Error code                             |
+|--------------------------------------------|----------------------------------------|
+| `InProgress`                               | `FinancialIdempotency.InProgress`       |
+| `PayloadMismatch`                          | `FinancialIdempotency.PayloadMismatch`  |
+| `OutcomeUnknown`                           | `FinancialIdempotency.OutcomeUnknown`   |
+
+The default `ErrorResponse` does not include these codes. To expose them in the `code` field of each `ProblemDetails` error, enable `IndicateErrorCode`:
+
+```cs
+app.UseFinancialIdempotency()
+   .UseFastEndpoints(c => c.Errors.UseProblemDetails(o => o.IndicateErrorCode = true));
+```
+
+Custom error response builders also receive the code through each validation failure's `ErrorCode` property. See [customizing error responses](configuration-settings#customizing-error-responses).
+
+Broken storage contracts, such as returning a replay result without a stored response or starting a reservation without an ownership token, still return `500`. They do not carry one of the three codes above.
 
 ### How Long Requests Stay Protected
 
