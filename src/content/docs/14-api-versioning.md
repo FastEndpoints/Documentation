@@ -257,6 +257,10 @@ Install the wrapper library from nuget:
 Install-Package FastEndpoints.AspVersioning
 ```
 
+:::admonition type="note"
+`FastEndpoints.AspVersioning` currently supports **.NET 10 only**. .NET 11 support is pending because the upstream `Asp.Versioning.OpenApi` package requires Microsoft.OpenApi 2.x, while the .NET 11 OpenAPI stack requires 3.x. Built-in FastEndpoints route versioning supports both .NET 10 and .NET 11.
+:::
+
 Create a couple of Version Sets where you specify a name for the API as well as the different versions each API has like so:
 
 ```cs
