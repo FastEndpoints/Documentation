@@ -223,7 +223,21 @@ sealed class MyRequest
 }
 ```
 
+Route and query parameter values are URL-encoded by these helpers, so reserved characters in the request DTO values are preserved when the request is sent.
+
 Helper methods such as **{POST/PUT/PATCH}Async()** methods even has an optional argument which allows you to automatically convert the supplied request DTO instance in to multipart form-data for submitting to form accepting endpoints.
+
+#### Out-of-process Apps (Aspire)
+
+When the app under test runs in a separate process (such as with Aspire **DistributedApplication** testing), the helper methods look up endpoint routes by calling an internal route on the app. For security reasons that route is only mapped when the configuration value **FastEndpoints:ExposeTestUrlCache** is set to **true** in the app under test. Set it only for the test run, for example on the project resource from your test:
+
+```cs
+var appHost = await DistributedApplicationTestingBuilder.CreateAsync<AspireApp_AppHost>(ct);
+appHost.CreateResourceBuilder<ProjectResource>("apiservice")
+       .WithEnvironment("FastEndpoints__ExposeTestUrlCache", "true");
+```
+
+In-process **AppFixture** tests don't need this, and [Native AOT](native-aot#testing-native-aot-builds) tests set it automatically. Never enable it in production, as the route lists every endpoint route and type name to anonymous callers.
 
 ### State Fixture
 
@@ -540,7 +554,7 @@ You have the ability to write unit tests [like this](https://github.com/FastEndp
 
 ### Adding Route Parameters
 
-For passing down route parameters you will have to alter the **HttpContext** by setting them in the **Factory.Create**. See the example below:
+Because model binding is skipped (see the tip above), route values are **not** copied from `HttpContext.Request.RouteValues` into the request DTO. Put those values on the DTO you pass to **HandleAsync()** / **ExecuteAsync()**:
 
 ```cs | title=Endpoint.cs
 public class Endpoint : Endpoint<Request, Response>
@@ -566,8 +580,8 @@ public class Endpoint : Endpoint<Request, Response>
 public class Request
 {
     public int Id { get; set; }
-    public string FirstName { get; set;}
-    public string LastName { get; set;}
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
 }
 
 public class Response
@@ -581,25 +595,31 @@ public class Response
 [Fact]
 public async Task GetSingleUserById()
 {
-    // Arrange
-    var ep = Factory.Create<Endpoint>(ctx => ctx.Request.RouteValues.Add("id", "1"));
+    var ep = Factory.Create<Endpoint>();
 
-    var req = new Request 
+    var req = new Request
     {
-      FirstName = "Jeff",
-      LastName = "Bridges"
+        Id = 1, // set route-bound properties on the DTO
+        FirstName = "Jeff",
+        LastName = "Bridges"
     };
 
-    // Act
     await ep.HandleAsync(req, default);
     var rsp = ep.Response;
 
-    // Assert
     Assert.IsNotNull(rsp);
     Assert.AreEqual(1, rsp.Id);
     Assert.AreEqual("Jeff Bridges", rsp.FullName);
 }
 ```
+
+Only seed `HttpContext.Request.RouteValues` when the handler itself reads them, for example with **[Route<T>()](model-binding#route-values-without-a-dto)**:
+
+```cs
+var ep = Factory.Create<Endpoint>(ctx => ctx.Request.RouteValues.Add("id", "1"));
+```
+
+To cover actual HTTP binding of route params, use an [integration test](#integration-testing) instead.
 
 ### Units with Command executions or Event publishes
 

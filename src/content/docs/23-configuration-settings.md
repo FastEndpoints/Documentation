@@ -42,6 +42,43 @@ app.UseFastEndpoints(c => c.Binding.UsePropertyNamingPolicy = true)
 
 This removes the need for attributes in most cases but requires the team to follow a consistent naming convention to avoid confusion.
 
+## Enum Value Binding
+
+Route, query, form, header, cookie, and claim values must be a member defined on the target enum. Undefined names and undefined numbers are rejected. Names are matched case-insensitively.
+
+```cs
+enum Day { Monday = 1, Tuesday = 2, Wednesday = 3 }
+```
+
+`Monday` binds. `99` and `Thursday` do not.
+
+A comma-separated list (`Monday,Tuesday`) and repeated values (`?day=Monday&day=Tuesday`) are rejected when the enum has no **[Flags]** attribute. .NET parses that input with a bitwise OR, so `Monday,Tuesday` becomes `Wednesday` (`1 | 2`). The binder refuses the input instead of accepting a different member.
+
+**[Flags]** enums accept a comma-separated list, and repeated values, only when that OR result is itself a named member:
+
+```cs
+[Flags]
+enum Perms
+{
+    Read = 1,
+    Write = 2,
+    Execute = 4,
+    ReadWrite = Read | Write
+}
+```
+
+`Read,Write` binds as `ReadWrite`. `Read,Execute` does not, because `5` has no name on the enum.
+
+To restore raw **Enum.TryParse** behavior (undefined numbers, and comma-separated names):
+
+```cs
+app.UseFastEndpoints(c => c.Binding.AllowUndefinedEnumValues = true);
+```
+
+With that switch on, `Monday,Tuesday` binds as `Wednesday`, and `99` binds as an undefined value.
+
+This setting does not apply to JSON request bodies. Those follow your System.Text.Json converters.
+
 ## Global Route Prefix
 
 You can have a specified string automatically prepended to all route names in your app instead of repeating it in each and every route config method by specifying the prefix at app startup.

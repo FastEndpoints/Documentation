@@ -48,7 +48,7 @@ tags: [layout]
 ## Generated code
 - Do not hand-edit `docs/` or `.svelte-kit/`.
 - Regenerate site with `npm run build` (preview with `npm run preview`).
-- `svelte-kit sync` via `npm run package` for generated Kit types when needed.
+- Generated Kit type refresh: [Workflows](workflows.md).
 
 ## Sources
 - `src/routes/`

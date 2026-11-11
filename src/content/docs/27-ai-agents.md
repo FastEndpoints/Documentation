@@ -20,8 +20,8 @@ Both are currently published as beta packages and versioned independently of the
 Install the package you need, or both if the same API should be callable by MCP clients and A2A agents.
 
 ```cs |copy|title=terminal
-dotnet add package FastEndpoints.Mcp --version 1.0.0-beta.5
-dotnet add package FastEndpoints.A2A --version 1.0.0-beta.5
+dotnet add package FastEndpoints.Mcp --version 1.0.0-beta.10
+dotnet add package FastEndpoints.A2A --version 1.0.0-beta.10
 ```
 
 ## Quick Start
@@ -268,9 +268,35 @@ Configure MCP behavior in `AddMcp()`.
 |------------------------|----------------------------|-------------------------------------------------------------------|
 | `ToolFilter`           | `null`                     | Static filter for which opt-in endpoints are registered as tools. |
 | `ToolVisibilityFilter` | authenticated callers only | Per-caller filter used for tool listing and tool invocation.      |
+| `OnToolCallRefused`    | `null`                     | Optional callback for auditing calls refused by the visibility filter. |
 | `IncludeOutputSchemas` | `true`                     | Includes `outputSchema` for object-shaped response DTOs.          |
 
 **ToolFilter** is for app-wide inclusion. **ToolVisibilityFilter** is for request-time authorization and user-specific visibility.
+
+### Auditing Refused MCP Calls
+
+Use **OnToolCallRefused** to record actual tool calls rejected by **ToolVisibilityFilter**, without logging every hidden tool during `tools/list`:
+
+```cs |copy
+bld.Services.AddMcp(o =>
+{
+    o.OnToolCallRefused = (def, user, ctx) =>
+    {
+        var logger = ctx.RequestServices
+                        .GetRequiredService<ILoggerFactory>()
+                        .CreateLogger("McpAudit");
+
+        logger.LogWarning("MCP call refused for endpoint {EndpointType}, caller {Caller}",
+                          def.EndpointType.FullName, user.Identity?.Name);
+    };
+});
+```
+
+The callback receives the endpoint definition, current caller, and HTTP context. It runs once per call refused during name resolution or the final visibility check before invocation. Tool listings, allowed calls, unknown tool names, and endpoints excluded by **ToolFilter** don't trigger it. If multiple hidden endpoints share the requested name, only the first matching endpoint is reported. A hidden candidate doesn't trigger it when another endpoint with that name is visible and the call succeeds.
+
+The hook doesn't change the response sent to the client. Hidden and unknown tools still receive the same "not available" error. The callback runs synchronously, so keep it short and handle any audit-storage failures inside it. Exceptions from the callback propagate and the endpoint remains uninvoked.
+
+Leave **OnToolCallRefused** unset when you don't need auditing. Name resolution then skips refusal-tracking allocations. Configure the callback before resolving a call, not from inside **ToolVisibilityFilter**. Enabling it inside the filter doesn't enable auditing for that name-resolution attempt. The final invocation check reads the current callback separately.
 
 ### MCP Input Schemas
 
@@ -286,6 +312,22 @@ The MCP package builds an input schema from the endpoint request DTO using **Sys
 | Unknown arguments            | Rejected as validation failures before the endpoint handler runs. |
 
 The validation rules currently reflected into the schema include required values, length limits, numeric ranges, regex patterns, and email format. Rules that cannot be expressed as JSON Schema still run through the normal FastEndpoints validation pipeline.
+
+### MCP Property Descriptions
+
+Annotate request DTO properties with the standard `System.ComponentModel.DescriptionAttribute` to include a `description` in the tool's `inputSchema`:
+
+```cs
+using System.ComponentModel;
+
+public class Request
+{
+    [Description("City name or zip code")]
+    public string Location { get; set; }
+}
+```
+
+Descriptions follow the serialized property names, including naming policies and `[JsonPropertyName]`, and apply to nested DTO properties. Endpoint serializer contexts are supported. Properties excluded by `[JsonIgnore]` remain excluded, and empty descriptions are omitted. The same annotation on response DTO properties adds descriptions to `outputSchema`.
 
 ### MCP Output Schemas And Structured Content
 
@@ -620,6 +662,8 @@ The following parts of the normal endpoint pipeline still run:
 - Endpoint handler or executor
 - Post-processors
 - Response serialization
+
+Custom metadata added with `Definition.Metadata(...)` is available through `HttpContext.GetEndpoint()?.Metadata` during MCP and A2A calls, in registration order. Pre-processors can use the same `GetMetadata<T>()` and `GetOrderedMetadata<T>()` lookups as on HTTP requests. This does not include all metadata added by HTTP routing conventions or `Options(...)` callbacks, and it does not run the HTTP middleware pipeline.
 
 Agent calls can bind the same DTO shapes used by normal HTTP clients.
 

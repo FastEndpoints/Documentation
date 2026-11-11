@@ -1,13 +1,13 @@
 ---
 type: Reference
 title: Maintenance
-description: OKF conformance rules, update triggers, and conflict handling for this repo.
+description: OKF conformance, update-trigger inventory, and topic ownership for this repo.
 tags: [maintain]
 ---
 
 # Maintenance
 
-Normative day-to-day OKF finish gates live in `AGENTS.md`. This file is the detailed inventory and conformance reminder.
+Reading, content discipline, conflict handling, and finish gates: [AGENTS.md](../AGENTS.md).
 
 ## Conformance
 - OKF v0.1 under `.okf/`.
@@ -19,27 +19,26 @@ Normative day-to-day OKF finish gates live in `AGENTS.md`. This file is the deta
 - No empty placeholders; keep links in `index.md` resolving to existing files only.
 
 ## Update triggers
-Sync `.okf/` when changes hit:
+Evaluate OKF when changes affect:
 - architecture/boundaries
 - public routes/endpoints/contracts (including search.json / sitemap behavior)
 - content pipeline or markdown conventions
 - dependencies/runtime/package management
 - build/run/lint/format/generate/deploy commands
 - testing/validation strategy
+- persistence/migrations (if introduced)
 - security/auth (if introduced)
 - config/env/ports/ops assumptions
 - conventions/layout
 - gotchas
 
-Pure comment/typo/formatting with no behavior or command change: `OKF unaffected (non-behavioral edit)` is enough.
-
-## Conflicts
-If OKF disagrees with source, tests, generated artifacts, or manifests:
-1. Verify current behavior from those authorities.
-2. Fix OKF.
-3. Mention the correction in the final response.
-
-If no OKF update is required, say so explicitly before finishing.
+## Topic ownership
+- Architecture: build/client boundaries and prerender/search invariants.
+- Code map: paths, entry points, and generated artifacts.
+- Conventions: content authoring and code style.
+- Workflows: setup/build/format commands; testing: validation selection and expectations.
+- Dependencies: runtime/package constraints; operations: deployment/configuration and build-time network behavior.
+- Gotchas: concise traps not already explained in another topic.
 
 ## Sources
 - `AGENTS.md`

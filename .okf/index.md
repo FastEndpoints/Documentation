@@ -4,7 +4,7 @@ okf_version: "0.1"
 
 # OKF Knowledge Set
 
-Compact operational knowledge for agents working on the FastEndpoints documentation site. Read relevant files before editing. Keep synchronized with code, content, tests, docs, and configuration.
+Compact operational knowledge for the FastEndpoints documentation site. Reading gates, authority, and update rules: [AGENTS.md](../AGENTS.md).
 
 ## Core reading order
 * [Project Overview](project-overview.md): purpose and scope
@@ -19,9 +19,5 @@ Compact operational knowledge for agents working on the FastEndpoints documentat
 ## Task-specific
 * [Dependencies](dependencies.md) · [Operations](operations.md) · [Gotchas](gotchas.md) · [Maintenance](maintenance.md)
 
-## Authority
-If OKF conflicts with source, tests, generated artifacts, or manifests: verify those, then update OKF.
-
 ## Maintenance
-Normative OKF use/update gates: `AGENTS.md`. Reminder + conformance detail: [Maintenance](maintenance.md).
-Before finishing, sync OKF when triggers apply; if not needed, state why (`OKF unaffected (non-behavioral edit)` for pure comment/typo/format).
+Update-trigger inventory and conformance: [Maintenance](maintenance.md).

@@ -48,7 +48,7 @@ This project only needs to reference FastEndpoints core messaging library:
 
 ### The Handler Server Project
 
-This project hosts the command handlers served via Kestrel as gRPC endpoints and it needs to reference the **Contracts** project as well as the FastEndpoints remote messaging library (**net8.0+**).
+This project hosts the command handlers served via Kestrel as gRPC endpoints and it needs to reference the **Contracts** project as well as the FastEndpoints remote messaging library (**net10.0+).
 
 ```xml
 
@@ -95,7 +95,7 @@ app.Run();
 
 ### Client / Command Initiator Project
 
-This application (**net8.0+**) would also need to reference both the **Contracts** project as well as FastEndpoints remote messaging library like so:
+This application (**net10.0 or net11.0**) would also need to reference both the **Contracts** project as well as FastEndpoints remote messaging library like so:
 
 ```xml
 
@@ -260,8 +260,6 @@ If there are transient network communication issues, the operations are automati
 
 It is not possible for the publisher to know which subscribers successfully executed the handlers or if they were even executed at all. Basically this is a **"best effort"** fire-n-forget asynchronous event broadcasting system. You will have to establish out-of-band communication with the subscribers if you want to check the status/progress of the handler executions. An appropriate RPC command option described above can be used for this purpose.
 
-If a subscriber disconnects, the hub will continue creating event records for that known subscriber for up to 24 hours in case it reconnects. After 24 hours of not being seen, the subscriber is considered stale and is pruned so that new event records are no longer created for it. Keep in mind this subscriber retention window is separate from the lifetime of each individual event record. By default, event records expire after 4 hours, which means a subscriber that reconnects after a long outage will only receive the records that have not yet expired.
-
 :::admonition type=warning
 Since both publishers & subscribers hold pending events in memory (**by default**), it is possible to lose events if the processes are killed/restarted while there are pending operations or if the internal queues get overflowed due to slow processing of handlers/subscribers.
 
@@ -359,8 +357,6 @@ app.MapRemote("http://localhost:6000", c =>
 });
 ```
 
-A **SubscribeWithExplicitId(...)** call still takes precedence over the connection-level **SubscriberID** value when both are specified.
-
 Register the same ID with the hub by passing it to **RegisterEventHub(...)**:
 
 ```cs
@@ -388,10 +384,6 @@ new SomethingHappened
 The full source code for the above examples are available on [this GitHub repo](https://github.com/FastEndpoints/Remote-Procedure-Call-Demo).
 
 Blazor Wasm applications in the browser can be made an event subscriber, but requires a slightly different configuration. See [this project](https://github.com/FastEndpoints/Blazor-Wasm-Remote-Messaging-Demo/) for an example.
-
-#### Testing Remote Events
-
-The **FastEndpoints.Messaging.Remote.Testing** package exposes the same event receiver pattern for remote event tests. Register the receiver with **RegisterTestEventReceivers()** and resolve it with **GetTestEventReceiver<TEvent>()** to assert that an event reached the hub. See [capturing commands & events](integration-unit-testing#capturing-commands-events) in the testing docs for the general usage pattern.
 
 ### Reliable Event Queues With Persistence
 
@@ -441,6 +433,39 @@ Now, pending events will not be held in memory and in case of interruptions, thi
 
 If using EF Core as the ORM, [see here](https://gist.github.com/dj-nitehawk/02420788fb0a72c4be4752be8bd4c40b) how to configure it to support storing event storage entities.
 
+#### Delivery Acknowledgements
+
+Enable delivery acknowledgements when you want the hub to wait until an event is safely stored by the subscriber before marking it complete. The subscriber then runs **HandleAsync** independently, so an acknowledgement confirms storage, while handler execution happens separately.
+
+To enable this with your persistence provider:
+
+1. Implement **IEventHubDeliveryAck&lt;TStorageRecord&gt;** on the hub storage provider and **IEventSubscriberDeliveryAck&lt;TStorageRecord&gt;** on the subscriber storage provider. These interfaces extend the storage provider interfaces used above, so your **MapHandlers** and **AddEventSubscriberStorageProvider** registrations stay the same.
+2. Have your subscriber's storage record implement **IEventDeliveryAckStorageRecord** and persist its nullable **RetainUntil** property.
+3. Add a unique index for **TrackingID** in subscriber storage. In **StoreEventAsync**, throw **DuplicateEventDeliveryException(record.TrackingID)** when that index detects a duplicate, leaving the existing record unchanged. Let other storage errors propagate so the library can retry them.
+4. Keep hub records available until they are marked complete. Reading a record must leave it in storage so it can be delivered again if the acknowledgement is lost.
+
+Enable acknowledgements on both sides together. The hub and subscriber must use matching delivery modes to connect successfully.
+
+**Keeping duplicate deliveries safe:**
+
+If a connection is interrupted, the hub may send an event again. The library acknowledges both new and duplicate deliveries, and the unique **TrackingID** prevents an extra subscriber record from being created.
+
+Keep subscriber records, including completed ones, until **RetainUntil** has passed. Apply the supplied **PurgeStaleRecordsAsync** predicate in full, and make any separate database TTL or cleanup jobs respect the same deadline. **ExpireOn** still controls how long an event is eligible for handler execution.
+
+The library sets **RetainUntil** from the hub's event expiry plus a five-minute clock-skew allowance. If your deployment needs more time for clock differences and in-flight deliveries, override this property on the subscriber storage provider:
+
+```cs
+public TimeSpan DeliveryAckClockSkewAllowance => TimeSpan.FromMinutes(10);
+```
+
+Choose an allowance that covers those delays. If you extend a hub event's expiry after delivery, extend the retention of its subscriber record too. Keeping completed records through this window uses additional storage.
+
+:::admonition type="note"
+When upgrading an existing acknowledgement-enabled deployment, migrate subscriber storage first, then upgrade hubs before subscribers. Backfill **RetainUntil** on existing acknowledgement records to cover the old hub replay window plus your clock-skew allowance before enabling cleanup.
+:::
+
+See [this repo](https://github.com/FastEndpoints/Acked-Event-Queues-Demo) for a full example of event acknowledgement.
+
 ### Event Queue Error Notifications
 
 You have the choice of taking some action when errors occur in both the publisher & subscriber event queues/ storage providers. This is totally optional and the default behavior is to simply log the issues and retry the operations. Subscribing to these error notifications may be beneficial in case you'd like to do something like the following:
@@ -482,6 +507,7 @@ bld.Services.AddSubscriberExceptionReceiver<MySubErrorReceiver>();
 
 #### Publisher/Hub Exception Receiver Methods:
 
+- **OnDeserializeEventError(..)**: triggered after three failed deserialization attempts, allowing recovery of the original record before the event is completed and skipped.
 - **OnGetNextEventRecordError(..)**: triggered when the storage provider has trouble retrieving the next event record.
 - **OnMarkEventAsCompleteError(..)**: triggered when the storage provider has trouble marking an event record as complete.
 - **OnStoreEventRecordError(..)**: triggered when the storage provider has trouble persisting an event record.
@@ -510,13 +536,13 @@ bld.Services.AddEventHubExceptionReceiver<MyHubErrorReceiver>();
 
 ---
 
-## Event Broker Mode
+### Event Broker Mode
 
 By default, when you register an event hub via **RegisterEventHub<TEvent>()**, the hub doesn't accept any events from remote clients/publishers. Only the server itself can broadcast events to it's subscribers.
 
 If there's a requirement to allow remote/external event publishers to send events to the hub, you can easily configure the event hub to act as a relay (event broker) and distribute the events received from external publishers to the connected subscribers. To enable the event broker mode, simply do the following on the gRPC server:
 
-### Hub Setup
+#### Hub Setup
 
 ```cs
 app.MapHandlers(h =>
@@ -527,7 +553,7 @@ app.MapHandlers(h =>
 
 In event broker mode, both the server itself and external publishers can issue events.
 
-### Remote Publisher Setup
+#### Remote Publisher Setup
 
 An external publisher app needs to be configured like so during startup:
 
@@ -556,7 +582,7 @@ See [this GitHub repo](https://github.com/FastEndpoints/Event-Broker-Demo) for a
 
 ---
 
-## Round-Robin Mode
+### Round-Robin Mode
 
 Typically, an event hub will send an event to all known subscribers. Each subscriber receives a copy of the exact same events. Event hubs can be configured to deliver each event to just one of the connected subscribers in a round-robin fashion. Say for example, there's 3 events being published and 2 subscribers A and B connected to the hub. In round-robin mode, they will be delivered like so:
 
@@ -566,7 +592,7 @@ Typically, an event hub will send an event to all known subscribers. Each subscr
 
 And so on. No two subscribers will ever receive the same event. This comes in handy when you want to distribute the workload to a pool of remote nodes, while ensuring that only one subscriber will be processing a particular event.
 
-### Hub Setup (gRPC Server)
+#### Hub Setup (gRPC Server)
 
 ```cs
 app.MapHandlers(h =>
@@ -577,7 +603,7 @@ app.MapHandlers(h =>
 
 You just need to change the hub-mode when configuring the app. The subscriber (gRPC client) setup and event publishing would be [the same](#event-subscriber-project-grpc-client).
 
-#### Combining Event Broker & Round-Robin Modes
+### Combining Event Broker & Round-Robin Modes
 
 If you'd like a hub to act as a broker as well while in round-robin mode, configure the hub like this:
 
@@ -587,7 +613,13 @@ If you'd like a hub to act as a broker as well while in round-robin mode, config
 
 ---
 
-## Local Inter-Process Communication
+### Testing Remote Events
+
+The **FastEndpoints.Messaging.Remote.Testing** package exposes the same event receiver pattern for remote event tests. Register the receiver with **RegisterTestEventReceivers()** and resolve it with **GetTestEventReceiver<TEvent>()** to assert that an event reached the hub. See [capturing commands & events](integration-unit-testing#capturing-commands-events) in the testing docs for the general usage pattern.
+
+---
+
+### Local Inter-Process Communication
 
 If the handler server and the client/subscriber applications are running on the same machine, you can use local inter-process communication (IPC) instead of TCP by making Kestrel listen on a Unix domain socket. This avoids opening a TCP port and keeps the transport local to the machine, while still using the same gRPC based remote messaging functionality described above.
 

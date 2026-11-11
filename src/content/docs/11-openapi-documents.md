@@ -26,8 +26,8 @@ bld.Services
    .OpenApiDocument(); //define a open-api document
 
 var app = bld.Build();
-app.UseFastEndpoints()
-   .MapOpenApi(); //add this
+app.UseFastEndpoints();
+app.MapOpenApi(); //add this
 app.Run();
 ```
 
@@ -311,6 +311,8 @@ A subset of XML comments are supported on request/response DTOs as well as endpo
 </PropertyGroup>
 ```
 
+`FastEndpoints.OpenApi` removes common source indentation from multi-line XML summaries and remarks. Put the opening XML tag on its own line to preserve relative indentation for nested Markdown lists and indented code blocks. Trailing spaces on content lines are preserved, including the two spaces Markdown uses for a hard line break.
+
 ## Adding Query Params To OpenAPI
 
 By default, GET request DTO properties are automatically converted to query parameters because most OpenAPI tooling expects GET input to come from the query string rather than the request body.
@@ -417,6 +419,18 @@ bld.Services.OpenApiDocument(o =>
 :::admonition type="tip"
 Here's an [example](https://gist.github.com/dj-nitehawk/4efe5ef70f813aec2c55fff3bbb833c0) of a full implementation of API Key authentication with FastEndpoints.
 :::
+
+### OAuth2 and OpenID Connect Scopes
+
+Configure the scopes required by operations with the `globalScopeNames` argument of `AddAuth()`. For example, after defining an OAuth2 security scheme with an `api://example/access` scope:
+
+```cs
+o.AddAuth("oauth2", oauth2Scheme, globalScopeNames: ["api://example/access"]);
+```
+
+These scopes apply to authenticated operations using that scheme. Declaring available scopes in the scheme's OAuth flows and selecting scopes in Scalar are separate settings from the operation's required scopes.
+
+`Roles("User")` and `[Authorize(Roles = "User")]` continue to enforce role authorization at runtime. `FastEndpoints.OpenApi` keeps those role names out of operation security requirements.
 
 ## Excluding Non-FastEndpoints
 
@@ -581,7 +595,11 @@ Response headers are documented automatically for response DTO properties decora
 
 ## FluentValidation Integration
 
-FluentValidation rules are automatically applied to documented schemas. This includes things such as required properties, minimum/maximum lengths, regex patterns, numeric ranges, and nested validators.
+FluentValidation rules are automatically applied to documented request bodies **and** operation parameters (query, path, header, and cookie). This includes things such as required properties, minimum/maximum lengths, regex patterns, numeric ranges, and nested validators.
+
+GET and other bodyless endpoints therefore document filter constraints from your validator on the query parameters themselves. Mixed endpoints (JSON body plus `[QueryParam]` / `[FromHeader]` properties) apply the matching rules to each surface.
+
+Parameter names follow the documented query/header/path names (`[BindFrom]`, header name, etc.). Rules are matched by the request DTO property identity, including `[JsonPropertyName]`. Flattened `[FromQuery]` complex objects are not expanded into nested validator paths yet.
 
 If there is a special circumstance where a validation rule should not affect the generated document, you can disable documentation integration for that rule like so:
 

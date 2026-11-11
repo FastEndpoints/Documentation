@@ -155,8 +155,10 @@ public override async Task HandleAsync(CancellationToken ct)
 Validators are singletons for [performance reasons](/benchmarks). Constructor injection as well as the above-mentioned **\*Resolve()** methods are available for
 validators to get access to the dependencies. Take care not to maintain state in the validator unless that data is also singleton/static.
 
-Trying to resolve a scoped dependency in the constructor will cause an error to be thrown. Scoped dependencies can be resolved in the constructor by creating a new scope
-and disposing it as shown below:
+Validators are always constructed from the root service provider, even when the first instance is created during a request. Injecting a scoped dependency in the
+constructor therefore throws an error when DI scope validation is enabled (the default in the **Development** environment). When scope validation is disabled (the
+default in **Production**), no error is thrown and the scoped dependency silently becomes a singleton shared by every request, so don't rely on the error alone to catch
+this mistake. Scoped dependencies can be resolved in the constructor by creating a new scope and disposing it as shown below:
 
 ```cs title=MyValidator.cs
 public class MyValidator : Validator<Request>
@@ -194,7 +196,8 @@ public class MyValidator : Validator<Request>
 
 ## Entity Mapper Dependencies
 
-Just like validators, mappers are also singletons and you need to create a scope and dispose it if you need to resolve scoped dependencies in the constructor.
+Just like validators, mappers are also singletons constructed from the root service provider, and you need to create a scope and dispose it if you need to resolve scoped
+dependencies in the constructor. Injecting a scoped dependency directly behaves the same way as it does for validators.
 
 ```cs title=MyMapper.cs
 public class MyMapper : Mapper<Request, Response, Person>
@@ -227,7 +230,7 @@ public class Mapper : Mapper<Request, Response, Person>
 
 ## Pre/Post Processor Dependencies
 
-Processors are also singletons, and they support both constructor injection and resolving via **HttpContext**. Since the constructor is only ever executed once, you
+Processors are also singletons constructed from the root service provider, and they support both constructor injection and resolving via **HttpContext**. Since the constructor is only ever executed once, you
 must inject an **IServiceScopeFactory** and use that to create a scope in order to resolve scoped dependencies inside the *ProcessAsync methods. Scoped dependencies can
 also be resolved via the **HttpContext** without the need for an **IServiceScopeFactory**. Singleton dependencies can be injected as usual in the constructor.
 
@@ -254,9 +257,9 @@ public class MyRequestLogger<TRequest> : IPreProcessor<TRequest>
 
 ## Event Handler Dependencies
 
-Event handlers are also singletons, and they only support constructor injection. Since the constructor is only ever executed once, you must inject an
-**IServiceScopeFactory** and use that to create a scope in order to resolve scoped dependencies in the HandleAsync method. Singleton dependencies can be injected as
-usual in the constructor.
+Event handlers are also singletons constructed from the root service provider, and they only support constructor injection. Since the constructor is only ever executed
+once, you must inject an **IServiceScopeFactory** and use that to create a scope in order to resolve scoped dependencies in the HandleAsync method. Singleton
+dependencies can be injected as usual in the constructor. Injecting a scoped dependency directly behaves the same way as it does for validators.
 
 ```cs title=MyEventHandler.cs
 public class MyEventHandler : IEventHandler<MyEvent>

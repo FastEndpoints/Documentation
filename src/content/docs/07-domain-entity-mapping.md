@@ -84,6 +84,32 @@ The mapping logic can be accessed from the **Map** property of the endpoint clas
 Mapper classes are used as **singletons** for performance reasons. You should not maintain state in your mappers.
 :::
 
+**Different Entity Types**
+
+The mapper base class is only a convenience. Add any methods you need and call them from the endpoint. When the request maps to one type and the response is built from another, add that method on the same mapper:
+
+```cs
+public class OrderMapper : Mapper<CreateOrderRequest, OrderResponse, Order>
+{
+    public override Order ToEntity(CreateOrderRequest r) => new()
+    {
+        // map the request to the order entity
+    };
+
+    public OrderResponse FromInvoice(Invoice e) => new()
+    {
+        // map a different entity to the response
+    };
+}
+```
+
+```cs
+Order order = Map.ToEntity(req);
+await Send.OkAsync(Map.FromInvoice(invoice));
+```
+
+**SendMapped** and **SendMappedAsync** only call **FromEntity** for the mapper's **TEntity**. With a second entity type, map it yourself and send the response as usual.
+
 **Mapper Base Class Variants**
 
 In cases where your endpoint has either just a request DTO or just a response DTO, you can inherit from one of the following mapper base class variants.

@@ -9,33 +9,21 @@ resource: package.json
 # Dependencies
 
 ## Runtime
-- Node (ESM project: `"type": "module"`)
+- Node ESM project (`"type": "module"`). The locked Vite 8 toolchain requires Node 20.19+ on the 20 line or 22.12+ on the 22 line; the Svelte Vite plugin also supports Node 24+. Check locked package engines before toolchain upgrades.
 - Browser static site after build (no Node server required at host)
 
 ## Packages
 - Manager: npm (`package-lock.json` present)
 - `.npmrc`: `engine-strict=true`, `strict-peer-deps=false`
 
-## Key libraries
-| Package | Role |
-| --- | --- |
-| `svelte`, `@sveltejs/kit`, `vite`, `@sveltejs/vite-plugin-svelte` | App framework / bundler |
-| `@sveltejs/adapter-static` | Static export to `docs/` |
-| `marked`, `gray-matter`, `shiki` | Markdown parse/frontmatter/highlight |
-| `flexsearch` | Client search index |
-| `github-slugger` | Slug utilities (dependency; project also has local `slugify`) |
-| `tailwindcss`, `@tailwindcss/typography`, `postcss`, `autoprefixer` | Styling |
-| `nprogress`, `clsx` | UI helpers |
-| `typescript`, `svelte-check`, `eslint`, `prettier` | Tooling |
-
-Runtime `dependencies`: `flexsearch`, `marked`. Most stack is `devDependencies` (acceptable for a build-only static site).
+Versions and package inventory belong to `package.json` / `package-lock.json`. Most of the build stack is in `devDependencies`; installing production dependencies alone is insufficient to build the site.
 
 ## Constraints
-- Keep content pipeline on filesystem markdown + existing render helpers unless deliberately redesigning.
-- Local type shim: `types/flexsearch/` and `app.d.ts` module declarations for FlexSearch/highlight.js paths.
+- Local type shim: `types/flexsearch/` and `src/app.d.ts` module declarations for FlexSearch/highlight.js paths.
 - Prefer lockfile installs (`npm ci` in CI-like envs) for reproducible builds.
 
 ## Sources
 - `package.json`
+- `package-lock.json`
 - `.npmrc`
 - `src/app.d.ts`
