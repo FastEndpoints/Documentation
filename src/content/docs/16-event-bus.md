@@ -104,6 +104,29 @@ await new OrderCreatedEvent
 .PublishAsync(Mode.WaitForAll);
 ```
 
+## Event Inheritance
+
+By default, events only reach handlers for the published type. Enable inheritance to also notify handlers for base classes and interfaces:
+
+```cs
+var app = bld.Build();
+
+app.Services.UseMessaging(o => o.Events.EnableInheritance = true);
+app.UseFastEndpoints();
+```
+
+Set this before **UseFastEndpoints()**, **UseJobQueues()**, or publishing. It defaults to **false** and cannot be changed after the first publish or messaging warmup.
+
+For example:
+
+```cs
+public interface IOrderEvent : IEvent { }
+public class OrderEvent : IOrderEvent { }
+public class OrderCreatedEvent : OrderEvent { }
+```
+
+Publishing an **OrderCreatedEvent** now reaches registered handlers for **OrderCreatedEvent**, **OrderEvent**, **IOrderEvent**, and **IEvent**. Matching uses the object's runtime type, even when published through a base-class or interface variable. This applies only to in-process events.
+
 ## Dependency Injection
 
 Dependencies in event handlers can be resolved as described [here](dependency-injection#event-handler-dependencies).
@@ -158,4 +181,14 @@ If you'd like event bus instances to be initialized during application startup i
 
 ```cs
 host.Services.UseMessaging(o => o.Warmup());
+```
+
+To enable inheritance with warmup:
+
+```cs
+host.Services.UseMessaging(o =>
+{
+    o.Events.EnableInheritance = true;
+    o.Warmup();
+});
 ```
