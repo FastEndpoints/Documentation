@@ -148,6 +148,63 @@ With **Server Streaming**, the client sends a single command to the handler serv
 
 Samples of both and the full source code of the above example can be found on [GitHub](https://github.com/FastEndpoints/Remote-Procedure-Call-Demo).
 
+### Duplex (Bi-Directional) Streaming
+
+With **Duplex Streaming**, the client sends a stream of items to the handler server and receives a stream of results at the same time. Both streams stay open together, so the handler can reply to each item while more items are still arriving. Mark the item type with **IDuplexStreamCommand<TResult>** and implement the handler with **IDuplexStreamCommandHandler<TCommand, TResult>**:
+
+```cs |title=Contracts.cs
+public class Ping : IDuplexStreamCommand<Pong>
+{
+    public int Number { get; set; }
+}
+
+public class Pong
+{
+    public int Number { get; set; }
+}
+```
+
+```cs |title=PingHandler.cs
+using System.Runtime.CompilerServices;
+
+public sealed class PingHandler : IDuplexStreamCommandHandler<Ping, Pong>
+{
+    public async IAsyncEnumerable<Pong> ExecuteAsync(IAsyncEnumerable<Ping> stream,
+                                                     [EnumeratorCancellation] CancellationToken ct)
+    {
+        await foreach (var ping in stream.WithCancellation(ct))
+            yield return new() { Number = ping.Number };
+    }
+}
+```
+
+Register the handler on the server and the command on the client:
+
+```cs
+// handler server
+app.MapHandlers(h => h.RegisterDuplexStream<Ping, PingHandler, Pong>());
+
+// client
+app.MapRemote("http://localhost:6000", c => c.RegisterDuplexStream<Ping, Pong>());
+```
+
+Then execute it from the client with the **RemoteExecuteDuplexAsync()** extension method. Both type arguments need to be specified:
+
+```cs
+IAsyncEnumerable<Ping> pings = GetPings();
+
+await foreach (var pong in pings.RemoteExecuteDuplexAsync<Ping, Pong>(ct))
+    Console.WriteLine(pong.Number);
+```
+
+The call starts when you begin enumerating the results. It ends when the handler's result stream ends, even if the client still has items to send. Stopping the enumeration early (e.g. with **break**) or cancelling the token cancels the call on the server. Cancellation surfaces as an **RpcException** with a **Cancelled** status code, the same as the other RPC types. If the client's item stream throws, the call is aborted and that exception is rethrown to the caller. The item stream isn't awaited once the call ends, so an item stream that ignores the cancellation token keeps running in the background until it finishes on its own.
+
+If the client needs to send items based on the results it receives (e.g. a request/reply conversation), feed the input from a **Channel<T>** and write to it from inside the **await foreach** loop.
+
+:::admonition type=info
+Duplex streaming (like client streaming) requires HTTP/2 and isn't supported over gRPC-Web. It can't be used from Blazor Wasm applications in the browser, or from connections made with **MapRemoteCore()** unless you supply an HTTP/2 capable **HttpHandler** via the channel options.
+:::
+
 ### Setting Client/Channel Options
 
 [GrpcChannelOptions](https://learn.microsoft.com/en-us/aspnet/core/grpc/configuration?view=aspnetcore-8.0#configure-client-options) can be specified at startup like so:
