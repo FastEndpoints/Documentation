@@ -432,6 +432,20 @@ app.UseFastEndpoints(c =>
 It is currently not possible to specify a serialization function per endpoint, nor is it possible to use with [TypedResults/IResult](get-started#union-type-returning-handler) types. The serialization function is only called by the **Send.\*Async()** methods.
 :::
 
+## Excluding Assemblies From Scanning
+
+By default, every assembly loaded into the app domain is scanned at startup, except well-known framework and third-party assemblies such as **Microsoft.\***, **System.\*** and **FluentValidation**. If some of your own assemblies don't contain any FastEndpoints types, you can exclude them with an **AssemblyFilter**. Return **true** to scan an assembly, or **false** to skip it.
+
+```cs |title=Program.cs
+bld.Services.AddFastEndpoints(o => o.AssemblyFilter = a => a != typeof(MyDbContext).Assembly);
+```
+
+This is useful when an assembly has types that can't be loaded at runtime. For example, a data access project with a design-time **IDesignTimeDbContextFactory** that references a private **Microsoft.EntityFrameworkCore.Design** package. Scanning such an assembly fails at startup with an error that names the assembly and the missing dependency. Excluding the assembly fixes it.
+
+:::admonition type=note
+The filter also applies to any assemblies you supply explicitly via the **Assemblies** option. It has no effect when using the source generator based startup described below.
+:::
+
 ## Source Generator Based Startup
 
 Reflection based assembly scanning is used by default to discover endpoints, validators, summaries, event handlers & command handlers.
