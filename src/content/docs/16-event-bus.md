@@ -127,6 +127,8 @@ public class OrderCreatedEvent : OrderEvent { }
 
 Publishing an **OrderCreatedEvent** now reaches registered handlers for **OrderCreatedEvent**, **OrderEvent**, **IOrderEvent**, and **IEvent**. Matching uses the object's runtime type, even when published through a base-class or interface variable. This applies only to in-process events.
 
+Test event receivers follow the same rule. With inheritance enabled, **GetTestEventReceiver<OrderCreatedEvent>()** sees the event even when it was published through an **OrderEvent** or **IEvent** variable, and the receivers for **OrderEvent**, **IOrderEvent**, and **IEvent** see it too. See [testing published events](integration-unit-testing#capturing-commands-events).
+
 ## Dependency Injection
 
 Dependencies in event handlers can be resolved as described [here](dependency-injection#event-handler-dependencies).

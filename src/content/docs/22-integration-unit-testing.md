@@ -435,6 +435,8 @@ var matches = await eventReceiver
     .WaitForMatchAsync(e => e.OrderID == orderID, timeoutSeconds: 5, ct: Cancellation);
 ```
 
+If [event inheritance](event-bus#event-inheritance) is enabled, an event is recorded by the receiver of every type it can be handled as (its actual type, base classes, and interfaces), no matter which variable type it was published through. Without inheritance, only the receiver for the published type sees it.
+
 :::admonition type="tip"
 When WAF caching is enabled, receivers are singleton test services for the lifetime of the cached app fixture. Use unique IDs/correlation values in assertions so that a test only matches messages produced by that test.
 :::
