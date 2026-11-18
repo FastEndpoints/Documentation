@@ -82,6 +82,12 @@ public override async Task HandleAsync(CancellationToken c)
 
 ---
 
+:::admonition type=note
+If you're publishing with Native AOT, the serializer context generator doesn't detect event data types. [Register them manually](native-aot#server-sent-event-data-types).
+:::
+
+---
+
 If you are planning to create more than a handful of server-sent-event streams, it's a good idea to enable **HTTP2** in kestrel and all upstream servers such as reverse proxies and CDNs so that data can be multiplexed between the web server and client using a low number of tcp connections.
 
 Here's a [good read](https://ordina-jworks.github.io/event-driven/2021/04/23/SSE-with-HTTP2.html) on the subject.

@@ -121,6 +121,29 @@ app.UseFastEndpoints(
     });
 ```
 
+#### Server-Sent Event Data Types
+
+The generator only picks up the request and response DTOs of your endpoints. It doesn't detect the data types sent with [Server-Sent Events](server-sent-events), so you have to create a serializer context for them yourself and register it in the endpoint configuration. Without it, the stream will abort when the first event is serialized in the native build.
+
+```csharp title=Endpoint.cs | copy
+[JsonSerializable(typeof(StockPrice))]
+internal partial class SseSerializerContext : JsonSerializerContext;
+
+public class PriceStream : EndpointWithoutRequest
+{
+    public override void Configure()
+    {
+        Get("price-stream");
+        SerializerContext<SseSerializerContext>();
+    }
+
+    public override Task HandleAsync(CancellationToken ct)
+        => Send.EventStreamAsync("price-update", GetPrices(ct), ct);
+}
+```
+
+When sending a **StreamItem**, every type you assign to its **Data** property needs to be registered the same way.
+
 ## Publish AOT Executable
 
 The above is all that's needed for publishing an AOT compiled executable. Add a couple of endpoints to the app and fire off a "publish" with the following dotnet command. Change the runtime identifier for your target platform as needed. For example: **win-x64** for Windows 64-bit.
