@@ -99,6 +99,8 @@ Enable serializer context generation in the csproj file like so:
 
 Serializer context generation is not the same as typical source generation and the generated files must be considered as code you've written yourself and should be checked in to source control. This is due to a limitation in .NET source generation which prevents incremental source generators from being chained. FastEndpoints work around this limitation by using a locally installed development time only CLI tool.
 
+DTOs from referenced projects and NuGet packages are picked up as well. If such a DTO has the same name as a common framework type like `Results`, `Stream`, `Guid` or `DateTime`, refer to it with its namespace (`Contracts.Results`) or a `using` alias, so the tool doesn't mistake it for the framework type.
+
 #### Use Slim Builder and Type Discovery Generator
 
 Use the slim app builder and register the source generator discovered types.
