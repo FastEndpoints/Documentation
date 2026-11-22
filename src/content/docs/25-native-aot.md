@@ -110,7 +110,7 @@ bld.Services.AddFastEndpoints(DiscoveredTypes.All)
 
 #### Register Generated SerializerContext & Reflection Data
 
-Hook up the generated serializer contexts and reflection data. The extension method name will have your assembly name at the end. If your endpoints are located in separate projects, install the **FastEndpoints.Generator** in each one, and chain the generated extension methods from those projects.
+Hook up the generated serializer contexts and reflection data. The extension method name will have your assembly name at the end, with any non-alphanumeric characters removed (an assembly named **My.Web-App** gets **AddSerializerContextsFromMyWebApp()** and **AddFromMyWebApp()**). Both methods are generated in a namespace matching your assembly name. If your endpoints are located in separate projects, install the **FastEndpoints.Generator** in each one, and chain the generated extension methods from those projects.
 
 ```csharp title=Program.cs | copy
 app.UseFastEndpoints(
