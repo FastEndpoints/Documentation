@@ -758,4 +758,5 @@ Good defaults for production:
 - MCP publishes JSON Schemas for tool inputs and, when possible, outputs.
 - A2A does not publish request/response JSON Schemas in the agent card, so descriptions and examples matter more.
 - Keep agent DTOs object-shaped. MCP requires object-root request DTOs, and A2A clients are easier to reason about with the same shape.
+- Endpoints that require [x402 payment](x402-payments) cannot be invoked through MCP or A2A. Payment is only checked by the HTTP middleware, so agent calls to these endpoints fail and the handler does not run.
 - If a tool or skill is missing, check opt-in metadata, static filters, per-caller visibility filters, duplicate names/ids, and route authentication first.

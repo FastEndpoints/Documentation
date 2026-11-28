@@ -208,6 +208,8 @@ The x402 middleware uses the x402 v2 header names:
 ## Notes
 
 - The middleware runs only for endpoints that call **RequirePayment()**.
+- An endpoint that calls **RequirePayment()** runs only if **UseX402()** handled the request. If the middleware is missing or doesn't run between routing and the endpoint, the endpoint throws an exception instead of running unpaid.
+- x402 payments are only supported over HTTP. Endpoints that require payment cannot be invoked as [MCP tools or A2A skills](ai-agents), and such calls fail.
 - **RequirePayment()** cannot be combined with **ResponseCache()**.
 - The current implementation assumes facilitator-backed verification and settlement via `POST: /verify` and `POST: /settle` endpoints.
 - For auth or transport customization, use `AddX402(builder => ...)` to configure the facilitator **HttpClient**.
